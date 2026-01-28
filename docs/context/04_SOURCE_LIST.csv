@@ -1,0 +1,21 @@
+Category,Source Name,Type,URL / Keyword Strategy,Notes
+Festival - Cinematography,Camerimage,Event,"camerimage.pl/en/winners",Focus on Golden Frog nominees
+Festival - Animation,Annecy International,Event,"annecy.org/programme/official-selection",Scrape Short Films & Graduation Films
+Festival - Craft,Ciclope Festival,Event,"ciclopefestival.com/winners",Focus on 'Production Design' and 'VFX' categories
+Festival - Music Video,UKMVA,Event,"ukmva.com",Scrape 'Best Technical Achievement' categories
+Platform - Motion Design,Motionographer,Website,"motionographer.com",Look for 'Quickies' and 'Features'
+Platform - VFX,The Rookies,Website,"therookies.co",Focus on 'Rookie Awards' finalists
+Platform - Curated,Director's Notes,Website,"directorsnotes.com",Scrape the 'Technical Specs' section of interviews
+Platform - Curated,Stash Media,Website,"stashmedia.tv",High-end commercial & VFX work
+Community,Reddit - r/Cinematography,Forum,"reddit.com/r/cinematography",Filter by flair: 'breakdown' or 'lighting'
+Community,Reddit - r/VFX,Forum,"reddit.com/r/vfx",Filter by flair: 'showreel'
+Keyword - Camera,Arri Alexa 35,Tag,#ArriAlexa35,Flagship cinema camera
+Keyword - Camera,Sony Venice 2,Tag,#SonyVenice,High-end cinema
+Keyword - Lens,Anamorphic,Tag,#Anamorphic,Indicates specific cinematic aspect ratio
+Keyword - Lens,Cooke Look,Tag,#CookeS4 #CookePanchro,Vintage/High-end glass
+Keyword - Lighting,Astera,Tag,#AsteraTitans #AsteraTubes,Professional LED lighting
+Keyword - Software,Houdini,Tag,#Houdini #SideFX,Procedural VFX (High technical skill)
+Keyword - Software,Nuke,Tag,#NukeCompositing,Industry standard for film compositing
+Keyword - Workflow,ACES,Tag,#ACEScolor,Professional color management workflow
+Keyword - Workflow,Color Grading,Tag,#Colorist #DaVinciResolve,Avoid generic #editing tags
+Negative Match,Influencer Terms,Filter,"#fyp, #viral, #trending, #ootd, #grwm",Exclude content containing these

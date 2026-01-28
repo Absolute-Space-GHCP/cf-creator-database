@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.0] - 2026-01-28 - Initial Project Setup
 
 ### Added
+
 - Project scaffolding from ai-agents-gmaster-build (clean version)
 - CatchFire-specific CLAUDE.md with project context
 - Creator database schema definition
@@ -24,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Project README with CatchFire mission and roadmap
 
 ### Foundation (from ai-agents-gmaster-build)
+
 - Express.js server framework
 - Firestore integration with caching
 - Vertex AI / Gemini integration
@@ -32,6 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Analytics tracking
 
 ### Planned
+
 - Creator matching algorithm adaptation
 - REST API implementation
 - LLM-based categorization
@@ -43,20 +46,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Roadmap
 
 ### v0.2.0 - API Foundation
+
 - [ ] Implement `/api/v1/creators` CRUD
 - [ ] Implement `/api/v1/match` endpoint
 - [ ] Adapt scoring algorithm for creators
 
 ### v0.3.0 - Intelligence Layer
+
 - [ ] LLM categorization pipeline
 - [ ] Style signature generation
 - [ ] Batch import from scrapers
 
 ### v0.4.0 - Search & Discovery
+
 - [ ] Semantic search with embeddings
 - [ ] Lookalike model training
 - [ ] Auto-scan scheduling
 
 ---
 
-*CatchFire - Finding craft, not clout.*
+_CatchFire - Finding craft, not clout._

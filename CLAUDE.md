@@ -1,4 +1,4 @@
-> **Version:** 0.2.0 | **Date:** 2026-01-28 | **Repo:** cf-influencer-matching-engine
+> **Version:** 0.5.0 | **Date:** 2026-01-28 | **Repo:** cf-influencer-matching-engine
 
 # CLAUDE.md - CatchFire Influencer Matching Engine
 
@@ -37,16 +37,17 @@ npm info @google-cloud/vertexai version 2>/dev/null && echo "⚠️ @google-clou
 
 ### 2. Critical Dependency Status (Updated 2026-01-28)
 
-| Package | Status | Action Required |
-|---------|--------|-----------------|
-| `@google-cloud/vertexai` | **DEPRECATED May 2026** | Migrate to `@google/genai` |
-| `@google/genai` | Current | Use for all Gemini/Vertex AI calls |
-| `express` | v5.x stable | Upgrade from v4.x |
-| `node` | v22 LTS | Upgrade from v20 |
+| Package                  | Status                  | Action Required                    |
+| ------------------------ | ----------------------- | ---------------------------------- |
+| `@google-cloud/vertexai` | **DEPRECATED May 2026** | Migrate to `@google/genai`         |
+| `@google/genai`          | Current                 | Use for all Gemini/Vertex AI calls |
+| `express`                | v5.x stable             | Upgrade from v4.x                  |
+| `node`                   | v22 LTS                 | Upgrade from v20                   |
 
 ### 3. Security Middleware Checklist
 
 Verify these are installed and configured:
+
 - [ ] `helmet` - Security headers
 - [ ] `cors` - CORS configuration
 - [ ] `express-rate-limit` - Rate limiting
@@ -103,14 +104,14 @@ Build a proprietary database of the world's best up-and-coming storytellers, wit
 
 ## Tech Stack (Target State)
 
-| Component | Current | Target | Notes |
-|-----------|---------|--------|-------|
-| **Runtime** | Node.js 20 | Node.js 22 LTS | Better performance, built-in fetch |
-| **Framework** | Express 4.x | Express 5.x | Stable since March 2025 |
-| **LLM SDK** | @google-cloud/vertexai | @google/genai | CRITICAL migration |
-| **Database** | Firestore 7.1 | Firestore 7.11+ | Minor update |
-| **Cloud** | GCP Cloud Run | GCP Cloud Run | No change |
-| **AI Model** | Gemini 2.5 Flash | Gemini 2.5 Flash/Pro | Multi-model support |
+| Component     | Current                | Target               | Notes                              |
+| ------------- | ---------------------- | -------------------- | ---------------------------------- |
+| **Runtime**   | Node.js 20             | Node.js 22 LTS       | Better performance, built-in fetch |
+| **Framework** | Express 4.x            | Express 5.x          | Stable since March 2025            |
+| **LLM SDK**   | @google-cloud/vertexai | @google/genai        | CRITICAL migration                 |
+| **Database**  | Firestore 7.1          | Firestore 7.11+      | Minor update                       |
+| **Cloud**     | GCP Cloud Run          | GCP Cloud Run        | No change                          |
+| **AI Model**  | Gemini 2.5 Flash       | Gemini 2.5 Flash/Pro | Multi-model support                |
 
 ---
 
@@ -149,21 +150,21 @@ Build a proprietary database of the world's best up-and-coming storytellers, wit
   name: string,                  // "Alex Chen"
   handle: string,                // "@alexchen_dp"
   platform: string,              // "vimeo" | "behance" | "instagram"
-  
+
   source: {
     type: string,                // "festival" | "platform" | "community"
     name: string,                // "Camerimage" | "r/cinematography"
     url: string,                 // Discovery URL
     discoveredAt: timestamp
   },
-  
+
   craft: {
     primary: string,             // "cinematographer" | "motion_designer"
     secondary: string[],         // ["colorist", "editor"]
     styleSignature: string,      // LLM-generated style description
     technicalTags: string[]      // ["#ArriAlexa", "#Anamorphic"]
   },
-  
+
   matching: {
     positiveKeywords: string[],  // Professional indicators
     negativeKeywords: string[],  // Exclusion tags
@@ -171,7 +172,7 @@ Build a proprietary database of the world's best up-and-coming storytellers, wit
     isGoldenRecord: boolean,     // Benchmark creator
     lastVerified: timestamp
   },
-  
+
   contact: {
     email: string,
     portfolio_url: string,
@@ -203,23 +204,27 @@ GET  /dashboard             - Monitoring dashboard
 ## Coding Standards
 
 ### JavaScript/Node.js
+
 - Use CommonJS (`require`/`module.exports`) for this project
 - Use `async/await` for asynchronous operations
 - Use `const` for variables that won't be reassigned, `let` otherwise
 - Add JSDoc comments for exported functions
 
 ### Error Handling
+
 - Always handle async errors with try/catch
 - Log errors with context: `console.error('❌ Error description:', error.message)`
 - Return structured error responses: `{ success: false, error: message }`
 
 ### Naming Conventions
+
 - Functions: `camelCase` - `matchCreators`, `categorizeProfile`
 - Constants: `UPPER_SNAKE_CASE` - `CONFIG`, `POSITIVE_KEYWORDS`
 - Files: `kebab-case` - `creator-match.js`, `batch-import.js`
 - API routes: `/api/v1/kebab-case`
 
 ### Security
+
 - NEVER hardcode secrets or API keys
 - Use environment variables via `process.env`
 - Validate all user inputs with zod schemas
@@ -227,6 +232,7 @@ GET  /dashboard             - Monitoring dashboard
 - Implement rate limiting on all API endpoints
 
 ### Comments
+
 - Use emoji prefixes for log messages: `📊`, `✅`, `❌`, `⚠️`, `🎬`
 - Keep comments concise and meaningful
 
@@ -234,17 +240,30 @@ GET  /dashboard             - Monitoring dashboard
 
 ## Key Files
 
+### TypeScript Source (Primary)
+
+- `src/schemas.ts` - Zod schemas and TypeScript types for all data structures
+- `src/scoring.ts` - Scoring algorithm with typed creator/brief matching
+
+### JavaScript
+
 - `src/index.js` - Main Express server with API endpoints
-- `src/creator-match.js` - Matching algorithm (scoring, filtering)
-- `src/categorization.js` - LLM-based auto-tagging
-- `config/source-list.json` - Festival/platform sources
-- `config/keywords.json` - Positive/negative keyword lists
+
+### Configuration
+
+- `docs/context/03_SOURCE_LIST.json` - Festival/platform scraping sources
+- `tsconfig.json` - TypeScript compiler configuration
+
+### Build
+
+Run `npm run build` to compile TypeScript before starting the server.
 
 ---
 
 ## Source Categories
 
 ### Festivals (Craft Focus)
+
 - Camerimage (Cinematography)
 - Annecy (Animation)
 - Ciclope Festival (Advertising Craft)
@@ -252,12 +271,14 @@ GET  /dashboard             - Monitoring dashboard
 - UKMVA (Music Videos)
 
 ### Platforms
+
 - Behance (Motion Design)
 - Vimeo (Short Film)
 - ArtStation (VFX/3D)
 - The Rookies (Emerging VFX)
 
 ### Communities
+
 - r/cinematography
 - r/vfx
 - r/motiondesign
@@ -273,13 +294,111 @@ GET  /dashboard             - Monitoring dashboard
 
 ---
 
-## Version History
+## Technical Glossary
 
-| Version | Date | Changes |
-|---------|------|---------|
-| 0.2.0 | 2026-01-28 | Added session startup protocol, dependency checks, security requirements |
-| 0.1.0 | 2026-01-28 | Initial project setup from ai-agents-gmaster-build |
+Quick reference for technical terms and acronyms used in this project.
+
+### Development Terms
+
+| Term     | Full Name                         | Description                                                                             |
+| -------- | --------------------------------- | --------------------------------------------------------------------------------------- |
+| **CRUD** | Create, Read, Update, Delete      | The four basic operations for persistent storage. Our API implements CRUD for creators. |
+| **REST** | Representational State Transfer   | Architectural style for web APIs using HTTP methods (GET, POST, PUT, DELETE).           |
+| **API**  | Application Programming Interface | A set of defined endpoints that allow applications to communicate.                      |
+| **SDK**  | Software Development Kit          | A collection of tools and libraries for building applications (e.g., `@google/genai`).  |
+| **ADC**  | Application Default Credentials   | Google Cloud's automatic credential discovery for authentication.                       |
+
+### Validation & Data
+
+| Term               | Description                                                                                                                                      |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **TypeScript**     | A typed superset of JavaScript that compiles to plain JS. Used in `schemas.ts` and `scoring.ts` for type safety.                                 |
+| **Zod**            | A TypeScript-first schema validation library. We use it to validate incoming API requests and ensure data integrity before writing to Firestore. |
+| **Schema**         | A defined structure for data, specifying required fields, types, and constraints.                                                                |
+| **JSON**           | JavaScript Object Notation - A lightweight data format used for API requests/responses.                                                          |
+| **Type Inference** | TypeScript's ability to automatically determine types. Zod's `z.infer<>` creates TS types from schemas.                                          |
+
+### Google Cloud Platform
+
+| Term          | Description                                                            |
+| ------------- | ---------------------------------------------------------------------- |
+| **GCP**       | Google Cloud Platform - The cloud infrastructure hosting this project. |
+| **Firestore** | NoSQL document database for storing creator profiles.                  |
+| **Cloud Run** | Serverless container platform for deploying the API.                   |
+| **Vertex AI** | Google's managed ML platform, providing access to Gemini models.       |
+| **Gemini**    | Google's family of large language models (LLMs) used for AI features.  |
+
+### Project-Specific
+
+| Term                  | Description                                                                                                                  |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| **Golden Record**     | A benchmark creator profile that represents the ideal CatchFire creator. Used to train and calibrate the matching algorithm. |
+| **Craft**             | A creator's primary skill area (cinematographer, motion_designer, vfx_artist, etc.).                                         |
+| **Brief**             | A client's description of the type of creator they're looking for.                                                           |
+| **Scoring Algorithm** | The system that ranks creators against a brief based on craft, location, technical tags, and keywords.                       |
 
 ---
 
-*CatchFire - Finding craft, not clout.*
+## AI Development Tooling
+
+This project uses three AI development plugins for enhanced productivity:
+
+### 1. claude-mem (Persistent Memory)
+
+Provides persistent memory across AI coding sessions. Automatically captures tool usage, file edits, and shell commands.
+
+**Status:** ✅ Configured  
+**Location:** Worker at `http://127.0.0.1:37777`  
+**Context Rule:** `.cursor/rules/claude-mem-context.mdc`
+
+```bash
+# Check worker status
+curl -s http://127.0.0.1:37777/api/readiness
+
+# Refresh context
+curl -s "http://127.0.0.1:37777/api/context/inject?project=cf-influencer-matching-engine"
+```
+
+### 2. code-simplifier (Cursor Plugin)
+
+Simplifies and refines code for clarity, consistency, and maintainability while preserving functionality.
+
+**Status:** ✅ Configured  
+**Location:** `.cursor/plugins/code-simplifier/`  
+**Model:** Opus
+
+Automatically applies project-specific coding standards:
+
+- CommonJS modules (`require`/`module.exports`)
+- Emoji prefixed logging
+- Proper error handling patterns
+- Security best practices
+
+### 3. superpowers (Claude Code CLI)
+
+Provides structured workflows for TDD, systematic debugging, and collaborative planning.
+
+**Status:** ✅ Available in Claude Code CLI  
+**Commands:**
+
+- `/superpowers:brainstorm` - Collaborative ideation
+- `/superpowers:write-plan` - Create implementation plans
+- `/superpowers:execute-plan` - Execute plans step-by-step
+- `/superpowers:tdd` - Test-driven development workflow
+- `/superpowers:debug` - Systematic debugging
+
+---
+
+## Version History
+
+| Version | Date       | Changes                                                                         |
+| ------- | ---------- | ------------------------------------------------------------------------------- |
+| 0.5.0   | 2026-01-28 | Converted schemas.js and scoring.js to TypeScript with full type safety         |
+| 0.4.0   | 2026-01-28 | Added Technical Glossary section with acronym definitions                       |
+| 0.3.0   | 2026-01-28 | Added AI Development Tooling section (claude-mem, code-simplifier, superpowers) |
+| 0.2.0   | 2026-01-28 | Added session startup protocol, dependency checks, security requirements        |
+| 0.1.0   | 2026-01-28 | Initial project setup from ai-agents-gmaster-build                              |
+
+---
+
+_CatchFire - Finding craft, not clout._

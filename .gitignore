@@ -36,6 +36,14 @@ dist/
 build/
 *.log
 
+# TypeScript compiled output (keep .ts source files, ignore generated .js)
+src/schemas.js
+src/schemas.d.ts
+src/schemas.js.map
+src/scoring.js
+src/scoring.d.ts
+src/scoring.js.map
+
 # Backups & Legacy
 backups/
 *.backup*

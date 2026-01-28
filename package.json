@@ -4,10 +4,12 @@
   "description": "CatchFire Creator Matching Engine - AI-powered influencer discovery and matching based on craft storytelling skills",
   "main": "src/index.js",
   "scripts": {
-    "start": "node src/index.js",
+    "build": "tsc",
+    "start": "npm run build && node src/index.js",
     "dev": "node src/index.js",
     "test": "node tests/test_vertex.js",
-    "deploy": "gcloud run deploy cf-matching-engine --source . --region us-central1 --project YOUR_PROJECT_ID --allow-unauthenticated",
+    "typecheck": "tsc --noEmit",
+    "deploy": "npm run build && gcloud run deploy cf-matching-engine --source . --region us-central1 --project catchfire-app-2026 --allow-unauthenticated",
     "match": "node src/index.js --match",
     "import": "node src/index.js --import"
   },
@@ -15,13 +17,15 @@
     "@google-cloud/firestore": "^7.1.0",
     "@google-cloud/storage": "^7.18.0",
     "@google-cloud/vertexai": "^1.10.0",
+    "@google/genai": "^1.38.0",
     "axios": "^1.6.0",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
-    "googleapis": "^166.0.0"
+    "googleapis": "^166.0.0",
+    "zod": "^4.3.6"
   },
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=22.0.0"
   },
   "repository": {
     "type": "git",
@@ -29,5 +33,11 @@
   },
   "author": "CatchFire / Johannes Leonardo",
   "license": "MIT",
-  "private": true
+  "private": true,
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^25.1.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  }
 }
