@@ -153,21 +153,9 @@ app.get('/health', (req, res) => {
     });
 });
 
-// Legacy health check at root
+// Serve Beta Control Center at root
 app.get('/', (req, res) => {
-    res.json({
-        status: 'ok',
-        app: CONFIG.appName,
-        version: CONFIG.appVersion,
-        description: 'AI-powered creator matching based on craft storytelling skills',
-        endpoints: {
-            health: 'GET /health',
-            dashboard: 'GET /dashboard',
-            creators: 'GET /api/v1/creators',
-            match: 'POST /api/v1/match',
-            categorize: 'POST /api/v1/categorize'
-        }
-    });
+    res.sendFile(path.join(__dirname, '../public/index.html'));
 });
 
 // =============================================================================

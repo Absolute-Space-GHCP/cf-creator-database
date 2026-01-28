@@ -1,0 +1,1091 @@
+<!--
+  CatchFire Creator Matching Engine - Beta Control Center
+  Author: Charley Scholz, JLIT
+  Co-authored: Claude Opus 4.5, Claude Code (coding assistant), Cursor (IDE)
+  Last Updated: 2026-01-28
+  Version: 1.0.0-beta
+  
+  Aesthetic: Premium Editorial with Cinematic Depth
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CatchFire | Beta Control Center</title>
+    <meta name="description" content="CatchFire Creator Matching Engine - AI-powered discovery of craft-focused creative professionals">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0c0c0c;
+            --bg-secondary: #141414;
+            --bg-card: #1a1a1a;
+            --bg-elevated: #222222;
+            --accent-gold: #c9a227;
+            --accent-gold-light: #e8c547;
+            --accent-gold-dim: #8a6f1a;
+            --accent-emerald: #10b981;
+            --accent-blue: #3b82f6;
+            --accent-red: #ef4444;
+            --accent-amber: #f59e0b;
+            --text-primary: #fafafa;
+            --text-secondary: #a1a1a1;
+            --text-muted: #666666;
+            --border-subtle: rgba(255,255,255,0.06);
+            --border-hover: rgba(255,255,255,0.12);
+            --font-serif: 'Instrument Serif', Georgia, serif;
+            --font-sans: 'Instrument Sans', -apple-system, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* Ambient background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: 
+                radial-gradient(ellipse 80% 50% at 20% 0%, rgba(201, 162, 39, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse 60% 40% at 80% 100%, rgba(16, 185, 129, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .app {
+            position: relative;
+            z-index: 1;
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 32px 48px;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 48px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .brand {
+            display: flex;
+            align-items: baseline;
+            gap: 16px;
+        }
+
+        .logo {
+            font-family: var(--font-serif);
+            font-size: 2.5rem;
+            font-weight: 400;
+            letter-spacing: -0.02em;
+        }
+
+        .logo span { color: var(--accent-gold); }
+
+        .beta-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: linear-gradient(135deg, rgba(201, 162, 39, 0.15), rgba(201, 162, 39, 0.05));
+            border: 1px solid rgba(201, 162, 39, 0.3);
+            border-radius: 100px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--accent-gold);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .system-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent-emerald);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .status-dot.error { background: var(--accent-red); animation: none; }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.1); }
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 8px;
+        }
+
+        .nav-link {
+            padding: 8px 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .nav-link:hover {
+            background: var(--bg-elevated);
+            border-color: var(--border-hover);
+            color: var(--text-primary);
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 48px 0 64px;
+        }
+
+        .hero-title {
+            font-family: var(--font-serif);
+            font-size: 3.5rem;
+            font-weight: 400;
+            line-height: 1.2;
+            margin-bottom: 16px;
+        }
+
+        .hero-title em {
+            font-style: italic;
+            color: var(--accent-gold);
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto 32px;
+        }
+
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 48px;
+        }
+
+        .hero-stat {
+            text-align: center;
+        }
+
+        .hero-stat-value {
+            font-family: var(--font-serif);
+            font-size: 3rem;
+            font-weight: 400;
+            color: var(--text-primary);
+        }
+
+        .hero-stat-value.gold { color: var(--accent-gold); }
+
+        .hero-stat-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        /* Grid Layout */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 24px;
+            margin-bottom: 48px;
+        }
+
+        .col-4 { grid-column: span 4; }
+        .col-6 { grid-column: span 6; }
+        .col-8 { grid-column: span 8; }
+        .col-12 { grid-column: span 12; }
+
+        /* Cards */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: var(--border-hover);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-family: var(--font-serif);
+            font-size: 1.25rem;
+            font-weight: 400;
+        }
+
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-elevated);
+            border-radius: var(--radius-sm);
+            font-size: 1.25rem;
+        }
+
+        /* Services Status */
+        .services-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .service-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-sm);
+        }
+
+        .service-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .service-icon { font-size: 1.25rem; }
+
+        .service-name {
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .service-meta {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .service-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .service-status.online { color: var(--accent-emerald); }
+        .service-status.offline { color: var(--accent-red); }
+
+        /* Search Demo */
+        .search-container {
+            margin-bottom: 24px;
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 16px 20px;
+            padding-right: 100px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            font-family: var(--font-sans);
+            font-size: 1rem;
+            color: var(--text-primary);
+            transition: all 0.2s ease;
+        }
+
+        .search-input::placeholder { color: var(--text-muted); }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 0 4px rgba(201, 162, 39, 0.1);
+        }
+
+        .search-btn {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            padding: 10px 20px;
+            background: var(--accent-gold);
+            border: none;
+            border-radius: var(--radius-sm);
+            font-family: var(--font-sans);
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--bg-primary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .search-btn:hover {
+            background: var(--accent-gold-light);
+            transform: translateY(-50%) scale(1.02);
+        }
+
+        .search-hints {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .hint-chip {
+            padding: 6px 12px;
+            background: transparent;
+            border: 1px solid var(--border-subtle);
+            border-radius: 100px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .hint-chip:hover {
+            border-color: var(--accent-gold);
+            color: var(--accent-gold);
+        }
+
+        /* Results */
+        .results-area {
+            min-height: 200px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .result-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .result-item:hover {
+            background: var(--bg-elevated);
+            transform: translateX(4px);
+        }
+
+        .result-avatar {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--bg-elevated), var(--bg-card));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        .result-content { flex: 1; }
+
+        .result-name {
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .golden-tag {
+            padding: 2px 8px;
+            background: linear-gradient(135deg, rgba(201, 162, 39, 0.2), transparent);
+            border: 1px solid rgba(201, 162, 39, 0.3);
+            border-radius: 4px;
+            font-size: 0.6rem;
+            font-weight: 700;
+            color: var(--accent-gold);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .result-meta {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .result-score {
+            text-align: right;
+        }
+
+        .score-value {
+            font-family: var(--font-mono);
+            font-size: 1.5rem;
+            font-weight: 500;
+            color: var(--accent-gold);
+        }
+
+        .score-label {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        /* API Endpoints */
+        .endpoint-group {
+            margin-bottom: 16px;
+        }
+
+        .endpoint-group-title {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 8px;
+        }
+
+        .endpoint {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-sm);
+            margin-bottom: 4px;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .endpoint:hover {
+            background: var(--bg-elevated);
+        }
+
+        .method {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.65rem;
+        }
+
+        .method.get { background: rgba(59, 130, 246, 0.2); color: var(--accent-blue); }
+        .method.post { background: rgba(16, 185, 129, 0.2); color: var(--accent-emerald); }
+
+        .path { color: var(--text-secondary); }
+
+        /* Craft Distribution */
+        .craft-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .craft-name {
+            width: 100px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .craft-bar-bg {
+            flex: 1;
+            height: 6px;
+            background: var(--bg-secondary);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .craft-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-gold), var(--accent-gold-dim));
+            border-radius: 3px;
+            transition: width 1s ease;
+        }
+
+        .craft-count {
+            width: 24px;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            text-align: right;
+        }
+
+        /* Golden Records */
+        .golden-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .golden-card {
+            padding: 16px;
+            background: linear-gradient(135deg, rgba(201, 162, 39, 0.05), transparent);
+            border: 1px solid rgba(201, 162, 39, 0.15);
+            border-radius: var(--radius-md);
+            transition: all 0.2s ease;
+        }
+
+        .golden-card:hover {
+            border-color: rgba(201, 162, 39, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .golden-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 4px;
+        }
+
+        .golden-craft {
+            font-size: 0.75rem;
+            color: var(--accent-gold-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 32px 0;
+            border-top: 1px solid var(--border-subtle);
+        }
+
+        .footer-brand {
+            font-family: var(--font-serif);
+            font-size: 1.25rem;
+            margin-bottom: 8px;
+        }
+
+        .footer-brand span { color: var(--accent-gold); }
+
+        .footer-tagline {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+        }
+
+        .footer-link {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .footer-link:hover { color: var(--accent-gold); }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .col-4, .col-6, .col-8 { grid-column: span 12; }
+            .golden-grid { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 768px) {
+            .app { padding: 24px 16px; }
+            .header { flex-direction: column; gap: 16px; align-items: flex-start; }
+            .hero-stats { flex-direction: column; gap: 24px; }
+            .hero-title { font-size: 2.5rem; }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-secondary); }
+        ::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent-gold-dim); }
+
+        /* Loading */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 48px;
+            color: var(--text-muted);
+        }
+
+        .spinner {
+            width: 24px;
+            height: 24px;
+            border: 2px solid var(--border-subtle);
+            border-top-color: var(--accent-gold);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 12px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 48px;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="brand">
+                <h1 class="logo">Catch<span>Fire</span></h1>
+                <span class="beta-badge">
+                    <span class="status-dot"></span>
+                    Beta v1.0
+                </span>
+            </div>
+            <div class="header-right">
+                <div class="system-status">
+                    <span class="status-dot" id="systemDot"></span>
+                    <span id="systemStatus">Connecting...</span>
+                </div>
+                <nav class="nav-links">
+                    <a href="/dashboard" class="nav-link">Dashboard</a>
+                    <a href="/api/v1/stats" class="nav-link" target="_blank">API</a>
+                    <a href="https://github.com/Absolute-Space-GHCP/cf-influencer-matching-engine" class="nav-link" target="_blank">GitHub</a>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Hero -->
+        <section class="hero">
+            <h2 class="hero-title">AI-Powered <em>Creator Discovery</em></h2>
+            <p class="hero-subtitle">
+                Find the world's best craft-focused storytellers. Not influencers—artists. 
+                Powered by semantic embeddings and the Golden Record model.
+            </p>
+            <div class="hero-stats">
+                <div class="hero-stat">
+                    <div class="hero-stat-value" id="totalCreators">--</div>
+                    <div class="hero-stat-label">Creators</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="hero-stat-value gold" id="goldenRecords">--</div>
+                    <div class="hero-stat-label">Golden Records</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="hero-stat-value" id="embeddings">768</div>
+                    <div class="hero-stat-label">Dimensions</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="hero-stat-value" id="endpoints">21</div>
+                    <div class="hero-stat-label">API Endpoints</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Content Grid -->
+        <div class="grid">
+            <!-- Semantic Search -->
+            <div class="col-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Semantic Search</h3>
+                        <div class="card-icon">🔍</div>
+                    </div>
+                    <div class="search-container">
+                        <div class="search-box">
+                            <input type="text" class="search-input" id="searchInput" 
+                                   placeholder="Describe the creator you're looking for...">
+                            <button class="search-btn" id="searchBtn">Search</button>
+                        </div>
+                        <div class="search-hints">
+                            <span class="hint-chip" data-q="moody cinematographer with ARRI experience">🎬 Moody DP</span>
+                            <span class="hint-chip" data-q="motion designer for tech brand commercials">✨ Motion Design</span>
+                            <span class="hint-chip" data-q="VFX artist for film visual effects">🎨 VFX Artist</span>
+                            <span class="hint-chip" data-q="music video director with bold visual style">🎵 MV Director</span>
+                            <span class="hint-chip" data-q="colorist for cinematic film grading">🎨 Colorist</span>
+                            <span class="hint-chip" data-q="3D artist for product visualization">💎 3D Artist</span>
+                        </div>
+                    </div>
+                    <div class="results-area" id="resultsArea">
+                        <div class="empty-state">
+                            Enter a description to find matching creators using semantic AI search
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Services Status -->
+            <div class="col-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Platform Services</h3>
+                        <div class="card-icon">⚡</div>
+                    </div>
+                    <div class="services-list" id="servicesList">
+                        <div class="service-item">
+                            <div class="service-info">
+                                <span class="service-icon">☁️</span>
+                                <div>
+                                    <div class="service-name">Cloud Run</div>
+                                    <div class="service-meta">us-central1</div>
+                                </div>
+                            </div>
+                            <span class="service-status online" id="cloudRunStatus">
+                                <span class="status-dot"></span> Online
+                            </span>
+                        </div>
+                        <div class="service-item">
+                            <div class="service-info">
+                                <span class="service-icon">🔥</span>
+                                <div>
+                                    <div class="service-name">Firestore</div>
+                                    <div class="service-meta">creators collection</div>
+                                </div>
+                            </div>
+                            <span class="service-status online" id="firestoreStatus">
+                                <span class="status-dot"></span> Online
+                            </span>
+                        </div>
+                        <div class="service-item">
+                            <div class="service-info">
+                                <span class="service-icon">🤖</span>
+                                <div>
+                                    <div class="service-name">Gemini AI</div>
+                                    <div class="service-meta">gemini-2.5-flash</div>
+                                </div>
+                            </div>
+                            <span class="service-status online" id="geminiStatus">
+                                <span class="status-dot"></span> Online
+                            </span>
+                        </div>
+                        <div class="service-item">
+                            <div class="service-info">
+                                <span class="service-icon">🔢</span>
+                                <div>
+                                    <div class="service-name">Embeddings</div>
+                                    <div class="service-meta">gemini-embedding-001</div>
+                                </div>
+                            </div>
+                            <span class="service-status online" id="embeddingsStatus">
+                                <span class="status-dot"></span> Online
+                            </span>
+                        </div>
+                        <div class="service-item">
+                            <div class="service-info">
+                                <span class="service-icon">⭐</span>
+                                <div>
+                                    <div class="service-name">Golden Records</div>
+                                    <div class="service-meta">lookalike model</div>
+                                </div>
+                            </div>
+                            <span class="service-status online" id="goldenStatus">
+                                <span class="status-dot"></span> <span id="grCount">11</span> active
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- API Endpoints -->
+            <div class="col-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">API Endpoints</h3>
+                        <div class="card-icon">🔗</div>
+                    </div>
+                    <div class="endpoint-group">
+                        <div class="endpoint-group-title">Search & Discovery</div>
+                        <div class="endpoint" onclick="window.open('/api/v1/search/semantic', '_blank')">
+                            <span class="method post">POST</span>
+                            <span class="path">/api/v1/search/semantic</span>
+                        </div>
+                        <div class="endpoint" onclick="window.open('/api/v1/lookalikes', '_blank')">
+                            <span class="method get">GET</span>
+                            <span class="path">/api/v1/lookalikes</span>
+                        </div>
+                        <div class="endpoint">
+                            <span class="method get">GET</span>
+                            <span class="path">/api/v1/similar/:id</span>
+                        </div>
+                    </div>
+                    <div class="endpoint-group">
+                        <div class="endpoint-group-title">Creators</div>
+                        <div class="endpoint" onclick="window.open('/api/v1/creators', '_blank')">
+                            <span class="method get">GET</span>
+                            <span class="path">/api/v1/creators</span>
+                        </div>
+                        <div class="endpoint">
+                            <span class="method post">POST</span>
+                            <span class="path">/api/v1/creators</span>
+                        </div>
+                        <div class="endpoint">
+                            <span class="method post">POST</span>
+                            <span class="path">/api/v1/categorize</span>
+                        </div>
+                    </div>
+                    <div class="endpoint-group">
+                        <div class="endpoint-group-title">System</div>
+                        <div class="endpoint" onclick="window.open('/health', '_blank')">
+                            <span class="method get">GET</span>
+                            <span class="path">/health</span>
+                        </div>
+                        <div class="endpoint" onclick="window.open('/api/v1/stats', '_blank')">
+                            <span class="method get">GET</span>
+                            <span class="path">/api/v1/stats</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Craft Distribution -->
+            <div class="col-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">By Craft</h3>
+                        <div class="card-icon">📊</div>
+                    </div>
+                    <div id="craftDistribution">
+                        <div class="loading"><div class="spinner"></div> Loading...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Golden Records -->
+            <div class="col-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Golden Records</h3>
+                        <div class="card-icon">⭐</div>
+                    </div>
+                    <div class="golden-grid" id="goldenGrid">
+                        <div class="loading"><div class="spinner"></div> Loading...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-brand">Catch<span>Fire</span></div>
+            <p class="footer-tagline">Finding craft, not clout · Johannes Leonardo · 2026</p>
+            <div class="footer-links">
+                <a href="/health" class="footer-link">Health Check</a>
+                <a href="/api/v1/stats" class="footer-link">API Stats</a>
+                <a href="/dashboard" class="footer-link">Legacy Dashboard</a>
+                <a href="https://console.cloud.google.com/run?project=catchfire-app-2026" class="footer-link" target="_blank">Cloud Console</a>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        const API = window.location.origin;
+
+        // Initialize
+        async function init() {
+            await Promise.all([
+                fetchStats(),
+                fetchGoldenRecords(),
+                testServices()
+            ]);
+        }
+
+        // Fetch stats
+        async function fetchStats() {
+            try {
+                const res = await fetch(`${API}/api/v1/stats`);
+                const data = await res.json();
+                if (data.success) {
+                    document.getElementById('totalCreators').textContent = data.stats.totalCreators;
+                    document.getElementById('goldenRecords').textContent = data.stats.goldenRecords;
+                    document.getElementById('grCount').textContent = data.stats.goldenRecords;
+                    renderCraftDistribution(data.stats.byCraft, data.stats.totalCreators);
+                    updateSystemStatus('online', 'All Systems Operational');
+                }
+            } catch (e) {
+                updateSystemStatus('error', 'Connection Error');
+            }
+        }
+
+        // Render craft distribution
+        function renderCraftDistribution(crafts, total) {
+            const container = document.getElementById('craftDistribution');
+            const sorted = Object.entries(crafts).sort((a, b) => b[1] - a[1]);
+            container.innerHTML = sorted.map(([craft, count]) => {
+                const pct = (count / total) * 100;
+                const name = craft.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+                return `
+                    <div class="craft-item">
+                        <span class="craft-name">${name}</span>
+                        <div class="craft-bar-bg">
+                            <div class="craft-bar" style="width: ${pct}%"></div>
+                        </div>
+                        <span class="craft-count">${count}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Fetch Golden Records
+        async function fetchGoldenRecords() {
+            try {
+                const res = await fetch(`${API}/api/v1/lookalikes/model`);
+                const data = await res.json();
+                if (data.success && data.model) {
+                    const container = document.getElementById('goldenGrid');
+                    container.innerHTML = data.model.goldenRecords.slice(0, 6).map(gr => `
+                        <div class="golden-card">
+                            <div class="golden-name">${gr.name}</div>
+                            <div class="golden-craft">${gr.craft || 'Creator'}</div>
+                        </div>
+                    `).join('');
+                }
+            } catch (e) {
+                console.error('Failed to fetch golden records:', e);
+            }
+        }
+
+        // Test services
+        async function testServices() {
+            // Test LLM
+            try {
+                const res = await fetch(`${API}/api/v1/llm/test`);
+                const data = await res.json();
+                setServiceStatus('geminiStatus', data.connected);
+            } catch (e) {
+                setServiceStatus('geminiStatus', false);
+            }
+
+            // Test embeddings
+            try {
+                const res = await fetch(`${API}/api/v1/embeddings/test`);
+                const data = await res.json();
+                setServiceStatus('embeddingsStatus', data.success);
+            } catch (e) {
+                setServiceStatus('embeddingsStatus', false);
+            }
+        }
+
+        function setServiceStatus(id, online) {
+            const el = document.getElementById(id);
+            if (online) {
+                el.className = 'service-status online';
+                el.innerHTML = '<span class="status-dot"></span> Online';
+            } else {
+                el.className = 'service-status offline';
+                el.innerHTML = '<span class="status-dot error"></span> Offline';
+            }
+        }
+
+        function updateSystemStatus(status, text) {
+            document.getElementById('systemStatus').textContent = text;
+            const dot = document.getElementById('systemDot');
+            dot.className = status === 'online' ? 'status-dot' : 'status-dot error';
+        }
+
+        // Semantic search
+        async function performSearch(query) {
+            const container = document.getElementById('resultsArea');
+            container.innerHTML = '<div class="loading"><div class="spinner"></div> Searching...</div>';
+
+            try {
+                const res = await fetch(`${API}/api/v1/search/semantic`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query, limit: 6, minSimilarity: 0.3 })
+                });
+                const data = await res.json();
+
+                if (data.success && data.results.length > 0) {
+                    container.innerHTML = data.results.map(r => `
+                        <div class="result-item">
+                            <div class="result-avatar">${getCraftIcon(r.craft)}</div>
+                            <div class="result-content">
+                                <div class="result-name">
+                                    ${r.name}
+                                    ${r.isGoldenRecord ? '<span class="golden-tag">⭐ Golden</span>' : ''}
+                                </div>
+                                <div class="result-meta">${r.craft || 'Creator'} · ${r.platform || 'Multi-platform'}${r.location ? ` · ${r.location}` : ''}</div>
+                            </div>
+                            <div class="result-score">
+                                <div class="score-value">${(r.similarity * 100).toFixed(0)}%</div>
+                                <div class="score-label">Match</div>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    container.innerHTML = '<div class="empty-state">No matches found. Try a different query.</div>';
+                }
+            } catch (e) {
+                container.innerHTML = '<div class="empty-state" style="color: var(--accent-red);">Search failed. Please try again.</div>';
+            }
+        }
+
+        function getCraftIcon(craft) {
+            const icons = {
+                cinematographer: '🎬', director: '🎥', motion_designer: '✨',
+                vfx_artist: '🎨', colorist: '🎨', animator: '🎭',
+                sound_designer: '🎧', '3d_artist': '💎', editor: '✂️'
+            };
+            return icons[craft] || '🎬';
+        }
+
+        // Event listeners
+        document.getElementById('searchBtn').addEventListener('click', () => {
+            const q = document.getElementById('searchInput').value.trim();
+            if (q) performSearch(q);
+        });
+
+        document.getElementById('searchInput').addEventListener('keypress', e => {
+            if (e.key === 'Enter') {
+                const q = e.target.value.trim();
+                if (q) performSearch(q);
+            }
+        });
+
+        document.querySelectorAll('.hint-chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                const q = chip.dataset.q;
+                document.getElementById('searchInput').value = q;
+                performSearch(q);
+            });
+        });
+
+        // Initialize on load
+        init();
+    </script>
+</body>
+</html>

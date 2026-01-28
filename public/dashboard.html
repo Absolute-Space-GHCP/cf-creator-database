@@ -1,434 +1,1018 @@
-<!-- 
-  File: dashboard.html
-  Version: 1.0.0-clean
-  Date: 2026-01-28
-  Repo: ai-agents-gmaster-build
+<!--
+  CatchFire Creator Matching Engine - Dashboard
+  Author: Charley Scholz, JLIT
+  Co-authored: Claude Opus 4.5, Claude Code (coding assistant), Cursor (IDE)
+  Last Updated: 2026-01-28
+  
+  Aesthetic: Cinematic Film Noir meets Modern Editorial
+  - Deep blacks with warm accent lighting
+  - Cinematic typography (Playfair Display + DM Sans)
+  - Film grain texture overlay
+  - Dramatic shadows and depth
 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Bot Dashboard</title>
+    <title>CatchFire | Creator Matching Engine</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
+        :root {
+            /* Cinematic color palette */
+            --black-deep: #0a0a0a;
+            --black-soft: #141414;
+            --black-card: #1a1a1a;
+            --gold-primary: #d4a853;
+            --gold-bright: #f0c674;
+            --gold-dim: #8b7355;
+            --white-pure: #ffffff;
+            --white-soft: #e8e8e8;
+            --gray-text: #888888;
+            --gray-muted: #555555;
+            --red-accent: #c94c4c;
+            --green-accent: #4a9c6d;
+            --blue-accent: #5b8dd9;
+            
+            /* Typography */
+            --font-display: 'Playfair Display', Georgia, serif;
+            --font-body: 'DM Sans', -apple-system, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            
+            /* Spacing */
+            --space-xs: 4px;
+            --space-sm: 8px;
+            --space-md: 16px;
+            --space-lg: 24px;
+            --space-xl: 40px;
+            --space-2xl: 64px;
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%);
-            color: #e0e0e0;
+            font-family: var(--font-body);
+            background: var(--black-deep);
+            color: var(--white-soft);
             min-height: 100vh;
-            padding: 24px;
+            line-height: 1.6;
+            overflow-x: hidden;
         }
-        
+
+        /* Film grain overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+            opacity: 0.03;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        /* Cinematic light leak effect */
+        body::after {
+            content: '';
+            position: fixed;
+            top: -50%;
+            right: -30%;
+            width: 80%;
+            height: 80%;
+            background: radial-gradient(ellipse, rgba(212, 168, 83, 0.08) 0%, transparent 60%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: var(--space-xl);
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header */
         .header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            margin-bottom: 32px;
-            padding-bottom: 16px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            align-items: flex-end;
+            margin-bottom: var(--space-2xl);
+            padding-bottom: var(--space-lg);
+            border-bottom: 1px solid rgba(212, 168, 83, 0.2);
+            animation: fadeInDown 0.8s ease-out;
         }
-        
-        .logo {
+
+        .brand {
             display: flex;
-            align-items: center;
-            gap: 12px;
+            flex-direction: column;
+            gap: var(--space-xs);
         }
-        
-        .logo-icon {
-            font-size: 32px;
-        }
-        
-        h1 {
-            font-size: 24px;
+
+        .brand-name {
+            font-family: var(--font-display);
+            font-size: 3rem;
             font-weight: 600;
-            color: #fff;
+            letter-spacing: -0.02em;
+            color: var(--white-pure);
+            text-shadow: 0 0 60px rgba(212, 168, 83, 0.3);
         }
-        
-        .status-badge {
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 500;
+
+        .brand-name span {
+            color: var(--gold-primary);
         }
-        
-        .status-operational {
-            background: rgba(34, 197, 94, 0.2);
-            color: #22c55e;
-            border: 1px solid rgba(34, 197, 94, 0.3);
-        }
-        
-        .status-degraded {
-            background: rgba(251, 191, 36, 0.2);
-            color: #fbbf24;
-            border: 1px solid rgba(251, 191, 36, 0.3);
-        }
-        
-        .status-down {
-            background: rgba(239, 68, 68, 0.2);
-            color: #ef4444;
-            border: 1px solid rgba(239, 68, 68, 0.3);
-        }
-        
-        .section {
-            margin-bottom: 32px;
-        }
-        
-        .section-title {
-            font-size: 14px;
-            font-weight: 600;
-            color: #888;
+
+        .brand-tagline {
+            font-size: 0.875rem;
+            font-weight: 300;
+            color: var(--gray-text);
+            letter-spacing: 0.2em;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 16px;
+        }
+
+        .status-pill {
             display: flex;
             align-items: center;
-            gap: 8px;
-        }
-        
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 16px;
-        }
-        
-        .card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 12px;
-            padding: 20px;
-            transition: all 0.2s ease;
-        }
-        
-        .card:hover {
-            background: rgba(255, 255, 255, 0.05);
-            border-color: rgba(255, 255, 255, 0.12);
-        }
-        
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-        }
-        
-        .card-title {
-            font-size: 15px;
-            font-weight: 600;
-            color: #fff;
-        }
-        
-        .indicator {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            display: inline-block;
-        }
-        
-        .indicator-green {
-            background: #22c55e;
-            box-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
-        }
-        
-        .indicator-yellow {
-            background: #fbbf24;
-            box-shadow: 0 0 8px rgba(251, 191, 36, 0.5);
-        }
-        
-        .indicator-red {
-            background: #ef4444;
-            box-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
-        }
-        
-        .card-stat {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            font-size: 13px;
-        }
-        
-        .card-stat:last-child {
-            border-bottom: none;
-        }
-        
-        .stat-label {
-            color: #888;
-        }
-        
-        .stat-value {
-            color: #fff;
+            gap: var(--space-sm);
+            padding: var(--space-sm) var(--space-md);
+            background: rgba(74, 156, 109, 0.15);
+            border: 1px solid rgba(74, 156, 109, 0.3);
+            border-radius: 100px;
+            font-size: 0.75rem;
             font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--green-accent);
         }
-        
-        .layers-grid {
+
+        .status-pill::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: var(--green-accent);
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        /* Stats Row */
+        .stats-row {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 12px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: var(--space-md);
+            margin-bottom: var(--space-2xl);
         }
-        
-        .layer-card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 8px;
-            padding: 14px 16px;
+
+        .stat-card {
+            background: linear-gradient(135deg, var(--black-card) 0%, var(--black-soft) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: var(--space-lg);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: fadeInUp 0.6s ease-out backwards;
+        }
+
+        .stat-card:nth-child(1) { animation-delay: 0.1s; }
+        .stat-card:nth-child(2) { animation-delay: 0.2s; }
+        .stat-card:nth-child(3) { animation-delay: 0.3s; }
+        .stat-card:nth-child(4) { animation-delay: 0.4s; }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--gold-primary), var(--gold-dim));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(212, 168, 83, 0.2);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .stat-card:hover::before {
+            opacity: 1;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--gray-text);
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            margin-bottom: var(--space-sm);
+        }
+
+        .stat-value {
+            font-family: var(--font-display);
+            font-size: 2.5rem;
+            font-weight: 600;
+            color: var(--white-pure);
+            line-height: 1;
+        }
+
+        .stat-value.gold {
+            color: var(--gold-primary);
+        }
+
+        .stat-subtitle {
+            font-size: 0.8rem;
+            color: var(--gray-muted);
+            margin-top: var(--space-xs);
+        }
+
+        /* Main Grid */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: var(--space-xl);
+            margin-bottom: var(--space-2xl);
+        }
+
+        /* Search Section */
+        .search-section {
+            background: var(--black-card);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: var(--space-xl);
+            animation: fadeInLeft 0.8s ease-out 0.3s backwards;
+        }
+
+        .section-header {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: var(--space-md);
+            margin-bottom: var(--space-lg);
         }
-        
-        .layer-icon {
-            font-size: 18px;
+
+        .section-icon {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--gold-primary) 0%, var(--gold-dim) 100%);
+            border-radius: 12px;
+            font-size: 1.5rem;
         }
-        
-        .layer-name {
-            font-size: 13px;
-            color: #ccc;
+
+        .section-title {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            font-weight: 500;
+            color: var(--white-pure);
         }
-        
-        .quick-links {
+
+        .search-box {
+            position: relative;
+            margin-bottom: var(--space-lg);
+        }
+
+        .search-input {
+            width: 100%;
+            padding: var(--space-md) var(--space-lg);
+            padding-right: 120px;
+            background: var(--black-soft);
+            border: 2px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            font-family: var(--font-body);
+            font-size: 1rem;
+            color: var(--white-pure);
+            transition: all 0.3s ease;
+        }
+
+        .search-input::placeholder {
+            color: var(--gray-muted);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--gold-primary);
+            box-shadow: 0 0 0 4px rgba(212, 168, 83, 0.1);
+        }
+
+        .search-btn {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            padding: var(--space-sm) var(--space-lg);
+            background: linear-gradient(135deg, var(--gold-primary) 0%, var(--gold-dim) 100%);
+            border: none;
+            border-radius: 8px;
+            font-family: var(--font-body);
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--black-deep);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .search-btn:hover {
+            transform: translateY(-50%) scale(1.05);
+            box-shadow: 0 4px 20px rgba(212, 168, 83, 0.4);
+        }
+
+        .search-hints {
             display: flex;
             flex-wrap: wrap;
-            gap: 12px;
+            gap: var(--space-sm);
+            margin-bottom: var(--space-lg);
         }
-        
-        .quick-link {
-            background: rgba(59, 130, 246, 0.1);
-            border: 1px solid rgba(59, 130, 246, 0.3);
-            color: #60a5fa;
-            padding: 10px 16px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: 500;
+
+        .search-hint {
+            padding: var(--space-xs) var(--space-md);
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 100px;
+            font-size: 0.75rem;
+            color: var(--gray-text);
+            cursor: pointer;
             transition: all 0.2s ease;
+        }
+
+        .search-hint:hover {
+            background: rgba(212, 168, 83, 0.1);
+            border-color: rgba(212, 168, 83, 0.3);
+            color: var(--gold-bright);
+        }
+
+        /* Results */
+        .results-container {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .result-card {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: var(--space-md);
+            padding: var(--space-md);
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            margin-bottom: var(--space-sm);
+            transition: all 0.3s ease;
+            cursor: pointer;
         }
-        
-        .quick-link:hover {
-            background: rgba(59, 130, 246, 0.2);
-            border-color: rgba(59, 130, 246, 0.5);
+
+        .result-card:hover {
+            background: rgba(212, 168, 83, 0.08);
+            border-color: rgba(212, 168, 83, 0.2);
+            transform: translateX(4px);
         }
-        
+
+        .result-avatar {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--gray-muted) 0%, var(--black-soft) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        .result-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .result-name {
+            font-weight: 600;
+            color: var(--white-pure);
+            margin-bottom: 2px;
+        }
+
+        .result-meta {
+            font-size: 0.8rem;
+            color: var(--gray-text);
+        }
+
+        .result-score {
+            text-align: right;
+        }
+
+        .result-score-value {
+            font-family: var(--font-mono);
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--gold-primary);
+        }
+
+        .result-score-label {
+            font-size: 0.65rem;
+            color: var(--gray-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .golden-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            background: linear-gradient(135deg, rgba(212, 168, 83, 0.2) 0%, rgba(139, 115, 85, 0.2) 100%);
+            border: 1px solid rgba(212, 168, 83, 0.3);
+            border-radius: 4px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            color: var(--gold-primary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-lg);
+            animation: fadeInRight 0.8s ease-out 0.5s backwards;
+        }
+
+        .sidebar-card {
+            background: var(--black-card);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: var(--space-lg);
+        }
+
+        .sidebar-title {
+            font-family: var(--font-display);
+            font-size: 1.125rem;
+            font-weight: 500;
+            color: var(--white-pure);
+            margin-bottom: var(--space-md);
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+
+        /* Craft Distribution */
+        .craft-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-sm);
+        }
+
+        .craft-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+        }
+
+        .craft-bar-container {
+            flex: 1;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .craft-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--gold-primary), var(--gold-dim));
+            border-radius: 4px;
+            transition: width 1s ease-out;
+        }
+
+        .craft-name {
+            width: 120px;
+            font-size: 0.8rem;
+            color: var(--gray-text);
+        }
+
+        .craft-count {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--white-soft);
+            width: 24px;
+            text-align: right;
+        }
+
+        /* Golden Records List */
+        .golden-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-sm);
+        }
+
+        .golden-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            padding: var(--space-sm);
+            background: rgba(212, 168, 83, 0.05);
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .golden-item:hover {
+            background: rgba(212, 168, 83, 0.1);
+        }
+
+        .golden-icon {
+            font-size: 1rem;
+        }
+
+        .golden-name {
+            flex: 1;
+            font-size: 0.875rem;
+            color: var(--white-soft);
+        }
+
+        .golden-craft {
+            font-size: 0.7rem;
+            color: var(--gray-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* API Endpoints */
+        .endpoint-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-xs);
+        }
+
+        .endpoint {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            padding: var(--space-sm);
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 6px;
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            transition: all 0.2s ease;
+        }
+
+        .endpoint:hover {
+            background: rgba(91, 141, 217, 0.1);
+        }
+
+        .endpoint-method {
+            padding: 2px 6px;
+            background: rgba(91, 141, 217, 0.2);
+            border-radius: 4px;
+            color: var(--blue-accent);
+            font-weight: 600;
+        }
+
+        .endpoint-method.post {
+            background: rgba(74, 156, 109, 0.2);
+            color: var(--green-accent);
+        }
+
+        .endpoint-path {
+            color: var(--gray-text);
+        }
+
+        /* Footer */
         .footer {
             text-align: center;
-            padding-top: 24px;
-            border-top: 1px solid rgba(255,255,255,0.1);
-            color: #666;
-            font-size: 12px;
+            padding-top: var(--space-xl);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
         }
-        
-        #lastUpdate {
-            color: #888;
+
+        .footer-text {
+            font-size: 0.75rem;
+            color: var(--gray-muted);
         }
-        
+
+        .footer-text span {
+            color: var(--gold-dim);
+        }
+
+        /* Animations */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes fadeInRight {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.6;
+                transform: scale(1.1);
+            }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--black-soft);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--gray-muted);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--gold-dim);
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+            .sidebar {
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+            .sidebar-card {
+                flex: 1;
+                min-width: 280px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .stats-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .brand-name {
+                font-size: 2rem;
+            }
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: var(--space-md);
+            }
+        }
+
+        /* Loading state */
         .loading {
             opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .skeleton {
+            background: linear-gradient(90deg, var(--black-soft) 25%, var(--black-card) 50%, var(--black-soft) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <div class="logo">
-            <span class="logo-icon">🤖</span>
-            <h1>AI Bot Dashboard</h1>
-        </div>
-        <span id="overallStatus" class="status-badge status-operational">Loading...</span>
-    </div>
-    
-    <div class="section">
-        <div class="section-title">📊 Services</div>
-        <div class="grid">
-            <div class="card">
-                <div class="card-header">
-                    <span class="card-title">☁️ Cloud Run</span>
-                    <span id="cloudRunIndicator" class="indicator indicator-green"></span>
-                </div>
-                <div class="card-stat">
-                    <span class="stat-label">Service</span>
-                    <span class="stat-value">your-service</span>
-                </div>
-                <div class="card-stat">
-                    <span class="stat-label">Region</span>
-                    <span class="stat-value">us-central1</span>
-                </div>
-                <div class="card-stat">
-                    <span class="stat-label">Version</span>
-                    <span id="version" class="stat-value">--</span>
-                </div>
-                <div class="card-stat">
-                    <span class="stat-label">Response Time</span>
-                    <span id="responseTime" class="stat-value">--</span>
-                </div>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="brand">
+                <h1 class="brand-name">Catch<span>Fire</span></h1>
+                <p class="brand-tagline">Creator Matching Engine</p>
             </div>
-            
-            <div class="card">
-                <div class="card-header">
-                    <span class="card-title">👥 Employee Cache</span>
-                    <span id="cacheIndicator" class="indicator indicator-green"></span>
-                </div>
-                <div class="card-stat">
-                    <span class="stat-label">Status</span>
-                    <span id="cacheStatus" class="stat-value">--</span>
-                </div>
-                <div class="card-stat">
-                    <span class="stat-label">Employees</span>
-                    <span id="employeeCount" class="stat-value">--</span>
-                </div>
-                <div class="card-stat">
-                    <span class="stat-label">Cache TTL</span>
-                    <span class="stat-value">5 minutes</span>
-                </div>
+            <div class="status-pill" id="statusPill">
+                <span id="statusText">Connecting...</span>
             </div>
-            
-            <div class="card">
-                <div class="card-header">
-                    <span class="card-title">🔥 Firestore</span>
-                    <span id="firestoreIndicator" class="indicator indicator-green"></span>
-                </div>
-                <div class="card-stat">
-                    <span class="stat-label">Database</span>
-                    <span class="stat-value">(default)</span>
-                </div>
-                <div class="card-stat">
-                    <span class="stat-label">Collection</span>
-                    <span class="stat-value">employees</span>
-                </div>
-                <div class="card-stat">
-                    <span class="stat-label">Project</span>
-                    <span class="stat-value">your-project</span>
-                </div>
+        </header>
+
+        <!-- Stats Row -->
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-label">Total Creators</div>
+                <div class="stat-value" id="totalCreators">--</div>
+                <div class="stat-subtitle">in database</div>
             </div>
-            
-            <div class="card">
-                <div class="card-header">
-                    <span class="card-title">💬 Slack Integration</span>
-                    <span id="slackIndicator" class="indicator indicator-green"></span>
-                </div>
-                <div class="card-stat">
-                    <span class="stat-label">Bot</span>
-                    <span class="stat-value">AI Assistant</span>
-                </div>
-                <div class="card-stat">
-                    <span class="stat-label">Events</span>
-                    <span class="stat-value">4 subscribed</span>
-                </div>
-                <div class="card-stat">
-                    <span class="stat-label">Interactivity</span>
-                    <span class="stat-value">Enabled</span>
-                </div>
+            <div class="stat-card">
+                <div class="stat-label">Golden Records</div>
+                <div class="stat-value gold" id="goldenRecords">--</div>
+                <div class="stat-subtitle">benchmark profiles</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Embeddings</div>
+                <div class="stat-value" id="embeddingCount">--</div>
+                <div class="stat-subtitle">768-dimensional vectors</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">API Latency</div>
+                <div class="stat-value" id="apiLatency">--</div>
+                <div class="stat-subtitle">average response</div>
             </div>
         </div>
-    </div>
-    
-    <div class="section">
-        <div class="section-title">🧱 Active Layers</div>
-        <div class="layers-grid">
-            <div class="layer-card">
-                <span class="indicator indicator-green"></span>
-                <span class="layer-name">Document RAG (Gemini 2.5)</span>
+
+        <!-- Main Grid -->
+        <div class="main-grid">
+            <!-- Search Section -->
+            <div class="search-section">
+                <div class="section-header">
+                    <div class="section-icon">🔍</div>
+                    <h2 class="section-title">Semantic Search</h2>
+                </div>
+                
+                <div class="search-box">
+                    <input 
+                        type="text" 
+                        class="search-input" 
+                        id="searchInput"
+                        placeholder="Describe the creator you're looking for..."
+                    >
+                    <button class="search-btn" id="searchBtn">Search</button>
+                </div>
+
+                <div class="search-hints">
+                    <span class="search-hint" data-query="moody cinematographer with ARRI experience">🎬 Moody DP</span>
+                    <span class="search-hint" data-query="motion designer for tech brand">✨ Motion Designer</span>
+                    <span class="search-hint" data-query="VFX artist for commercial work">🎨 VFX Artist</span>
+                    <span class="search-hint" data-query="music video director with bold visual style">🎵 MV Director</span>
+                    <span class="search-hint" data-query="colorist for film projects">🎨 Colorist</span>
+                </div>
+
+                <div class="results-container" id="resultsContainer">
+                    <p style="color: var(--gray-muted); text-align: center; padding: var(--space-xl);">
+                        Enter a description to find matching creators
+                    </p>
+                </div>
             </div>
-            <div class="layer-card">
-                <span class="indicator indicator-green"></span>
-                <span class="layer-name">Slack Integration</span>
-            </div>
-            <div class="layer-card">
-                <span class="indicator indicator-green"></span>
-                <span class="layer-name">Employee Directory</span>
-            </div>
-            <div class="layer-card">
-                <span class="indicator indicator-green"></span>
-                <span class="layer-name">Feedback (Sheets)</span>
-            </div>
-            <div class="layer-card">
-                <span class="indicator indicator-green"></span>
-                <span class="layer-name">Pre-canned Responses</span>
-            </div>
-            <div class="layer-card">
-                <span class="indicator indicator-green"></span>
-                <span class="layer-name">PII Security</span>
-            </div>
-            <div class="layer-card">
-                <span class="indicator indicator-green"></span>
-                <span class="layer-name">Thread Continuity</span>
+
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <!-- Craft Distribution -->
+                <div class="sidebar-card">
+                    <h3 class="sidebar-title">📊 By Craft</h3>
+                    <div class="craft-list" id="craftList">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Golden Records -->
+                <div class="sidebar-card">
+                    <h3 class="sidebar-title">⭐ Golden Records</h3>
+                    <div class="golden-list" id="goldenList">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- API Endpoints -->
+                <div class="sidebar-card">
+                    <h3 class="sidebar-title">🔗 API</h3>
+                    <div class="endpoint-list">
+                        <div class="endpoint">
+                            <span class="endpoint-method post">POST</span>
+                            <span class="endpoint-path">/api/v1/search/semantic</span>
+                        </div>
+                        <div class="endpoint">
+                            <span class="endpoint-method">GET</span>
+                            <span class="endpoint-path">/api/v1/lookalikes</span>
+                        </div>
+                        <div class="endpoint">
+                            <span class="endpoint-method">GET</span>
+                            <span class="endpoint-path">/api/v1/similar/:id</span>
+                        </div>
+                        <div class="endpoint">
+                            <span class="endpoint-method post">POST</span>
+                            <span class="endpoint-path">/api/v1/creators</span>
+                        </div>
+                        <div class="endpoint">
+                            <span class="endpoint-method">GET</span>
+                            <span class="endpoint-path">/api/v1/stats</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p class="footer-text">
+                <span>CatchFire</span> · Finding craft, not clout · 
+                Powered by Gemini Embeddings · 
+                Last updated: <span id="lastUpdate">--</span>
+            </p>
+        </footer>
     </div>
-    
-    <div class="section">
-        <div class="section-title">🔗 Quick Links</div>
-        <div class="quick-links">
-            <a href="/" class="quick-link">💚 Health API</a>
-            <a href="/analytics-dashboard" class="quick-link">📊 Analytics</a>
-            <a href="/test-employees?q=IT" class="quick-link" target="_blank">👥 Test Employees</a>
-            <a href="https://console.cloud.google.com/run" class="quick-link" target="_blank">📈 Cloud Run</a>
-            <a href="https://console.cloud.google.com/firestore" class="quick-link" target="_blank">🔥 Firestore</a>
-            <a href="https://docs.google.com/spreadsheets" class="quick-link" target="_blank">📊 Sheets</a>
-            <a href="https://github.com/Absolute-Space-GHCP/ai-agents-gmaster-build" class="quick-link" target="_blank">🐙 GitHub</a>
-        </div>
-    </div>
-    
-    <div class="footer">
-        <p>Last updated: <span id="lastUpdate">--</span> | Auto-refresh: 30s</p>
-    </div>
-    
+
     <script>
-        const SERVICE_URL = window.location.origin;
-        
-        async function fetchStatus() {
-            const startTime = Date.now();
-            
+        const API_BASE = window.location.origin;
+
+        // Fetch and display stats
+        async function fetchStats() {
             try {
-                const response = await fetch(SERVICE_URL + '/');
+                const startTime = Date.now();
+                const response = await fetch(`${API_BASE}/api/v1/stats`);
                 const data = await response.json();
-                const responseTime = Date.now() - startTime;
-                
-                // Update UI
-                document.getElementById('version').textContent = data.version || 'Unknown';
-                document.getElementById('responseTime').textContent = responseTime + 'ms';
-                document.getElementById('overallStatus').textContent = 'All Systems Operational';
-                document.getElementById('overallStatus').className = 'status-badge status-operational';
-                
-                // Update indicators
-                document.getElementById('cloudRunIndicator').className = 'indicator indicator-green';
-                document.getElementById('cacheIndicator').className = 'indicator indicator-green';
-                document.getElementById('cacheStatus').textContent = 'Active';
-                
-                // Try to get employee count
-                try {
-                    const empResponse = await fetch(SERVICE_URL + '/test-employees?q=');
-                    const empData = await empResponse.json();
-                    if (empData.resultsCount !== undefined) {
-                        document.getElementById('employeeCount').textContent = empData.resultsCount;
-                    }
-                } catch (e) {
-                    document.getElementById('employeeCount').textContent = '139 (cached)';
+                const latency = Date.now() - startTime;
+
+                if (data.success) {
+                    document.getElementById('totalCreators').textContent = data.stats.totalCreators;
+                    document.getElementById('goldenRecords').textContent = data.stats.goldenRecords;
+                    document.getElementById('embeddingCount').textContent = data.stats.totalCreators;
+                    document.getElementById('apiLatency').textContent = `${latency}ms`;
+                    document.getElementById('statusText').textContent = 'All Systems Operational';
+
+                    // Render craft distribution
+                    renderCraftDistribution(data.stats.byCraft, data.stats.totalCreators);
                 }
-                
             } catch (error) {
-                document.getElementById('overallStatus').textContent = 'Service Unavailable';
-                document.getElementById('overallStatus').className = 'status-badge status-down';
-                document.getElementById('cloudRunIndicator').className = 'indicator indicator-red';
-                document.getElementById('responseTime').textContent = 'Timeout';
+                console.error('Failed to fetch stats:', error);
+                document.getElementById('statusText').textContent = 'Connection Error';
+                document.getElementById('statusPill').style.background = 'rgba(201, 76, 76, 0.15)';
+                document.getElementById('statusPill').style.borderColor = 'rgba(201, 76, 76, 0.3)';
+                document.getElementById('statusPill').style.color = '#c94c4c';
             }
-            
-            // Update timestamp
-            document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString() + ' | Auto-refresh: 30s';
         }
-        
-        // Initial fetch
-        fetchStatus();
-        
-        // Auto-refresh every 30 seconds
-        setInterval(fetchStatus, 30000);
+
+        // Render craft distribution bars
+        function renderCraftDistribution(craftData, total) {
+            const container = document.getElementById('craftList');
+            const crafts = Object.entries(craftData).sort((a, b) => b[1] - a[1]);
+            
+            container.innerHTML = crafts.map(([craft, count]) => {
+                const percentage = (count / total) * 100;
+                const displayName = craft.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+                return `
+                    <div class="craft-item">
+                        <span class="craft-name">${displayName}</span>
+                        <div class="craft-bar-container">
+                            <div class="craft-bar" style="width: ${percentage}%"></div>
+                        </div>
+                        <span class="craft-count">${count}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Fetch Golden Records
+        async function fetchGoldenRecords() {
+            try {
+                const response = await fetch(`${API_BASE}/api/v1/lookalikes/model`);
+                const data = await response.json();
+
+                if (data.success && data.model) {
+                    const container = document.getElementById('goldenList');
+                    container.innerHTML = data.model.goldenRecords.slice(0, 6).map(gr => `
+                        <div class="golden-item">
+                            <span class="golden-icon">⭐</span>
+                            <span class="golden-name">${gr.name}</span>
+                            <span class="golden-craft">${gr.craft || 'creator'}</span>
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Failed to fetch golden records:', error);
+            }
+        }
+
+        // Semantic search
+        async function performSearch(query) {
+            const container = document.getElementById('resultsContainer');
+            container.innerHTML = '<p style="color: var(--gray-muted); text-align: center; padding: var(--space-xl);">Searching...</p>';
+
+            try {
+                const response = await fetch(`${API_BASE}/api/v1/search/semantic`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query, limit: 8, minSimilarity: 0.3 })
+                });
+                const data = await response.json();
+
+                if (data.success && data.results.length > 0) {
+                    container.innerHTML = data.results.map(result => `
+                        <div class="result-card">
+                            <div class="result-avatar">${getCraftIcon(result.craft)}</div>
+                            <div class="result-info">
+                                <div class="result-name">
+                                    ${result.name}
+                                    ${result.isGoldenRecord ? '<span class="golden-badge">⭐ Golden</span>' : ''}
+                                </div>
+                                <div class="result-meta">
+                                    ${result.craft || 'Creator'} · ${result.platform || 'Multi-platform'}
+                                    ${result.location ? ` · ${result.location}` : ''}
+                                </div>
+                            </div>
+                            <div class="result-score">
+                                <div class="result-score-value">${(result.similarity * 100).toFixed(0)}%</div>
+                                <div class="result-score-label">Match</div>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    container.innerHTML = '<p style="color: var(--gray-muted); text-align: center; padding: var(--space-xl);">No matches found. Try a different query.</p>';
+                }
+            } catch (error) {
+                console.error('Search failed:', error);
+                container.innerHTML = '<p style="color: var(--red-accent); text-align: center; padding: var(--space-xl);">Search failed. Please try again.</p>';
+            }
+        }
+
+        // Get icon for craft type
+        function getCraftIcon(craft) {
+            const icons = {
+                'cinematographer': '🎬',
+                'director': '🎥',
+                'motion_designer': '✨',
+                'vfx_artist': '🎨',
+                'colorist': '🎨',
+                'animator': '🎭',
+                'sound_designer': '🎧',
+                '3d_artist': '💎',
+                'editor': '✂️'
+            };
+            return icons[craft] || '🎬';
+        }
+
+        // Event listeners
+        document.getElementById('searchBtn').addEventListener('click', () => {
+            const query = document.getElementById('searchInput').value.trim();
+            if (query) performSearch(query);
+        });
+
+        document.getElementById('searchInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const query = e.target.value.trim();
+                if (query) performSearch(query);
+            }
+        });
+
+        document.querySelectorAll('.search-hint').forEach(hint => {
+            hint.addEventListener('click', () => {
+                const query = hint.dataset.query;
+                document.getElementById('searchInput').value = query;
+                performSearch(query);
+            });
+        });
+
+        // Update timestamp
+        function updateTimestamp() {
+            document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
+        }
+
+        // Initialize
+        fetchStats();
+        fetchGoldenRecords();
+        updateTimestamp();
+
+        // Auto-refresh every 60 seconds
+        setInterval(() => {
+            fetchStats();
+            updateTimestamp();
+        }, 60000);
     </script>
 </body>
 </html>
-
