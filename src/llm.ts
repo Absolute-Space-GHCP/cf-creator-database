@@ -316,7 +316,391 @@ export async function analyzeBrief(brief: string): Promise<BriefAnalysis> {
 }
 
 // =============================================================================
-// 🧪 TEST FUNCTION
+// 🔢 EMBEDDINGS
+// =============================================================================
+
+const EMBEDDING_MODEL = 'gemini-embedding-001';
+const EMBEDDING_DIMENSIONS = 768; // Good balance of quality and storage
+
+/**
+ * Task types for embeddings - affects how the model optimizes the vectors
+ */
+export type EmbeddingTaskType = 
+    | 'RETRIEVAL_DOCUMENT'    // For indexing documents/creators
+    | 'RETRIEVAL_QUERY'       // For search queries
+    | 'SEMANTIC_SIMILARITY'   // For finding similar items
+    | 'CLASSIFICATION'        // For categorization
+    | 'CLUSTERING';           // For grouping similar items
+
+export interface EmbeddingResult {
+    values: number[];
+    dimensions: number;
+    model: string;
+}
+
+export interface CreatorEmbeddingData {
+    id: string;
+    name: string;
+    embedding: number[];
+    embeddingText: string;  // The text that was embedded
+    generatedAt: Date;
+}
+
+/**
+ * Build the text to embed for a creator profile
+ * Combines relevant fields for semantic search
+ */
+export function buildCreatorEmbeddingText(creator: {
+    name: string;
+    handle?: string;
+    craft?: { primary?: string; secondary?: string[]; styleSignature?: string };
+    matching?: { positiveKeywords?: string[]; technicalTags?: string[] };
+    contact?: { location?: string };
+    bio?: string;
+}): string {
+    const parts: string[] = [];
+    
+    // Name and handle
+    parts.push(`Creator: ${creator.name}`);
+    if (creator.handle) parts.push(`Handle: ${creator.handle}`);
+    
+    // Craft info
+    if (creator.craft?.primary) {
+        parts.push(`Primary craft: ${creator.craft.primary}`);
+    }
+    if (creator.craft?.secondary?.length) {
+        parts.push(`Secondary crafts: ${creator.craft.secondary.join(', ')}`);
+    }
+    if (creator.craft?.styleSignature) {
+        parts.push(`Style: ${creator.craft.styleSignature}`);
+    }
+    
+    // Technical tags and keywords
+    if (creator.matching?.technicalTags?.length) {
+        parts.push(`Technical expertise: ${creator.matching.technicalTags.join(', ')}`);
+    }
+    if (creator.matching?.positiveKeywords?.length) {
+        parts.push(`Keywords: ${creator.matching.positiveKeywords.join(', ')}`);
+    }
+    
+    // Location
+    if (creator.contact?.location) {
+        parts.push(`Location: ${creator.contact.location}`);
+    }
+    
+    // Bio if available
+    if (creator.bio) {
+        parts.push(`Bio: ${creator.bio}`);
+    }
+    
+    return parts.join('. ');
+}
+
+/**
+ * Generate embedding for a single text
+ */
+export async function generateEmbedding(
+    text: string,
+    taskType: EmbeddingTaskType = 'RETRIEVAL_DOCUMENT'
+): Promise<EmbeddingResult> {
+    // Initialize client if needed
+    if (!genAI && !vertexAI) {
+        initializeClient();
+    }
+    
+    console.log(`🔢 Generating embedding (${EMBEDDING_DIMENSIONS}d, ${taskType})...`);
+    const startTime = Date.now();
+    
+    try {
+        if (genAI) {
+            // Use Google AI API
+            const response = await genAI.models.embedContent({
+                model: EMBEDDING_MODEL,
+                contents: text,
+                config: {
+                    taskType,
+                    outputDimensionality: EMBEDDING_DIMENSIONS
+                }
+            });
+            
+            const elapsed = Date.now() - startTime;
+            console.log(`⏱️ Embedding generated in ${elapsed}ms`);
+            
+            // Get the embedding from response
+            const embedding = response.embeddings?.[0];
+            if (!embedding?.values) {
+                throw new Error('No embedding values in response');
+            }
+            
+            return {
+                values: embedding.values,
+                dimensions: embedding.values.length,
+                model: EMBEDDING_MODEL
+            };
+        } else if (vertexAI) {
+            // Vertex AI doesn't have native embeddings in the same SDK
+            // We need to use the prediction API or fall back to REST
+            throw new Error('Vertex AI embeddings require API key. Please set GEMINI_API_KEY.');
+        } else {
+            throw new Error('No AI client available');
+        }
+    } catch (error) {
+        console.error('❌ Embedding generation failed:', error);
+        throw error;
+    }
+}
+
+/**
+ * Generate embeddings for multiple texts in batch
+ */
+export async function generateEmbeddings(
+    texts: string[],
+    taskType: EmbeddingTaskType = 'RETRIEVAL_DOCUMENT'
+): Promise<EmbeddingResult[]> {
+    // Initialize client if needed
+    if (!genAI && !vertexAI) {
+        initializeClient();
+    }
+    
+    console.log(`🔢 Generating ${texts.length} embeddings (${EMBEDDING_DIMENSIONS}d, ${taskType})...`);
+    const startTime = Date.now();
+    
+    try {
+        if (genAI) {
+            // Use Google AI API batch endpoint
+            const response = await genAI.models.embedContent({
+                model: EMBEDDING_MODEL,
+                contents: texts,
+                config: {
+                    taskType,
+                    outputDimensionality: EMBEDDING_DIMENSIONS
+                }
+            });
+            
+            const elapsed = Date.now() - startTime;
+            console.log(`⏱️ ${texts.length} embeddings generated in ${elapsed}ms`);
+            
+            if (!response.embeddings?.length) {
+                throw new Error('No embeddings in response');
+            }
+            
+            return response.embeddings.map(emb => {
+                if (!emb.values) {
+                    throw new Error('Missing values in embedding response');
+                }
+                return {
+                    values: emb.values,
+                    dimensions: emb.values.length,
+                    model: EMBEDDING_MODEL
+                };
+            });
+        } else if (vertexAI) {
+            throw new Error('Vertex AI embeddings require API key. Please set GEMINI_API_KEY.');
+        } else {
+            throw new Error('No AI client available');
+        }
+    } catch (error) {
+        console.error('❌ Batch embedding generation failed:', error);
+        throw error;
+    }
+}
+
+/**
+ * Calculate cosine similarity between two embedding vectors
+ * Returns a value between -1 (opposite) and 1 (identical)
+ */
+export function cosineSimilarity(a: number[], b: number[]): number {
+    if (a.length !== b.length) {
+        throw new Error(`Vector length mismatch: ${a.length} vs ${b.length}`);
+    }
+    
+    let dotProduct = 0;
+    let normA = 0;
+    let normB = 0;
+    
+    for (let i = 0; i < a.length; i++) {
+        dotProduct += a[i] * b[i];
+        normA += a[i] * a[i];
+        normB += b[i] * b[i];
+    }
+    
+    if (normA === 0 || normB === 0) {
+        return 0;
+    }
+    
+    return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
+}
+
+/**
+ * Find the most similar embeddings to a query embedding
+ */
+export function findSimilar(
+    queryEmbedding: number[],
+    candidates: { id: string; embedding: number[]; [key: string]: any }[],
+    options: { limit?: number; minSimilarity?: number } = {}
+): Array<{ id: string; similarity: number; [key: string]: any }> {
+    const { limit = 10, minSimilarity = 0 } = options;
+    
+    const scored = candidates
+        .map(candidate => ({
+            ...candidate,
+            similarity: cosineSimilarity(queryEmbedding, candidate.embedding)
+        }))
+        .filter(c => c.similarity >= minSimilarity)
+        .sort((a, b) => b.similarity - a.similarity)
+        .slice(0, limit);
+    
+    return scored;
+}
+
+/**
+ * Normalize an embedding vector to unit length
+ * Required for smaller dimensions (768, 1536) to ensure accurate similarity
+ */
+export function normalizeEmbedding(embedding: number[]): number[] {
+    const norm = Math.sqrt(embedding.reduce((sum, val) => sum + val * val, 0));
+    if (norm === 0) return embedding;
+    return embedding.map(val => val / norm);
+}
+
+// =============================================================================
+// 🌟 GOLDEN RECORD LOOKALIKE MODEL
+// =============================================================================
+
+export interface GoldenRecordModel {
+    centroid: number[];
+    goldenRecordCount: number;
+    goldenRecordIds: string[];
+    dimensions: number;
+    createdAt: Date;
+}
+
+/**
+ * Calculate the centroid (average) of multiple embedding vectors
+ * This represents the "ideal" Golden Record profile
+ */
+export function calculateCentroid(embeddings: number[][]): number[] {
+    if (embeddings.length === 0) {
+        throw new Error('Cannot calculate centroid of empty array');
+    }
+    
+    const dimensions = embeddings[0].length;
+    const centroid = new Array(dimensions).fill(0);
+    
+    // Sum all embeddings
+    for (const embedding of embeddings) {
+        if (embedding.length !== dimensions) {
+            throw new Error(`Embedding dimension mismatch: expected ${dimensions}, got ${embedding.length}`);
+        }
+        for (let i = 0; i < dimensions; i++) {
+            centroid[i] += embedding[i];
+        }
+    }
+    
+    // Average
+    for (let i = 0; i < dimensions; i++) {
+        centroid[i] /= embeddings.length;
+    }
+    
+    // Normalize for consistent similarity scoring
+    return normalizeEmbedding(centroid);
+}
+
+/**
+ * Build a Golden Record model from a list of Golden Record creators
+ */
+export function buildGoldenRecordModel(
+    goldenRecords: Array<{ id: string; embedding: number[] }>
+): GoldenRecordModel {
+    if (goldenRecords.length === 0) {
+        throw new Error('No Golden Records provided');
+    }
+    
+    const embeddings = goldenRecords.map(gr => gr.embedding);
+    const centroid = calculateCentroid(embeddings);
+    
+    return {
+        centroid,
+        goldenRecordCount: goldenRecords.length,
+        goldenRecordIds: goldenRecords.map(gr => gr.id),
+        dimensions: centroid.length,
+        createdAt: new Date()
+    };
+}
+
+/**
+ * Score a creator against the Golden Record model
+ * Returns a similarity score (0-1) indicating how close they are to the ideal
+ */
+export function scoreAgainstGoldenRecords(
+    creatorEmbedding: number[],
+    model: GoldenRecordModel
+): number {
+    return cosineSimilarity(creatorEmbedding, model.centroid);
+}
+
+/**
+ * Find lookalikes: creators most similar to the Golden Record model
+ */
+export function findLookalikes(
+    model: GoldenRecordModel,
+    candidates: Array<{ id: string; embedding: number[]; [key: string]: any }>,
+    options: { limit?: number; minSimilarity?: number; excludeGoldenRecords?: boolean } = {}
+): Array<{ id: string; goldenRecordSimilarity: number; [key: string]: any }> {
+    const { limit = 10, minSimilarity = 0, excludeGoldenRecords = true } = options;
+    
+    let filtered = candidates;
+    
+    // Optionally exclude Golden Records from results
+    if (excludeGoldenRecords) {
+        const grIds = new Set(model.goldenRecordIds);
+        filtered = candidates.filter(c => !grIds.has(c.id));
+    }
+    
+    // Score and rank
+    const scored = filtered
+        .map(candidate => ({
+            ...candidate,
+            goldenRecordSimilarity: cosineSimilarity(candidate.embedding, model.centroid)
+        }))
+        .filter(c => c.goldenRecordSimilarity >= minSimilarity)
+        .sort((a, b) => b.goldenRecordSimilarity - a.goldenRecordSimilarity)
+        .slice(0, limit);
+    
+    return scored;
+}
+
+/**
+ * Calculate per-craft Golden Record models
+ * Useful for finding lookalikes within specific crafts
+ */
+export function buildCraftSpecificModels(
+    goldenRecords: Array<{ id: string; embedding: number[]; craft?: { primary?: string } }>
+): Map<string, GoldenRecordModel> {
+    const craftGroups = new Map<string, Array<{ id: string; embedding: number[] }>>();
+    
+    // Group by craft
+    for (const gr of goldenRecords) {
+        const craft = gr.craft?.primary || 'other';
+        if (!craftGroups.has(craft)) {
+            craftGroups.set(craft, []);
+        }
+        craftGroups.get(craft)!.push({ id: gr.id, embedding: gr.embedding });
+    }
+    
+    // Build model for each craft
+    const models = new Map<string, GoldenRecordModel>();
+    for (const [craft, records] of craftGroups) {
+        if (records.length > 0) {
+            models.set(craft, buildGoldenRecordModel(records));
+        }
+    }
+    
+    return models;
+}
+
+// =============================================================================
+// 🧪 TEST FUNCTIONS
 // =============================================================================
 
 /**
@@ -333,6 +717,24 @@ export async function testLLMConnection(): Promise<boolean> {
 }
 
 /**
+ * Test the embedding generation
+ */
+export async function testEmbeddings(): Promise<{ success: boolean; dimensions?: number; error?: string }> {
+    try {
+        const result = await generateEmbedding('Test embedding for CatchFire', 'RETRIEVAL_DOCUMENT');
+        return {
+            success: true,
+            dimensions: result.dimensions
+        };
+    } catch (error) {
+        return {
+            success: false,
+            error: error instanceof Error ? error.message : 'Unknown error'
+        };
+    }
+}
+
+/**
  * Get the current client type being used
  */
 export function getClientType(): string {
@@ -340,4 +742,14 @@ export function getClientType(): string {
         initializeClient();
     }
     return useVertexAI ? `Vertex AI (${GCP_PROJECT_ID})` : 'Google AI API';
+}
+
+/**
+ * Get embedding configuration info
+ */
+export function getEmbeddingConfig(): { model: string; dimensions: number } {
+    return {
+        model: EMBEDDING_MODEL,
+        dimensions: EMBEDDING_DIMENSIONS
+    };
 }

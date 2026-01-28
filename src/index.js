@@ -15,7 +15,24 @@ const { Firestore } = require('@google-cloud/firestore');
 // Local modules
 const { validateCreator, validateBatchCreator, validateMatchRequest, validateCategorizeRequest, PLATFORMS, CRAFT_TYPES } = require('./schemas');
 const { rankCreators, extractBriefKeywords } = require('./scoring');
-const { categorizeCreator, generateStyleSignature, testLLMConnection } = require('./llm');
+const { 
+    categorizeCreator, 
+    generateStyleSignature, 
+    testLLMConnection,
+    testEmbeddings,
+    generateEmbedding,
+    generateEmbeddings,
+    buildCreatorEmbeddingText,
+    findSimilar,
+    cosineSimilarity,
+    getEmbeddingConfig,
+    getClientType,
+    // Golden Record Lookalike Model
+    buildGoldenRecordModel,
+    findLookalikes,
+    scoreAgainstGoldenRecords,
+    buildCraftSpecificModels
+} = require('./llm');
 
 // =============================================================================
 // 🔧 CONFIGURATION
@@ -272,16 +289,46 @@ app.post('/api/v1/creators', async (req, res) => {
         
         console.log('✅ Creator added:', docRef.id);
         
+        // Generate embedding asynchronously (non-blocking)
+        const creatorWithId = { id: docRef.id, ...creator };
+        generateEmbeddingForCreator(creatorWithId).catch(err => {
+            console.error(`⚠️ Failed to generate embedding for ${docRef.id}:`, err.message);
+        });
+        
         res.status(201).json({
             success: true,
             id: docRef.id,
-            creator: { id: docRef.id, ...creator }
+            creator: creatorWithId,
+            embeddingStatus: 'generating'
         });
     } catch (error) {
         console.error('❌ Error adding creator:', error.message);
         res.status(500).json({ success: false, error: error.message });
     }
 });
+
+/**
+ * Helper: Generate embedding for a creator and update Firestore
+ */
+async function generateEmbeddingForCreator(creator) {
+    try {
+        const embeddingText = buildCreatorEmbeddingText(creator);
+        const embedding = await generateEmbedding(embeddingText, 'RETRIEVAL_DOCUMENT');
+        
+        await firestore.collection(CONFIG.creatorsCollection).doc(creator.id).update({
+            embedding: embedding.values,
+            embeddingText: embeddingText,
+            embeddingModel: embedding.model,
+            embeddingGeneratedAt: new Date().toISOString()
+        });
+        
+        console.log(`✅ Embedding generated for ${creator.name} (${creator.id})`);
+        clearCreatorCache();
+    } catch (error) {
+        console.error(`❌ Embedding generation failed for ${creator.id}:`, error.message);
+        throw error;
+    }
+}
 
 /**
  * POST /api/v1/creators/batch - Bulk import creators
@@ -754,6 +801,540 @@ app.get('/api/v1/llm/test', async (req, res) => {
 });
 
 // =============================================================================
+// 🔢 EMBEDDINGS API (Phase 3)
+// =============================================================================
+
+/**
+ * GET /api/v1/embeddings/test - Test embedding generation
+ */
+app.get('/api/v1/embeddings/test', async (req, res) => {
+    console.log('📥 GET /api/v1/embeddings/test');
+    
+    try {
+        const embeddingResult = await testEmbeddings();
+        const config = getEmbeddingConfig();
+        
+        res.json({
+            success: embeddingResult.success,
+            model: config.model,
+            dimensions: embeddingResult.dimensions || config.dimensions,
+            clientType: getClientType(),
+            error: embeddingResult.error || null
+        });
+    } catch (error) {
+        console.error('❌ Embedding test failed:', error.message);
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+});
+
+/**
+ * POST /api/v1/embeddings/generate/:id - Generate embedding for a specific creator
+ */
+app.post('/api/v1/embeddings/generate/:id', async (req, res) => {
+    const { id } = req.params;
+    console.log(`📥 POST /api/v1/embeddings/generate/${id}`);
+    
+    try {
+        // Get the creator
+        const creatorDoc = await firestore.collection(CONFIG.creatorsCollection).doc(id).get();
+        if (!creatorDoc.exists) {
+            return res.status(404).json({ success: false, error: 'Creator not found' });
+        }
+        
+        const creator = { id: creatorDoc.id, ...creatorDoc.data() };
+        
+        // Build embedding text from creator data
+        const embeddingText = buildCreatorEmbeddingText(creator);
+        console.log(`📝 Embedding text (${embeddingText.length} chars): ${embeddingText.substring(0, 100)}...`);
+        
+        // Generate embedding
+        const embedding = await generateEmbedding(embeddingText, 'RETRIEVAL_DOCUMENT');
+        
+        // Store embedding in the creator document
+        await firestore.collection(CONFIG.creatorsCollection).doc(id).update({
+            embedding: embedding.values,
+            embeddingText: embeddingText,
+            embeddingModel: embedding.model,
+            embeddingGeneratedAt: new Date().toISOString()
+        });
+        
+        // Invalidate cache
+        creatorCache = null;
+        creatorCacheTime = null;
+        
+        res.json({
+            success: true,
+            creatorId: id,
+            creatorName: creator.name,
+            dimensions: embedding.dimensions,
+            model: embedding.model,
+            textLength: embeddingText.length
+        });
+    } catch (error) {
+        console.error('❌ Embedding generation failed:', error.message);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+/**
+ * POST /api/v1/embeddings/batch - Generate embeddings for all creators (or subset)
+ */
+app.post('/api/v1/embeddings/batch', async (req, res) => {
+    console.log('📥 POST /api/v1/embeddings/batch');
+    
+    const { 
+        onlyMissing = true,  // Only generate for creators without embeddings
+        limit = 50,          // Max creators to process
+        dryRun = false       // Preview without saving
+    } = req.body;
+    
+    try {
+        // Get creators
+        let creators = await getCreators();
+        
+        // Filter to only those missing embeddings if requested
+        if (onlyMissing) {
+            creators = creators.filter(c => !c.embedding);
+        }
+        
+        // Apply limit
+        creators = creators.slice(0, limit);
+        
+        if (creators.length === 0) {
+            return res.json({
+                success: true,
+                message: 'No creators need embeddings',
+                processed: 0
+            });
+        }
+        
+        console.log(`🔢 Processing ${creators.length} creators...`);
+        
+        // Build embedding texts
+        const embeddingTexts = creators.map(c => buildCreatorEmbeddingText(c));
+        
+        if (dryRun) {
+            return res.json({
+                success: true,
+                dryRun: true,
+                wouldProcess: creators.length,
+                preview: creators.slice(0, 3).map((c, i) => ({
+                    id: c.id,
+                    name: c.name,
+                    embeddingText: embeddingTexts[i].substring(0, 200) + '...'
+                }))
+            });
+        }
+        
+        // Generate embeddings in batch
+        const embeddings = await generateEmbeddings(embeddingTexts, 'RETRIEVAL_DOCUMENT');
+        
+        // Update each creator with their embedding
+        const batch = firestore.batch();
+        const results = [];
+        
+        for (let i = 0; i < creators.length; i++) {
+            const creator = creators[i];
+            const embedding = embeddings[i];
+            
+            batch.update(firestore.collection(CONFIG.creatorsCollection).doc(creator.id), {
+                embedding: embedding.values,
+                embeddingText: embeddingTexts[i],
+                embeddingModel: embedding.model,
+                embeddingGeneratedAt: new Date().toISOString()
+            });
+            
+            results.push({
+                id: creator.id,
+                name: creator.name,
+                dimensions: embedding.dimensions
+            });
+        }
+        
+        await batch.commit();
+        
+        // Invalidate cache
+        creatorCache = null;
+        creatorCacheTime = null;
+        
+        console.log(`✅ Generated embeddings for ${results.length} creators`);
+        
+        res.json({
+            success: true,
+            processed: results.length,
+            model: embeddings[0]?.model,
+            dimensions: embeddings[0]?.dimensions,
+            creators: results
+        });
+    } catch (error) {
+        console.error('❌ Batch embedding failed:', error.message);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+/**
+ * GET /api/v1/similar/:id - Find creators similar to a given creator
+ */
+app.get('/api/v1/similar/:id', async (req, res) => {
+    const { id } = req.params;
+    const { limit = 5, minSimilarity = 0.5 } = req.query;
+    
+    console.log(`📥 GET /api/v1/similar/${id}?limit=${limit}&minSimilarity=${minSimilarity}`);
+    
+    try {
+        // Get the target creator
+        const creatorDoc = await firestore.collection(CONFIG.creatorsCollection).doc(id).get();
+        if (!creatorDoc.exists) {
+            return res.status(404).json({ success: false, error: 'Creator not found' });
+        }
+        
+        const targetCreator = { id: creatorDoc.id, ...creatorDoc.data() };
+        
+        // Check if target has embedding
+        if (!targetCreator.embedding) {
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Creator does not have an embedding. Generate one first with POST /api/v1/embeddings/generate/:id'
+            });
+        }
+        
+        // Get all creators with embeddings
+        const allCreators = await getCreators();
+        const creatorsWithEmbeddings = allCreators.filter(c => 
+            c.embedding && c.id !== id
+        );
+        
+        if (creatorsWithEmbeddings.length === 0) {
+            return res.json({
+                success: true,
+                target: { id: targetCreator.id, name: targetCreator.name },
+                similar: [],
+                message: 'No other creators have embeddings yet'
+            });
+        }
+        
+        // Find similar creators
+        const similar = findSimilar(
+            targetCreator.embedding,
+            creatorsWithEmbeddings,
+            { 
+                limit: parseInt(limit), 
+                minSimilarity: parseFloat(minSimilarity) 
+            }
+        );
+        
+        res.json({
+            success: true,
+            target: {
+                id: targetCreator.id,
+                name: targetCreator.name,
+                craft: targetCreator.craft?.primary
+            },
+            similar: similar.map(c => ({
+                id: c.id,
+                name: c.name,
+                craft: c.craft?.primary,
+                platform: c.platform,
+                similarity: Math.round(c.similarity * 1000) / 1000,  // 3 decimal places
+                isGoldenRecord: c.matching?.isGoldenRecord || false
+            })),
+            searchedCreators: creatorsWithEmbeddings.length
+        });
+    } catch (error) {
+        console.error('❌ Similar search failed:', error.message);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+/**
+ * POST /api/v1/search/semantic - Semantic search with a text query
+ */
+app.post('/api/v1/search/semantic', async (req, res) => {
+    console.log('📥 POST /api/v1/search/semantic');
+    
+    const { query, limit = 10, minSimilarity = 0.3 } = req.body;
+    
+    if (!query) {
+        return res.status(400).json({ success: false, error: 'Query is required' });
+    }
+    
+    try {
+        // Generate embedding for the search query
+        const queryEmbedding = await generateEmbedding(query, 'RETRIEVAL_QUERY');
+        
+        // Get all creators with embeddings
+        const allCreators = await getCreators();
+        const creatorsWithEmbeddings = allCreators.filter(c => c.embedding);
+        
+        if (creatorsWithEmbeddings.length === 0) {
+            return res.json({
+                success: true,
+                query,
+                results: [],
+                message: 'No creators have embeddings yet. Run POST /api/v1/embeddings/batch first.'
+            });
+        }
+        
+        // Find similar creators
+        const results = findSimilar(
+            queryEmbedding.values,
+            creatorsWithEmbeddings,
+            { limit, minSimilarity }
+        );
+        
+        res.json({
+            success: true,
+            query,
+            results: results.map(c => ({
+                id: c.id,
+                name: c.name,
+                handle: c.handle,
+                craft: c.craft?.primary,
+                platform: c.platform,
+                location: c.contact?.location,
+                similarity: Math.round(c.similarity * 1000) / 1000,
+                styleSignature: c.craft?.styleSignature,
+                isGoldenRecord: c.matching?.isGoldenRecord || false
+            })),
+            totalSearched: creatorsWithEmbeddings.length,
+            embeddingModel: queryEmbedding.model
+        });
+    } catch (error) {
+        console.error('❌ Semantic search failed:', error.message);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// =============================================================================
+// 🌟 GOLDEN RECORD LOOKALIKE API (Phase 3.3)
+// =============================================================================
+
+// Cache for the Golden Record model
+let goldenRecordModel = null;
+let goldenRecordModelTime = null;
+const GOLDEN_RECORD_MODEL_TTL = 5 * 60 * 1000; // 5 minute cache
+
+/**
+ * Build or retrieve cached Golden Record model
+ */
+async function getGoldenRecordModel(forceRefresh = false) {
+    if (!forceRefresh && goldenRecordModel && goldenRecordModelTime && 
+        (Date.now() - goldenRecordModelTime) < GOLDEN_RECORD_MODEL_TTL) {
+        return goldenRecordModel;
+    }
+    
+    const allCreators = await getCreators();
+    const goldenRecords = allCreators.filter(c => 
+        c.matching?.isGoldenRecord && c.embedding
+    );
+    
+    if (goldenRecords.length === 0) {
+        return null;
+    }
+    
+    goldenRecordModel = buildGoldenRecordModel(goldenRecords);
+    goldenRecordModelTime = Date.now();
+    
+    console.log(`🌟 Golden Record model built from ${goldenRecords.length} creators`);
+    return goldenRecordModel;
+}
+
+/**
+ * GET /api/v1/lookalikes/model - Get Golden Record model info
+ */
+app.get('/api/v1/lookalikes/model', async (req, res) => {
+    console.log('📥 GET /api/v1/lookalikes/model');
+    
+    try {
+        const model = await getGoldenRecordModel();
+        
+        if (!model) {
+            return res.json({
+                success: true,
+                model: null,
+                message: 'No Golden Records with embeddings found. Import Golden Records first.'
+            });
+        }
+        
+        // Get names of Golden Records
+        const allCreators = await getCreators();
+        const goldenRecordNames = model.goldenRecordIds.map(id => {
+            const creator = allCreators.find(c => c.id === id);
+            return creator ? { id, name: creator.name, craft: creator.craft?.primary } : { id };
+        });
+        
+        res.json({
+            success: true,
+            model: {
+                goldenRecordCount: model.goldenRecordCount,
+                dimensions: model.dimensions,
+                goldenRecords: goldenRecordNames,
+                createdAt: model.createdAt,
+                cacheAge: goldenRecordModelTime ? Math.floor((Date.now() - goldenRecordModelTime) / 1000) + 's' : null
+            }
+        });
+    } catch (error) {
+        console.error('❌ Golden Record model fetch failed:', error.message);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+/**
+ * GET /api/v1/lookalikes - Find creators most similar to Golden Records
+ */
+app.get('/api/v1/lookalikes', async (req, res) => {
+    const { limit = 10, minSimilarity = 0.5, includeGoldenRecords = false } = req.query;
+    console.log(`📥 GET /api/v1/lookalikes?limit=${limit}&minSimilarity=${minSimilarity}`);
+    
+    try {
+        const model = await getGoldenRecordModel();
+        
+        if (!model) {
+            return res.json({
+                success: true,
+                results: [],
+                message: 'No Golden Records with embeddings found. Import Golden Records first.'
+            });
+        }
+        
+        // Get all creators with embeddings
+        const allCreators = await getCreators();
+        const creatorsWithEmbeddings = allCreators.filter(c => c.embedding);
+        
+        // Find lookalikes
+        const lookalikes = findLookalikes(
+            model,
+            creatorsWithEmbeddings,
+            {
+                limit: parseInt(limit),
+                minSimilarity: parseFloat(minSimilarity),
+                excludeGoldenRecords: includeGoldenRecords !== 'true'
+            }
+        );
+        
+        res.json({
+            success: true,
+            goldenRecordCount: model.goldenRecordCount,
+            results: lookalikes.map(c => ({
+                id: c.id,
+                name: c.name,
+                handle: c.handle,
+                craft: c.craft?.primary,
+                platform: c.platform,
+                location: c.contact?.location,
+                goldenRecordSimilarity: Math.round(c.goldenRecordSimilarity * 1000) / 1000,
+                styleSignature: c.craft?.styleSignature,
+                isGoldenRecord: c.matching?.isGoldenRecord || false
+            })),
+            totalSearched: creatorsWithEmbeddings.length,
+            excludedGoldenRecords: includeGoldenRecords !== 'true'
+        });
+    } catch (error) {
+        console.error('❌ Lookalike search failed:', error.message);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+/**
+ * GET /api/v1/lookalikes/score/:id - Get a specific creator's Golden Record similarity score
+ */
+app.get('/api/v1/lookalikes/score/:id', async (req, res) => {
+    const { id } = req.params;
+    console.log(`📥 GET /api/v1/lookalikes/score/${id}`);
+    
+    try {
+        const model = await getGoldenRecordModel();
+        
+        if (!model) {
+            return res.status(400).json({
+                success: false,
+                error: 'No Golden Records with embeddings found'
+            });
+        }
+        
+        // Get the creator
+        const creatorDoc = await firestore.collection(CONFIG.creatorsCollection).doc(id).get();
+        if (!creatorDoc.exists) {
+            return res.status(404).json({ success: false, error: 'Creator not found' });
+        }
+        
+        const creator = { id: creatorDoc.id, ...creatorDoc.data() };
+        
+        if (!creator.embedding) {
+            return res.status(400).json({
+                success: false,
+                error: 'Creator does not have an embedding'
+            });
+        }
+        
+        const score = scoreAgainstGoldenRecords(creator.embedding, model);
+        
+        // Also get similarity to each individual Golden Record
+        const allCreators = await getCreators();
+        const goldenRecords = allCreators.filter(c => 
+            c.matching?.isGoldenRecord && c.embedding
+        );
+        
+        const individualScores = goldenRecords.map(gr => ({
+            id: gr.id,
+            name: gr.name,
+            craft: gr.craft?.primary,
+            similarity: Math.round(cosineSimilarity(creator.embedding, gr.embedding) * 1000) / 1000
+        })).sort((a, b) => b.similarity - a.similarity);
+        
+        res.json({
+            success: true,
+            creator: {
+                id: creator.id,
+                name: creator.name,
+                craft: creator.craft?.primary,
+                isGoldenRecord: creator.matching?.isGoldenRecord || false
+            },
+            goldenRecordSimilarity: Math.round(score * 1000) / 1000,
+            comparedAgainst: model.goldenRecordCount,
+            individualScores: individualScores.slice(0, 5)  // Top 5 most similar Golden Records
+        });
+    } catch (error) {
+        console.error('❌ Lookalike score failed:', error.message);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+/**
+ * POST /api/v1/lookalikes/refresh - Force refresh the Golden Record model
+ */
+app.post('/api/v1/lookalikes/refresh', async (req, res) => {
+    console.log('📥 POST /api/v1/lookalikes/refresh');
+    
+    try {
+        goldenRecordModel = null;
+        goldenRecordModelTime = null;
+        
+        const model = await getGoldenRecordModel(true);
+        
+        if (!model) {
+            return res.json({
+                success: true,
+                message: 'No Golden Records with embeddings found'
+            });
+        }
+        
+        res.json({
+            success: true,
+            message: 'Golden Record model refreshed',
+            goldenRecordCount: model.goldenRecordCount,
+            dimensions: model.dimensions
+        });
+    } catch (error) {
+        console.error('❌ Model refresh failed:', error.message);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// =============================================================================
 // 📊 STATS API
 // =============================================================================
 
@@ -814,18 +1395,27 @@ Model:      ${CONFIG.model}
 Collection: ${CONFIG.creatorsCollection}
 ────────────────────────────────────────────────────────────
 Endpoints:
-  GET  /health                 - Health check
-  GET  /dashboard              - Monitoring dashboard
-  GET  /api/v1/creators        - List/search creators
-  GET  /api/v1/creators/:id    - Get creator by ID
-  POST /api/v1/creators        - Add creator
-  POST /api/v1/creators/batch  - Bulk import
-  POST /api/v1/import/apify    - Apify scraper import (Phase 2)
-  POST /api/v1/match           - Match creators to brief
-  POST /api/v1/categorize      - LLM auto-categorize from bio (Phase 2)
-  POST /api/v1/style-signature - LLM generate style signature (Phase 2)
-  GET  /api/v1/llm/test        - Test LLM connection
-  GET  /api/v1/stats           - Database statistics
+  GET  /health                      - Health check
+  GET  /dashboard                   - Monitoring dashboard
+  GET  /api/v1/creators             - List/search creators
+  GET  /api/v1/creators/:id         - Get creator by ID
+  POST /api/v1/creators             - Add creator
+  POST /api/v1/creators/batch       - Bulk import
+  POST /api/v1/import/apify         - Apify scraper import
+  POST /api/v1/match                - Match creators to brief
+  POST /api/v1/categorize           - LLM auto-categorize
+  POST /api/v1/style-signature      - Generate style signature
+  GET  /api/v1/llm/test             - Test LLM connection
+  GET  /api/v1/embeddings/test      - Test embeddings
+  POST /api/v1/embeddings/generate/:id - Generate creator embedding
+  POST /api/v1/embeddings/batch     - Batch generate embeddings
+  GET  /api/v1/similar/:id          - Find similar creators
+  POST /api/v1/search/semantic      - Semantic search
+  GET  /api/v1/lookalikes           - Find Golden Record lookalikes
+  GET  /api/v1/lookalikes/model     - Get model info
+  GET  /api/v1/lookalikes/score/:id - Score creator vs Golden Records
+  POST /api/v1/lookalikes/refresh   - Refresh model cache
+  GET  /api/v1/stats                - Database statistics
 ============================================================
 `);
 });
