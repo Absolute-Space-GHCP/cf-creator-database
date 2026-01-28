@@ -1,0 +1,73 @@
+{
+  "project": "Hunter Source List - Craft Talent",
+  "version": "1.2",
+  "sources": {
+    "festivals": [
+      {
+        "name": "Camerimage",
+        "url": "https://camerimage.pl/en/",
+        "focus": "Cinematography",
+        "priority_sections": ["Main Competition", "Golden Frog Nominees", "Music Video Competition"]
+      },
+      {
+        "name": "Annecy International Animation Film Festival",
+        "url": "https://www.annecy.org/",
+        "focus": "Animation",
+        "priority_sections": ["Short Films", "Graduation Films"]
+      },
+      {
+        "name": "Ciclope Festival",
+        "url": "https://www.ciclopefestival.com/",
+        "focus": "Craft in Advertising",
+        "priority_sections": ["Winners Gallery", "Shortlist"]
+      },
+      {
+        "name": "NFFTY",
+        "url": "https://www.nffty.org/",
+        "focus": "Youth Talent (<24)",
+        "priority_sections": ["Jury Awards", "Audience Awards"]
+      }
+    ],
+    "platforms": [
+      {
+        "name": "Behance",
+        "focus": "Motion Graphics",
+        "search_queries": ["Motion Design", "Cinema 4D", "Typography", "Title Design"],
+        "filters": ["Curated Galleries", "Featured"]
+      },
+      {
+        "name": "Vimeo",
+        "focus": "Short Film & Experimental",
+        "search_queries": ["Staff Picks", "Experimental", "Animation"],
+        "filters": ["Best of the Month", "Best of the Year"]
+      },
+      {
+        "name": "ArtStation",
+        "focus": "VFX & 3D Environment",
+        "search_queries": ["Realtime", "Unreal Engine 5", "Environment Art"],
+        "filters": ["Trending", "Picks"]
+      }
+    ],
+    "keywords": {
+      "positive_tags": [
+        "#ArriAlexa", "#RedV_Raptor", "#SonyVenice", "#BMPCC6K",
+        "#Anamorphic", "#CookeLenses", "#ZeissSupreme",
+        "#HoudiniFX", "#NukeX", "#Redshift3D", "#OctaneRender", "#UnrealEngine5",
+        "#ColorGrading", "#DaVinciResolve", "#ACEScolor",
+        "#StopMotion", "#PracticalEffects", "#MattePainting", "#VirtualProduction"
+      ],
+      "negative_tags": [
+        "#fyp", "#foryoupage", "#viral", "#trending",
+        "#lifestyle", "#ootd", "#grwm", "#vlog",
+        "#influencer", "#contentcreator", "#canonm50"
+      ]
+    },
+    "communities": [
+      "r/cinematography",
+      "r/vfx",
+      "r/motiondesign",
+      "r/colorists",
+      "r/editors"
+    ]
+  }
+}

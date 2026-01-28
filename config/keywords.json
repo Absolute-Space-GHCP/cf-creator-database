@@ -1,0 +1,71 @@
+{
+  "version": "1.0.0",
+  "date": "2026-01-28",
+  "positive_keywords": {
+    "cameras": [
+      "#ArriAlexa", "#ArriAlexa35", "#RedV_Raptor", "#SonyVenice", "#SonyVenice2",
+      "#BMPCC6K", "#RedKomodo", "#CanonC500"
+    ],
+    "lenses": [
+      "#Anamorphic", "#CookeLenses", "#CookeS4", "#CookePanchro",
+      "#ZeissSupreme", "#MasterPrimes", "#VintageLenses"
+    ],
+    "lighting": [
+      "#AsteraTitans", "#AsteraTubes", "#ArriSkypanel", "#LiteMat",
+      "#PracticalLighting", "#NaturalLight"
+    ],
+    "software_vfx": [
+      "#HoudiniFX", "#SideFX", "#NukeX", "#NukeCompositing",
+      "#Redshift3D", "#OctaneRender", "#UnrealEngine5",
+      "#Cinema4D", "#Blender3D", "#MayaArnold"
+    ],
+    "color": [
+      "#ColorGrading", "#Colorist", "#DaVinciResolve", "#ACEScolor",
+      "#FilmEmulation", "#LogFootage"
+    ],
+    "techniques": [
+      "#StopMotion", "#PracticalEffects", "#MattePainting",
+      "#VirtualProduction", "#MotionCapture", "#Miniatures"
+    ],
+    "craft_indicators": [
+      "#Cinematographer", "#DP", "#DirectorOfPhotography",
+      "#MotionDesigner", "#VFXArtist", "#Colorist",
+      "#FilmEditor", "#SoundDesigner", "#ProductionDesigner"
+    ]
+  },
+  "negative_keywords": {
+    "influencer_noise": [
+      "#fyp", "#foryoupage", "#viral", "#trending",
+      "#lifestyle", "#ootd", "#grwm", "#vlog",
+      "#influencer", "#contentcreator", "#sponsored"
+    ],
+    "consumer_gear": [
+      "#canonm50", "#iphone", "#gopro", "#dji",
+      "#vlogcamera", "#budgetfilmmaking"
+    ],
+    "low_effort": [
+      "#reels", "#shorts", "#tiktok",
+      "#followforfollow", "#f4f", "#like4like"
+    ]
+  },
+  "craft_categories": [
+    "cinematographer",
+    "director_of_photography",
+    "motion_designer",
+    "vfx_artist",
+    "colorist",
+    "editor",
+    "animator",
+    "production_designer",
+    "title_designer",
+    "sound_designer",
+    "practical_effects",
+    "matte_painter"
+  ],
+  "location_constraints": [
+    "on_site",
+    "digital_only",
+    "flexible",
+    "travel_required"
+  ]
+}
