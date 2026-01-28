@@ -2,8 +2,8 @@
 
 # CatchFire Matching Engine - Project Plan
 
-**Version:** v0.3.0  
-**Status:** 🚀 Active Development (Phase 1 Complete)  
+**Version:** v0.4.0  
+**Status:** 🚀 Active Development (Phase 2 Complete)  
 **Priority:** High (Founder-level project)
 
 ---
@@ -196,17 +196,17 @@ Build an **automated Creator Matching Engine** that recommends perfect creators 
 | 1.6 | Implement scoring algorithm       | ✅ Done | src/scoring.js               |
 | 1.7 | Build POST /api/v1/match          | ✅ Done | Keyword extraction + scoring |
 
-### Phase 2: Intelligence Layer (v0.3.0)
+### Phase 2: Intelligence Layer (v0.3.0) ✅ COMPLETE
 
 **Goal:** LLM-powered categorization and style analysis
 
-| #   | Task                                  | Status     | Notes                       |
-| --- | ------------------------------------- | ---------- | --------------------------- |
-| 2.1 | Build POST /api/v1/categorize         | ⏳ Pending | Bio → craft tags            |
-| 2.2 | Implement style signature generation  | ⏳ Pending | LLM aesthetic description   |
-| 2.3 | Add positive/negative keyword scoring | ⏳ Pending |                             |
-| 2.4 | Create "Golden Records" import        | ⏳ Pending | First 20 benchmark creators |
-| 2.5 | Build batch processing pipeline       | ⏳ Pending | For Apify imports           |
+| #   | Task                                  | Status  | Notes                                    |
+| --- | ------------------------------------- | ------- | ---------------------------------------- |
+| 2.1 | Build POST /api/v1/categorize         | ✅ Done | Vertex AI + Gemini 2.5 Flash             |
+| 2.2 | Implement style signature generation  | ✅ Done | POST /api/v1/style-signature             |
+| 2.3 | Add positive/negative keyword scoring | ✅ Done | Auto-detect influencer noise + pro bonus |
+| 2.4 | Create "Golden Records" import        | ✅ Done | 10 benchmark creators imported           |
+| 2.5 | Build batch processing pipeline       | ✅ Done | POST /api/v1/import/apify with LLM       |
 
 ### Phase 3: Search & Discovery (v0.4.0)
 
@@ -273,6 +273,7 @@ Build an **automated Creator Matching Engine** that recommends perfect creators 
 
 | Date       | Version | Changes                                                          |
 | ---------- | ------- | ---------------------------------------------------------------- |
+| 2026-01-28 | 0.4.0   | Phase 2 complete: LLM categorization, style signatures, Apify    |
 | 2026-01-28 | 0.3.0   | Phase 1 complete: CRUD API, zod validation, scoring algorithm    |
 | 2026-01-28 | 0.2.0   | Comprehensive plan from requestor context; Phase 0 tasks defined |
 | 2026-01-28 | 0.1.0   | Initial project setup from golden master                         |

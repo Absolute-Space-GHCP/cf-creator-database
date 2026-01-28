@@ -13,8 +13,9 @@ const path = require('path');
 const { Firestore } = require('@google-cloud/firestore');
 
 // Local modules
-const { validateCreator, validateBatchCreator, validateMatchRequest, validateCategorizeRequest } = require('./schemas');
+const { validateCreator, validateBatchCreator, validateMatchRequest, validateCategorizeRequest, PLATFORMS, CRAFT_TYPES } = require('./schemas');
 const { rankCreators, extractBriefKeywords } = require('./scoring');
+const { categorizeCreator, generateStyleSignature, testLLMConnection } = require('./llm');
 
 // =============================================================================
 // 🔧 CONFIGURATION
@@ -343,6 +344,205 @@ app.post('/api/v1/creators/batch', async (req, res) => {
 });
 
 // =============================================================================
+// 🤖 APIFY SCRAPER IMPORT (Phase 2)
+// =============================================================================
+
+/**
+ * Transform raw Apify scraper data to CatchFire schema
+ * Handles various field naming conventions from different scrapers
+ */
+function transformScraperData(raw) {
+    // Normalize platform names
+    const platformMap = {
+        'vimeo.com': 'vimeo',
+        'behance.net': 'behance',
+        'artstation.com': 'artstation',
+        'instagram.com': 'instagram',
+        'youtube.com': 'youtube',
+        'tiktok.com': 'tiktok',
+        'dribbble.com': 'dribbble',
+        'linkedin.com': 'linkedin'
+    };
+    
+    // Extract platform from URL if available
+    let platform = raw.platform || 'other';
+    const profileUrl = raw.profileUrl || raw.url || raw.profile_url || '';
+    for (const [domain, plat] of Object.entries(platformMap)) {
+        if (profileUrl.includes(domain)) {
+            platform = plat;
+            break;
+        }
+    }
+    
+    // Validate platform against schema
+    if (!PLATFORMS.includes(platform)) {
+        platform = 'other';
+    }
+    
+    return {
+        name: raw.name || raw.displayName || raw.fullName || raw.username || 'Unknown',
+        handle: raw.handle || raw.username || (raw.name ? `@${raw.name.toLowerCase().replace(/\s+/g, '')}` : ''),
+        platform,
+        source: {
+            type: raw.sourceType || 'platform',
+            name: raw.sourceName || raw.source || platform,
+            url: profileUrl,
+            discoveredAt: new Date().toISOString()
+        },
+        craft: {
+            primary: 'other', // Will be set by LLM categorization
+            secondary: [],
+            styleSignature: '',
+            technicalTags: raw.tags || raw.hashtags || []
+        },
+        matching: {
+            positiveKeywords: [],
+            negativeKeywords: [],
+            qualityScore: raw.qualityScore || raw.score || 50,
+            isGoldenRecord: false
+        },
+        contact: {
+            email: raw.email || '',
+            portfolio_url: profileUrl,
+            location: raw.location || raw.city || raw.country || '',
+            locationConstraints: 'flexible',
+            isHireable: raw.isHireable !== false
+        },
+        // Preserve raw bio for categorization
+        _rawBio: raw.bio || raw.description || raw.about || ''
+    };
+}
+
+/**
+ * POST /api/v1/import/apify - Import from Apify scraper with auto-categorization
+ * Body: { 
+ *   data: [...], 
+ *   source: { type, name },
+ *   autoCategorize: boolean (default: true),
+ *   dryRun: boolean (default: false)
+ * }
+ */
+app.post('/api/v1/import/apify', async (req, res) => {
+    console.log('📥 POST /api/v1/import/apify');
+    
+    try {
+        if (!firestore) {
+            return res.status(503).json({ success: false, error: 'Firestore not available' });
+        }
+        
+        const { data, source, autoCategorize = true, dryRun = false } = req.body;
+        
+        if (!Array.isArray(data) || data.length === 0) {
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Request body must contain a non-empty "data" array' 
+            });
+        }
+        
+        console.log(`🕷️ Processing ${data.length} scraped records...`);
+        console.log(`   Auto-categorize: ${autoCategorize}`);
+        console.log(`   Dry run: ${dryRun}`);
+        
+        const results = [];
+        const timestamp = new Date().toISOString();
+        const batch = dryRun ? null : firestore.batch();
+        
+        for (let i = 0; i < data.length; i++) {
+            const raw = data[i];
+            
+            try {
+                // Transform to our schema
+                const creator = transformScraperData(raw);
+                
+                // Apply source override if provided
+                if (source) {
+                    creator.source.type = source.type || creator.source.type;
+                    creator.source.name = source.name || creator.source.name;
+                }
+                
+                // Auto-categorize with LLM if bio available and enabled
+                if (autoCategorize && creator._rawBio) {
+                    try {
+                        console.log(`   🤖 Categorizing: ${creator.name}...`);
+                        const categorization = await categorizeCreator(creator._rawBio);
+                        creator.craft.primary = categorization.craft.primary;
+                        creator.craft.secondary = categorization.craft.secondary;
+                        creator.craft.styleSignature = categorization.styleSignature;
+                        creator.craft.technicalTags = categorization.technicalTags;
+                        creator.matching.positiveKeywords = categorization.positiveKeywords;
+                        creator.matching.negativeKeywords = categorization.negativeKeywords;
+                    } catch (llmError) {
+                        console.log(`   ⚠️ LLM categorization failed for ${creator.name}, using defaults`);
+                    }
+                }
+                
+                // Remove internal fields
+                delete creator._rawBio;
+                
+                // Add timestamps
+                creator.createdAt = timestamp;
+                creator.updatedAt = timestamp;
+                
+                if (!dryRun) {
+                    const docRef = firestore.collection(CONFIG.creatorsCollection).doc();
+                    batch.set(docRef, creator);
+                    results.push({ 
+                        id: docRef.id, 
+                        name: creator.name, 
+                        craft: creator.craft.primary,
+                        status: 'imported'
+                    });
+                } else {
+                    results.push({ 
+                        name: creator.name, 
+                        craft: creator.craft.primary,
+                        status: 'dry_run',
+                        preview: creator
+                    });
+                }
+                
+            } catch (error) {
+                results.push({ 
+                    error: error.message, 
+                    name: raw.name || 'unknown',
+                    status: 'failed'
+                });
+            }
+            
+            // Progress logging for large batches
+            if ((i + 1) % 10 === 0) {
+                console.log(`   📊 Processed ${i + 1}/${data.length}`);
+            }
+        }
+        
+        // Commit batch if not dry run
+        if (!dryRun && batch) {
+            console.log('💾 Committing batch write...');
+            await batch.commit();
+            clearCreatorCache();
+        }
+        
+        const successCount = results.filter(r => r.status === 'imported' || r.status === 'dry_run').length;
+        const failedCount = results.filter(r => r.status === 'failed').length;
+        
+        console.log(`✅ Import complete: ${successCount} succeeded, ${failedCount} failed`);
+        
+        res.status(dryRun ? 200 : 201).json({
+            success: true,
+            dryRun,
+            imported: dryRun ? 0 : successCount,
+            previewed: dryRun ? successCount : 0,
+            failed: failedCount,
+            total: data.length,
+            results
+        });
+    } catch (error) {
+        console.error('❌ Error in Apify import:', error.message);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// =============================================================================
 // 🎯 MATCHING API
 // =============================================================================
 
@@ -448,35 +648,108 @@ app.post('/api/v1/categorize', async (req, res) => {
         const { bio, portfolio_url, recentWork } = validation.data;
         console.log(`🤖 Categorizing bio: "${bio.substring(0, 100)}..."`);
         
-        // Extract keywords from bio for basic categorization
-        const keywords = extractBriefKeywords(bio);
+        // Use LLM-powered categorization
+        const categorization = await categorizeCreator(bio, portfolio_url, recentWork);
         
-        // TODO: Phase 2 - Implement LLM-based categorization with @google/genai
-        // For now, use keyword extraction for basic categorization
+        console.log('✅ LLM categorization complete');
+        
+        res.json({
+            success: true,
+            input: { bio: bio.substring(0, 200), portfolio_url },
+            categorization,
+            model: CONFIG.model
+        });
+    } catch (error) {
+        console.error('❌ Error categorizing:', error.message);
+        
+        // Fallback to keyword extraction if LLM fails
+        console.log('⚠️ Falling back to keyword extraction...');
+        const inputBio = req.body.bio || '';
+        const keywords = extractBriefKeywords(inputBio);
         const detectedCraft = keywords.crafts[0] || 'other';
-        const categorization = {
+        const fallbackCategorization = {
             craft: {
                 primary: detectedCraft,
                 secondary: keywords.crafts.slice(1, 3),
-                confidence: keywords.crafts.length > 0 ? 0.7 : 0.3
+                confidence: keywords.crafts.length > 0 ? 0.5 : 0.2
             },
             technicalTags: keywords.technical.map(t => `#${t.replace(/\s+/g, '')}`),
             styleSignature: `Creator with focus on ${keywords.styles.slice(0, 3).join(', ') || 'visual storytelling'}.`,
             positiveKeywords: [...keywords.crafts, ...keywords.technical].slice(0, 10),
             negativeKeywords: [],
-            note: 'Basic keyword extraction - LLM categorization coming in Phase 2'
+            reasoning: 'Fallback: LLM unavailable, used keyword extraction'
         };
-        
-        console.log('✅ Categorization complete');
         
         res.json({
             success: true,
-            input: { bio: bio.substring(0, 200), portfolio_url },
-            categorization
+            input: { bio: inputBio.substring(0, 200), portfolio_url: req.body.portfolio_url },
+            categorization: fallbackCategorization,
+            fallback: true,
+            llmError: error.message
+        });
+    }
+});
+
+// =============================================================================
+// 🎨 STYLE SIGNATURE API
+// =============================================================================
+
+/**
+ * POST /api/v1/style-signature - Generate a style signature for a creator
+ * Body: { name: string, craft: string, bio: string, technicalTags?: string[] }
+ */
+app.post('/api/v1/style-signature', async (req, res) => {
+    console.log('📥 POST /api/v1/style-signature');
+    
+    try {
+        const { name, craft, bio, technicalTags } = req.body;
+        
+        if (!name || !craft || !bio) {
+            return res.status(400).json({
+                success: false,
+                error: 'name, craft, and bio are required'
+            });
+        }
+        
+        const styleSignature = await generateStyleSignature(name, craft, bio, technicalTags || []);
+        
+        console.log('✅ Style signature generated');
+        
+        res.json({
+            success: true,
+            name,
+            craft,
+            styleSignature,
+            model: CONFIG.model
         });
     } catch (error) {
-        console.error('❌ Error categorizing:', error.message);
+        console.error('❌ Error generating style signature:', error.message);
         res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+/**
+ * GET /api/v1/llm/test - Test LLM connection
+ */
+app.get('/api/v1/llm/test', async (req, res) => {
+    console.log('📥 GET /api/v1/llm/test');
+    
+    try {
+        const connected = await testLLMConnection();
+        
+        res.json({
+            success: true,
+            connected,
+            model: CONFIG.model,
+            message: connected ? 'LLM connection successful' : 'LLM connection failed'
+        });
+    } catch (error) {
+        console.error('❌ LLM test failed:', error.message);
+        res.status(500).json({
+            success: false,
+            connected: false,
+            error: error.message
+        });
     }
 });
 
@@ -541,15 +814,18 @@ Model:      ${CONFIG.model}
 Collection: ${CONFIG.creatorsCollection}
 ────────────────────────────────────────────────────────────
 Endpoints:
-  GET  /health              - Health check
-  GET  /dashboard           - Monitoring dashboard
-  GET  /api/v1/creators     - List/search creators
-  GET  /api/v1/creators/:id - Get creator by ID
-  POST /api/v1/creators     - Add creator
-  POST /api/v1/creators/batch - Bulk import
-  POST /api/v1/match        - Match creators to brief
-  POST /api/v1/categorize   - Auto-categorize from bio
-  GET  /api/v1/stats        - Database statistics
+  GET  /health                 - Health check
+  GET  /dashboard              - Monitoring dashboard
+  GET  /api/v1/creators        - List/search creators
+  GET  /api/v1/creators/:id    - Get creator by ID
+  POST /api/v1/creators        - Add creator
+  POST /api/v1/creators/batch  - Bulk import
+  POST /api/v1/import/apify    - Apify scraper import (Phase 2)
+  POST /api/v1/match           - Match creators to brief
+  POST /api/v1/categorize      - LLM auto-categorize from bio (Phase 2)
+  POST /api/v1/style-signature - LLM generate style signature (Phase 2)
+  GET  /api/v1/llm/test        - Test LLM connection
+  GET  /api/v1/stats           - Database statistics
 ============================================================
 `);
 });

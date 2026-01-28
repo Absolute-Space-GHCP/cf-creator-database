@@ -1,0 +1,291 @@
+{
+  "_meta": {
+    "description": "Golden Records - Benchmark creators representing the ideal CatchFire talent",
+    "author": "Charley Scholz, JLIT",
+    "coauthored": "Claude Opus 4.5, Claude Code, Cursor IDE",
+    "created": "2026-01-28",
+    "version": "1.0.0"
+  },
+  "goldenRecords": [
+    {
+      "name": "Roger Deakins",
+      "handle": "@rogerdeakins",
+      "platform": "vimeo",
+      "source": {
+        "type": "festival",
+        "name": "Academy Awards",
+        "url": "https://www.oscars.org",
+        "discoveredAt": "2026-01-28T00:00:00Z"
+      },
+      "craft": {
+        "primary": "cinematographer",
+        "secondary": ["director"],
+        "styleSignature": "Master of naturalistic lighting with an unparalleled ability to create atmosphere through shadow and texture. Known for seamless integration of digital and practical techniques that serve the story above all.",
+        "technicalTags": ["#ARRIAlexa", "#NaturalLight", "#Anamorphic", "#FilmEmulation"]
+      },
+      "matching": {
+        "positiveKeywords": ["cinematography", "lighting", "atmosphere", "narrative", "feature film", "oscar winner"],
+        "negativeKeywords": [],
+        "qualityScore": 100,
+        "isGoldenRecord": true
+      },
+      "contact": {
+        "location": "Los Angeles, CA",
+        "locationConstraints": "flexible",
+        "isHireable": false
+      }
+    },
+    {
+      "name": "Bradford Young",
+      "handle": "@bradfordyoung",
+      "platform": "vimeo",
+      "source": {
+        "type": "festival",
+        "name": "Sundance Film Festival",
+        "url": "https://www.sundance.org",
+        "discoveredAt": "2026-01-28T00:00:00Z"
+      },
+      "craft": {
+        "primary": "cinematographer",
+        "secondary": ["colorist"],
+        "styleSignature": "Pioneering cinematographer known for intimate portraiture and revolutionary approaches to lighting darker skin tones. Creates deeply emotional imagery through unconventional light sources.",
+        "technicalTags": ["#ARRIAlexa", "#AvailableLight", "#Portraiture", "#Documentary"]
+      },
+      "matching": {
+        "positiveKeywords": ["cinematography", "portraiture", "documentary", "narrative", "oscar nominee"],
+        "negativeKeywords": [],
+        "qualityScore": 98,
+        "isGoldenRecord": true
+      },
+      "contact": {
+        "location": "Los Angeles, CA",
+        "locationConstraints": "flexible",
+        "isHireable": true
+      }
+    },
+    {
+      "name": "Ash Thorp",
+      "handle": "@ashthorp",
+      "platform": "behance",
+      "source": {
+        "type": "platform",
+        "name": "Behance Featured",
+        "url": "https://www.behance.net/ashthorp",
+        "discoveredAt": "2026-01-28T00:00:00Z"
+      },
+      "craft": {
+        "primary": "motion_designer",
+        "secondary": ["3d_artist", "director"],
+        "styleSignature": "Boundary-pushing motion designer blending photorealistic 3D with bold graphic design. Known for creating immersive visual experiences that merge film and digital art.",
+        "technicalTags": ["#Cinema4D", "#Octane", "#AfterEffects", "#UnrealEngine5"]
+      },
+      "matching": {
+        "positiveKeywords": ["motion design", "3d", "title sequence", "commercial", "sci-fi", "futuristic"],
+        "negativeKeywords": [],
+        "qualityScore": 97,
+        "isGoldenRecord": true
+      },
+      "contact": {
+        "location": "Los Angeles, CA",
+        "locationConstraints": "flexible",
+        "isHireable": true
+      }
+    },
+    {
+      "name": "Hiro Murai",
+      "handle": "@hiromurai",
+      "platform": "vimeo",
+      "source": {
+        "type": "festival",
+        "name": "UKMVA",
+        "url": "https://www.ukmva.com",
+        "discoveredAt": "2026-01-28T00:00:00Z"
+      },
+      "craft": {
+        "primary": "director",
+        "secondary": ["cinematographer"],
+        "styleSignature": "Visionary director known for surreal, single-take music videos and emotionally resonant long-form content. Combines meticulous choreography with raw, visceral imagery.",
+        "technicalTags": ["#MusicVideo", "#LongTake", "#Steadicam", "#PracticalEffects"]
+      },
+      "matching": {
+        "positiveKeywords": ["music video", "director", "long take", "choreography", "childish gambino", "emmy winner"],
+        "negativeKeywords": [],
+        "qualityScore": 99,
+        "isGoldenRecord": true
+      },
+      "contact": {
+        "location": "Los Angeles, CA",
+        "locationConstraints": "on_site",
+        "isHireable": true
+      }
+    },
+    {
+      "name": "Janelle Croshaw",
+      "handle": "@janellecroshaw",
+      "platform": "vimeo",
+      "source": {
+        "type": "festival",
+        "name": "Camerimage",
+        "url": "https://camerimage.pl",
+        "discoveredAt": "2026-01-28T00:00:00Z"
+      },
+      "craft": {
+        "primary": "colorist",
+        "secondary": ["cinematographer"],
+        "styleSignature": "Award-winning colorist crafting rich, nuanced color palettes that enhance narrative without overwhelming. Known for subtle transformations that feel invisible yet essential.",
+        "technicalTags": ["#DaVinciResolve", "#ACES", "#FilmEmulation", "#HDR"]
+      },
+      "matching": {
+        "positiveKeywords": ["color grading", "colorist", "davinci", "feature film", "commercial"],
+        "negativeKeywords": [],
+        "qualityScore": 95,
+        "isGoldenRecord": true
+      },
+      "contact": {
+        "location": "Los Angeles, CA",
+        "locationConstraints": "digital_only",
+        "isHireable": true
+      }
+    },
+    {
+      "name": "Andrew Kramer",
+      "handle": "@andrewkramer",
+      "platform": "youtube",
+      "source": {
+        "type": "community",
+        "name": "Video Copilot",
+        "url": "https://www.videocopilot.net",
+        "discoveredAt": "2026-01-28T00:00:00Z"
+      },
+      "craft": {
+        "primary": "vfx_artist",
+        "secondary": ["motion_designer", "compositor"],
+        "styleSignature": "Legendary VFX artist who democratized visual effects through tutorials and plugins. Creates Hollywood-caliber effects with a signature explosive, cinematic style.",
+        "technicalTags": ["#AfterEffects", "#Element3D", "#OpticalFlares", "#Compositing"]
+      },
+      "matching": {
+        "positiveKeywords": ["vfx", "visual effects", "after effects", "compositing", "tutorial"],
+        "negativeKeywords": [],
+        "qualityScore": 96,
+        "isGoldenRecord": true
+      },
+      "contact": {
+        "location": "Los Angeles, CA",
+        "locationConstraints": "flexible",
+        "isHireable": false
+      }
+    },
+    {
+      "name": "Ari Weiss",
+      "handle": "@ariweiss",
+      "platform": "behance",
+      "source": {
+        "type": "platform",
+        "name": "Motionographer",
+        "url": "https://motionographer.com",
+        "discoveredAt": "2026-01-28T00:00:00Z"
+      },
+      "craft": {
+        "primary": "animator",
+        "secondary": ["motion_designer"],
+        "styleSignature": "Character animator with a gift for expressive movement and comedic timing. Creates work that feels handmade even in digital spaces, with meticulous attention to weight and physics.",
+        "technicalTags": ["#CharacterAnimation", "#AfterEffects", "#Toon", "#FrameByFrame"]
+      },
+      "matching": {
+        "positiveKeywords": ["animation", "character", "2d animation", "frame by frame", "commercial"],
+        "negativeKeywords": [],
+        "qualityScore": 92,
+        "isGoldenRecord": true
+      },
+      "contact": {
+        "location": "New York, NY",
+        "locationConstraints": "digital_only",
+        "isHireable": true
+      }
+    },
+    {
+      "name": "Paul Shortino",
+      "handle": "@paulshortino",
+      "platform": "artstation",
+      "source": {
+        "type": "festival",
+        "name": "Ciclope Festival",
+        "url": "https://ciclopefestival.com",
+        "discoveredAt": "2026-01-28T00:00:00Z"
+      },
+      "craft": {
+        "primary": "3d_artist",
+        "secondary": ["compositor", "vfx_artist"],
+        "styleSignature": "Photoreal 3D artist specializing in automotive and product visualization. Creates hyper-detailed environments where the line between CGI and reality disappears completely.",
+        "technicalTags": ["#HoudiniFX", "#Redshift3D", "#Automotive", "#ProductViz"]
+      },
+      "matching": {
+        "positiveKeywords": ["3d", "automotive", "product", "photoreal", "commercial", "cgi"],
+        "negativeKeywords": [],
+        "qualityScore": 94,
+        "isGoldenRecord": true
+      },
+      "contact": {
+        "location": "London, UK",
+        "locationConstraints": "flexible",
+        "isHireable": true
+      }
+    },
+    {
+      "name": "Ren Klyce",
+      "handle": "@renklyce",
+      "platform": "other",
+      "source": {
+        "type": "festival",
+        "name": "Academy Awards",
+        "url": "https://www.oscars.org",
+        "discoveredAt": "2026-01-28T00:00:00Z"
+      },
+      "craft": {
+        "primary": "sound_designer",
+        "secondary": ["editor"],
+        "styleSignature": "Oscar-nominated sound designer creating immersive audio landscapes that feel both hyper-real and emotionally resonant. David Fincher's longtime collaborator with a signature precision.",
+        "technicalTags": ["#ProTools", "#SoundDesign", "#Atmos", "#5.1"]
+      },
+      "matching": {
+        "positiveKeywords": ["sound design", "audio", "film", "oscar nominee", "post-production"],
+        "negativeKeywords": [],
+        "qualityScore": 97,
+        "isGoldenRecord": true
+      },
+      "contact": {
+        "location": "San Francisco, CA",
+        "locationConstraints": "on_site",
+        "isHireable": false
+      }
+    },
+    {
+      "name": "Autumn Durald",
+      "handle": "@autumndurald",
+      "platform": "vimeo",
+      "source": {
+        "type": "festival",
+        "name": "SXSW",
+        "url": "https://www.sxsw.com",
+        "discoveredAt": "2026-01-28T00:00:00Z"
+      },
+      "craft": {
+        "primary": "cinematographer",
+        "secondary": [],
+        "styleSignature": "Rising cinematographer with a distinctive eye for naturalistic beauty and sun-drenched California aesthetics. Known for lyrical camera movement and intimate female gaze.",
+        "technicalTags": ["#ARRIAlexa", "#SonyVenice", "#NaturalLight", "#WideAngle"]
+      },
+      "matching": {
+        "positiveKeywords": ["cinematography", "natural light", "indie", "narrative", "music video"],
+        "negativeKeywords": [],
+        "qualityScore": 91,
+        "isGoldenRecord": true
+      },
+      "contact": {
+        "location": "Los Angeles, CA",
+        "locationConstraints": "flexible",
+        "isHireable": true
+      }
+    }
+  ]
+}

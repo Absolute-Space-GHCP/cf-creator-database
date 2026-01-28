@@ -44,6 +44,29 @@ export const WEIGHTS: ScoringWeights = {
 };
 
 // =============================================================================
+// 🚫 INFLUENCER NOISE DETECTION
+// =============================================================================
+
+/** Keywords that indicate lifestyle/influencer content (anti-pattern for craft focus) */
+const INFLUENCER_NOISE_KEYWORDS: readonly string[] = [
+    'fyp', 'foryoupage', 'viral', 'trending', 'grwm', 'ootd',
+    'influencer', 'content creator', 'lifestyle', 'vlog', 'vlogger',
+    'subscribe', 'like and subscribe', 'brand deal', 'sponsored',
+    'pr package', 'haul', 'unboxing', 'asmr', 'mukbang',
+    'canonm50', 'iphone cinematography', 'phone footage'
+];
+
+/** Keywords that indicate professional craft (positive signal) */
+const CRAFT_POSITIVE_INDICATORS: readonly string[] = [
+    'award', 'winner', 'nominee', 'festival', 'camerimage', 'sundance',
+    'annecy', 'ciclope', 'cannes', 'golden frog', 'staff pick',
+    'commercial director', 'cinematographer', 'vfx supervisor',
+    'lead compositor', 'senior colorist', 'showrunner',
+    'feature film', 'theatrical', 'broadcast', 'netflix', 'hbo',
+    'arri certified', 'red certified', 'davinci certified'
+];
+
+// =============================================================================
 // 📝 KEYWORD EXTRACTION
 // =============================================================================
 
@@ -102,6 +125,78 @@ export function extractBriefKeywords(brief: string): ExtractedKeywords {
         styles: STYLE_KEYWORDS.filter(k => lowerBrief.includes(k)),
         raw: lowerBrief.split(/\s+/).filter(w => w.length > 3)
     };
+}
+
+/**
+ * Detect influencer noise in creator profile
+ * @param creator - Creator object
+ * @returns Number of influencer noise indicators found
+ */
+export function detectInfluencerNoise(creator: Creator): { count: number; indicators: string[] } {
+    const indicators: string[] = [];
+    
+    // Check styleSignature
+    const style = (creator.craft?.styleSignature ?? '').toLowerCase();
+    // Check all technical tags
+    const tags = (creator.craft?.technicalTags ?? []).map(t => t.toLowerCase());
+    // Check positive keywords (sometimes misused)
+    const posKeywords = (creator.matching?.positiveKeywords ?? []).map(k => k.toLowerCase());
+    
+    const allText = [style, ...tags, ...posKeywords].join(' ');
+    
+    for (const noise of INFLUENCER_NOISE_KEYWORDS) {
+        if (allText.includes(noise.toLowerCase())) {
+            indicators.push(noise);
+        }
+    }
+    
+    return { count: indicators.length, indicators };
+}
+
+/**
+ * Detect craft professionalism indicators
+ * @param creator - Creator object
+ * @returns Number of professional indicators found
+ */
+export function detectCraftIndicators(creator: Creator): { count: number; indicators: string[] } {
+    const indicators: string[] = [];
+    
+    const style = (creator.craft?.styleSignature ?? '').toLowerCase();
+    const tags = (creator.craft?.technicalTags ?? []).map(t => t.toLowerCase());
+    const posKeywords = (creator.matching?.positiveKeywords ?? []).map(k => k.toLowerCase());
+    const sourceName = (creator.source?.name ?? '').toLowerCase();
+    
+    const allText = [style, ...tags, ...posKeywords, sourceName].join(' ');
+    
+    for (const indicator of CRAFT_POSITIVE_INDICATORS) {
+        if (allText.includes(indicator.toLowerCase())) {
+            indicators.push(indicator);
+        }
+    }
+    
+    return { count: indicators.length, indicators };
+}
+
+/**
+ * Calculate style match between brief and creator's style signature
+ * @param briefStyles - Style keywords from brief
+ * @param styleSignature - Creator's style signature
+ * @returns Match score (0-15)
+ */
+export function calculateStyleMatch(briefStyles: string[], styleSignature: string): number {
+    if (!styleSignature || briefStyles.length === 0) return 0;
+    
+    const lowerSignature = styleSignature.toLowerCase();
+    let matches = 0;
+    
+    for (const style of briefStyles) {
+        if (lowerSignature.includes(style.toLowerCase())) {
+            matches++;
+        }
+    }
+    
+    // Cap at 3 matches worth 5 points each = 15 points max
+    return Math.min(matches, 3) * 5;
 }
 
 // =============================================================================
@@ -239,6 +334,30 @@ export function scoreCreator(
     const qualityContribution = Math.round(qualityScore * WEIGHTS.qualityScoreWeight);
     score += qualityContribution;
     breakdown.qualityScore = qualityContribution;
+    
+    // 10. Style signature match (Phase 2 enhancement)
+    const styleSignature = creator.craft?.styleSignature ?? '';
+    const styleScore = calculateStyleMatch(keywords.styles, styleSignature);
+    if (styleScore > 0) {
+        score += styleScore;
+        reasons.push(`Style match: +${styleScore} pts`);
+    }
+    
+    // 11. Influencer noise penalty (auto-detect)
+    const noise = detectInfluencerNoise(creator);
+    if (noise.count > 0) {
+        const noisePenalty = noise.count * -10; // -10 per indicator
+        score += noisePenalty;
+        reasons.push(`Influencer noise detected: ${noise.indicators.slice(0, 2).join(', ')} (${noisePenalty} pts)`);
+    }
+    
+    // 12. Craft professionalism bonus (auto-detect)
+    const craftBonus = detectCraftIndicators(creator);
+    if (craftBonus.count > 0) {
+        const bonus = Math.min(craftBonus.count * 5, 20); // +5 per indicator, max +20
+        score += bonus;
+        reasons.push(`Professional indicators: ${craftBonus.indicators.slice(0, 2).join(', ')} (+${bonus} pts)`);
+    }
     
     // Normalize score to 0-100 range
     const normalizedScore = Math.min(100, Math.max(0, score));

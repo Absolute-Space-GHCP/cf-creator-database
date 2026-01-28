@@ -8,6 +8,7 @@ package-lock.json
 !.env.example
 *.json
 !package.json
+!data/golden-records.json
 gcp-service-account-key.json
 
 # Config files (contain deployment-specific settings)
@@ -43,6 +44,9 @@ src/schemas.js.map
 src/scoring.js
 src/scoring.d.ts
 src/scoring.js.map
+src/llm.js
+src/llm.d.ts
+src/llm.js.map
 
 # Backups & Legacy
 backups/
