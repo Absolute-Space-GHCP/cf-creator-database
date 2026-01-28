@@ -1,0 +1,344 @@
+<!-- 
+  File: analytics.html
+  Version: 1.0.0-clean
+  Date: 2026-01-28
+  Repo: ai-agents-gmaster-build
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics Dashboard | AI Golden Master</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #000;
+            color: #fff;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        
+        .container { max-width: 1200px; margin: 0 auto; }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #333;
+        }
+        
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+        
+        .nav-links a {
+            color: #888;
+            text-decoration: none;
+            margin-left: 1.5rem;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+        
+        .nav-links a:hover { color: #fff; }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+        
+        .stat-card {
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        
+        .stat-card .value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #00ff88;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-card .label {
+            color: #888;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .section {
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .section h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #333;
+        }
+        
+        .chart-placeholder {
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #0a0a0a;
+            border-radius: 8px;
+            color: #666;
+        }
+        
+        .keyword-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        
+        .keyword-tag {
+            background: #222;
+            border: 1px solid #444;
+            border-radius: 20px;
+            padding: 0.4rem 0.8rem;
+            font-size: 0.85rem;
+        }
+        
+        .keyword-tag .count {
+            color: #00ff88;
+            margin-left: 0.3rem;
+        }
+        
+        .query-type-bar {
+            display: flex;
+            height: 30px;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-top: 1rem;
+        }
+        
+        .query-type-bar .segment {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .segment.pnc { background: #00ff88; color: #000; }
+        .segment.employee { background: #0088ff; color: #fff; }
+        .segment.meta { background: #ff8800; color: #000; }
+        
+        .legend {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 1rem;
+            font-size: 0.85rem;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        .daily-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        
+        .daily-table th,
+        .daily-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #333;
+        }
+        
+        .daily-table th {
+            color: #888;
+            font-weight: 500;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+        
+        .error {
+            background: #331111;
+            border: 1px solid #663333;
+            border-radius: 8px;
+            padding: 1rem;
+            color: #ff6666;
+        }
+        
+        footer {
+            text-align: center;
+            padding-top: 2rem;
+            color: #555;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📊 Analytics Dashboard</h1>
+            <nav class="nav-links">
+                <a href="/dashboard">System Status</a>
+                <a href="/documents">Documents</a>
+                <a href="/directory">Directory</a>
+            </nav>
+        </header>
+        
+        <div id="content">
+            <div class="loading">Loading analytics data...</div>
+        </div>
+        
+        <footer>
+            <p>Analytics data refreshes on page load.</p>
+            <p style="margin-top: 0.5rem">v1.0.0 | <a href="/analytics?days=30" style="color: #00ff88">Raw JSON (30 days)</a></p>
+        </footer>
+    </div>
+    
+    <script>
+        async function loadAnalytics() {
+            const content = document.getElementById('content');
+            
+            try {
+                const response = await fetch('/analytics?days=7');
+                const data = await response.json();
+                
+                if (!data.enabled) {
+                    content.innerHTML = '<div class="error">Analytics is disabled. Set ENABLE_ANALYTICS=true to enable.</div>';
+                    return;
+                }
+                
+                if (data.error) {
+                    content.innerHTML = `<div class="error">Error loading analytics: ${data.error}</div>`;
+                    return;
+                }
+                
+                const totals = data.totals || {};
+                const queryTypes = totals.queryTypeBreakdown || {};
+                const totalQueries = totals.totalQueries || 0;
+                
+                // Calculate percentages for bar
+                const pncPct = totalQueries > 0 ? Math.round((queryTypes.pnc_rag || 0) / totalQueries * 100) : 0;
+                const empPct = totalQueries > 0 ? Math.round((queryTypes.employee_directory || 0) / totalQueries * 100) : 0;
+                const metaPct = totalQueries > 0 ? Math.round((queryTypes.meta || 0) / totalQueries * 100) : 0;
+                
+                // Get top keywords from all days
+                const allKeywords = {};
+                (data.dailyData || []).forEach(day => {
+                    Object.entries(day.topKeywords || {}).forEach(([k, v]) => {
+                        allKeywords[k] = (allKeywords[k] || 0) + v;
+                    });
+                });
+                const topKeywords = Object.entries(allKeywords)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 15);
+                
+                content.innerHTML = `
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <span class="value">${totalQueries}</span>
+                            <span class="label">Total Queries (7 days)</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="value">${totals.avgResponseTime || 0}ms</span>
+                            <span class="label">Avg Response Time</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="value">${totals.totalUniqueUsers || 0}</span>
+                            <span class="label">Unique Users</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="value">${(data.dailyData || []).length}</span>
+                            <span class="label">Days Tracked</span>
+                        </div>
+                    </div>
+                    
+                    <div class="section">
+                        <h2>Query Types Breakdown</h2>
+                        <div class="query-type-bar">
+                            ${pncPct > 0 ? `<div class="segment pnc" style="width: ${pncPct}%">Doc ${pncPct}%</div>` : ''}
+                            ${empPct > 0 ? `<div class="segment employee" style="width: ${empPct}%">Emp ${empPct}%</div>` : ''}
+                            ${metaPct > 0 ? `<div class="segment meta" style="width: ${metaPct}%">Meta ${metaPct}%</div>` : ''}
+                        </div>
+                        <div class="legend">
+                            <div class="legend-item"><div class="legend-dot" style="background: #00ff88"></div> Doc RAG (${queryTypes.pnc_rag || 0})</div>
+                            <div class="legend-item"><div class="legend-dot" style="background: #0088ff"></div> Employee Directory (${queryTypes.employee_directory || 0})</div>
+                            <div class="legend-item"><div class="legend-dot" style="background: #ff8800"></div> Meta/Version (${queryTypes.meta || 0})</div>
+                        </div>
+                    </div>
+                    
+                    <div class="section">
+                        <h2>Top Keywords</h2>
+                        <div class="keyword-list">
+                            ${topKeywords.map(([k, v]) => `<span class="keyword-tag">${k}<span class="count">${v}</span></span>`).join('')}
+                            ${topKeywords.length === 0 ? '<span style="color: #666">No keyword data yet</span>' : ''}
+                        </div>
+                    </div>
+                    
+                    <div class="section">
+                        <h2>Daily Activity</h2>
+                        <table class="daily-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Queries</th>
+                                    <th>Avg Response</th>
+                                    <th>Users</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${(data.dailyData || []).map(day => `
+                                    <tr>
+                                        <td>${day.date}</td>
+                                        <td>${day.totalQueries}</td>
+                                        <td>${day.avgResponseTime}ms</td>
+                                        <td>${day.uniqueUsers}</td>
+                                    </tr>
+                                `).join('')}
+                                ${(data.dailyData || []).length === 0 ? '<tr><td colspan="4" style="color: #666; text-align: center">No data yet</td></tr>' : ''}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            } catch (error) {
+                content.innerHTML = `<div class="error">Failed to load analytics: ${error.message}</div>`;
+            }
+        }
+        
+        loadAnalytics();
+    </script>
+</body>
+</html>
+

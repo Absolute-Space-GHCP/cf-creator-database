@@ -1,0 +1,57 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Environment & Secrets
+.env
+.env.*
+!.env.example
+*.json
+!package.json
+gcp-service-account-key.json
+
+# Config files (contain deployment-specific settings)
+src/config.js
+config.js
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.python-version
+
+# macOS
+.DS_Store
+._*
+
+# IDE
+.vscode/
+.idea/
+.cursor/
+*.swp
+*.swo
+
+# Build artifacts
+dist/
+build/
+*.log
+
+# Backups & Legacy
+backups/
+*.backup*
+*.legacy.*
+
+# Media & Screenshots
+*.png
+*.jpg
+*.jpeg
+*.gif
+
+# Chat exports (sensitive)
+chat-history-export/
+chat-transcripts/
+
+# Temporary files
+*.tmp
+*.temp
+._.

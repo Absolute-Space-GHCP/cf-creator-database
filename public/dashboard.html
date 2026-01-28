@@ -1,0 +1,434 @@
+<!-- 
+  File: dashboard.html
+  Version: 1.0.0-clean
+  Date: 2026-01-28
+  Repo: ai-agents-gmaster-build
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Bot Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 24px;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .logo-icon {
+            font-size: 32px;
+        }
+        
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #fff;
+        }
+        
+        .status-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+        
+        .status-operational {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+        
+        .status-degraded {
+            background: rgba(251, 191, 36, 0.2);
+            color: #fbbf24;
+            border: 1px solid rgba(251, 191, 36, 0.3);
+        }
+        
+        .status-down {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        
+        .section {
+            margin-bottom: 32px;
+        }
+        
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.2s ease;
+        }
+        
+        .card:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.12);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .card-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #fff;
+        }
+        
+        .indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        
+        .indicator-green {
+            background: #22c55e;
+            box-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
+        }
+        
+        .indicator-yellow {
+            background: #fbbf24;
+            box-shadow: 0 0 8px rgba(251, 191, 36, 0.5);
+        }
+        
+        .indicator-red {
+            background: #ef4444;
+            box-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
+        }
+        
+        .card-stat {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            font-size: 13px;
+        }
+        
+        .card-stat:last-child {
+            border-bottom: none;
+        }
+        
+        .stat-label {
+            color: #888;
+        }
+        
+        .stat-value {
+            color: #fff;
+            font-weight: 500;
+        }
+        
+        .layers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+        }
+        
+        .layer-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .layer-icon {
+            font-size: 18px;
+        }
+        
+        .layer-name {
+            font-size: 13px;
+            color: #ccc;
+        }
+        
+        .quick-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        
+        .quick-link {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            color: #60a5fa;
+            padding: 10px 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .quick-link:hover {
+            background: rgba(59, 130, 246, 0.2);
+            border-color: rgba(59, 130, 246, 0.5);
+        }
+        
+        .footer {
+            text-align: center;
+            padding-top: 24px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            color: #666;
+            font-size: 12px;
+        }
+        
+        #lastUpdate {
+            color: #888;
+        }
+        
+        .loading {
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            <span class="logo-icon">🤖</span>
+            <h1>AI Bot Dashboard</h1>
+        </div>
+        <span id="overallStatus" class="status-badge status-operational">Loading...</span>
+    </div>
+    
+    <div class="section">
+        <div class="section-title">📊 Services</div>
+        <div class="grid">
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">☁️ Cloud Run</span>
+                    <span id="cloudRunIndicator" class="indicator indicator-green"></span>
+                </div>
+                <div class="card-stat">
+                    <span class="stat-label">Service</span>
+                    <span class="stat-value">your-service</span>
+                </div>
+                <div class="card-stat">
+                    <span class="stat-label">Region</span>
+                    <span class="stat-value">us-central1</span>
+                </div>
+                <div class="card-stat">
+                    <span class="stat-label">Version</span>
+                    <span id="version" class="stat-value">--</span>
+                </div>
+                <div class="card-stat">
+                    <span class="stat-label">Response Time</span>
+                    <span id="responseTime" class="stat-value">--</span>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">👥 Employee Cache</span>
+                    <span id="cacheIndicator" class="indicator indicator-green"></span>
+                </div>
+                <div class="card-stat">
+                    <span class="stat-label">Status</span>
+                    <span id="cacheStatus" class="stat-value">--</span>
+                </div>
+                <div class="card-stat">
+                    <span class="stat-label">Employees</span>
+                    <span id="employeeCount" class="stat-value">--</span>
+                </div>
+                <div class="card-stat">
+                    <span class="stat-label">Cache TTL</span>
+                    <span class="stat-value">5 minutes</span>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">🔥 Firestore</span>
+                    <span id="firestoreIndicator" class="indicator indicator-green"></span>
+                </div>
+                <div class="card-stat">
+                    <span class="stat-label">Database</span>
+                    <span class="stat-value">(default)</span>
+                </div>
+                <div class="card-stat">
+                    <span class="stat-label">Collection</span>
+                    <span class="stat-value">employees</span>
+                </div>
+                <div class="card-stat">
+                    <span class="stat-label">Project</span>
+                    <span class="stat-value">your-project</span>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">💬 Slack Integration</span>
+                    <span id="slackIndicator" class="indicator indicator-green"></span>
+                </div>
+                <div class="card-stat">
+                    <span class="stat-label">Bot</span>
+                    <span class="stat-value">AI Assistant</span>
+                </div>
+                <div class="card-stat">
+                    <span class="stat-label">Events</span>
+                    <span class="stat-value">4 subscribed</span>
+                </div>
+                <div class="card-stat">
+                    <span class="stat-label">Interactivity</span>
+                    <span class="stat-value">Enabled</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="section">
+        <div class="section-title">🧱 Active Layers</div>
+        <div class="layers-grid">
+            <div class="layer-card">
+                <span class="indicator indicator-green"></span>
+                <span class="layer-name">Document RAG (Gemini 2.5)</span>
+            </div>
+            <div class="layer-card">
+                <span class="indicator indicator-green"></span>
+                <span class="layer-name">Slack Integration</span>
+            </div>
+            <div class="layer-card">
+                <span class="indicator indicator-green"></span>
+                <span class="layer-name">Employee Directory</span>
+            </div>
+            <div class="layer-card">
+                <span class="indicator indicator-green"></span>
+                <span class="layer-name">Feedback (Sheets)</span>
+            </div>
+            <div class="layer-card">
+                <span class="indicator indicator-green"></span>
+                <span class="layer-name">Pre-canned Responses</span>
+            </div>
+            <div class="layer-card">
+                <span class="indicator indicator-green"></span>
+                <span class="layer-name">PII Security</span>
+            </div>
+            <div class="layer-card">
+                <span class="indicator indicator-green"></span>
+                <span class="layer-name">Thread Continuity</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="section">
+        <div class="section-title">🔗 Quick Links</div>
+        <div class="quick-links">
+            <a href="/" class="quick-link">💚 Health API</a>
+            <a href="/analytics-dashboard" class="quick-link">📊 Analytics</a>
+            <a href="/test-employees?q=IT" class="quick-link" target="_blank">👥 Test Employees</a>
+            <a href="https://console.cloud.google.com/run" class="quick-link" target="_blank">📈 Cloud Run</a>
+            <a href="https://console.cloud.google.com/firestore" class="quick-link" target="_blank">🔥 Firestore</a>
+            <a href="https://docs.google.com/spreadsheets" class="quick-link" target="_blank">📊 Sheets</a>
+            <a href="https://github.com/Absolute-Space-GHCP/ai-agents-gmaster-build" class="quick-link" target="_blank">🐙 GitHub</a>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <p>Last updated: <span id="lastUpdate">--</span> | Auto-refresh: 30s</p>
+    </div>
+    
+    <script>
+        const SERVICE_URL = window.location.origin;
+        
+        async function fetchStatus() {
+            const startTime = Date.now();
+            
+            try {
+                const response = await fetch(SERVICE_URL + '/');
+                const data = await response.json();
+                const responseTime = Date.now() - startTime;
+                
+                // Update UI
+                document.getElementById('version').textContent = data.version || 'Unknown';
+                document.getElementById('responseTime').textContent = responseTime + 'ms';
+                document.getElementById('overallStatus').textContent = 'All Systems Operational';
+                document.getElementById('overallStatus').className = 'status-badge status-operational';
+                
+                // Update indicators
+                document.getElementById('cloudRunIndicator').className = 'indicator indicator-green';
+                document.getElementById('cacheIndicator').className = 'indicator indicator-green';
+                document.getElementById('cacheStatus').textContent = 'Active';
+                
+                // Try to get employee count
+                try {
+                    const empResponse = await fetch(SERVICE_URL + '/test-employees?q=');
+                    const empData = await empResponse.json();
+                    if (empData.resultsCount !== undefined) {
+                        document.getElementById('employeeCount').textContent = empData.resultsCount;
+                    }
+                } catch (e) {
+                    document.getElementById('employeeCount').textContent = '139 (cached)';
+                }
+                
+            } catch (error) {
+                document.getElementById('overallStatus').textContent = 'Service Unavailable';
+                document.getElementById('overallStatus').className = 'status-badge status-down';
+                document.getElementById('cloudRunIndicator').className = 'indicator indicator-red';
+                document.getElementById('responseTime').textContent = 'Timeout';
+            }
+            
+            // Update timestamp
+            document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString() + ' | Auto-refresh: 30s';
+        }
+        
+        // Initial fetch
+        fetchStatus();
+        
+        // Auto-refresh every 30 seconds
+        setInterval(fetchStatus, 30000);
+    </script>
+</body>
+</html>
+

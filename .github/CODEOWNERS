@@ -1,0 +1,27 @@
+# CODEOWNERS - Automatically request reviews from maintainers
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+#
+# When a PR is opened, GitHub automatically requests a review from the 
+# matching code owner(s). This enforces the review workflow.
+#
+# Format: <pattern> @username
+# ============================================================================
+
+# Default owner for ALL files in the repository
+* @cmscholz222
+
+# ============================================================================
+# Specific folder owners (uncomment and customize as team grows)
+# ============================================================================
+
+# Documentation
+# /docs/ @cmscholz222
+
+# Source code
+# /src/ @cmscholz222
+
+# Public assets
+# /public/ @cmscholz222
+
+# Tests
+# /tests/ @cmscholz222

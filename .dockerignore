@@ -1,0 +1,16 @@
+node_modules
+npm-debug.log
+.env
+.env.*
+*.md
+tests/
+backups/
+chat-history-export/
+chat-transcripts/
+*.legacy.*
+*.backup*
+.git
+.gitignore
+.gcloudignore
+Screenshot*
+

@@ -1,0 +1,33 @@
+{
+  "name": "cf-influencer-matching-engine",
+  "version": "0.1.0",
+  "description": "CatchFire Creator Matching Engine - AI-powered influencer discovery and matching based on craft storytelling skills",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node src/index.js",
+    "test": "node tests/test_vertex.js",
+    "deploy": "gcloud run deploy cf-matching-engine --source . --region us-central1 --project YOUR_PROJECT_ID --allow-unauthenticated",
+    "match": "node src/index.js --match",
+    "import": "node src/index.js --import"
+  },
+  "dependencies": {
+    "@google-cloud/firestore": "^7.1.0",
+    "@google-cloud/storage": "^7.18.0",
+    "@google-cloud/vertexai": "^1.10.0",
+    "axios": "^1.6.0",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "googleapis": "^166.0.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Absolute-Space-GHCP/cf-influencer-matching-engine"
+  },
+  "author": "CatchFire / Johannes Leonardo",
+  "license": "MIT",
+  "private": true
+}
