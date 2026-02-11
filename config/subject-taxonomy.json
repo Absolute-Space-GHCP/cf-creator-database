@@ -1,0 +1,33 @@
+{
+  "description": "Subject matter and subcategory taxonomy (deck/docx alignment). Used for validation and ladder normalization (TASKS 6.1, 6.5).",
+  "subjectMatter": ["food", "beverage", "automotive", "fashion", "beauty", "lifestyle", "portrait", "product", "sports", "travel", "tech", "medical", "architecture", "nature", "children", "seniors", "corporate", "entertainment", "luxury"],
+  "subcategoryToParent": {
+    "music": "entertainment",
+    "film-tv": "entertainment",
+    "gaming": "entertainment",
+    "celebrity": "entertainment",
+    "team-sports": "sports",
+    "individual-sports": "sports",
+    "action-sports": "sports",
+    "fitness": "sports",
+    "restaurant": "food",
+    "packaged-goods": "food",
+    "recipe": "food",
+    "beverage": "beverage",
+    "luxury-automotive": "automotive",
+    "commercial-automotive": "automotive",
+    "motorsport": "automotive",
+    "lifestyle-automotive": "automotive",
+    "high-fashion": "fashion",
+    "commercial-fashion": "fashion",
+    "streetwear": "fashion",
+    "accessories": "fashion"
+  },
+  "ladderSynonyms": {
+    "food": ["culinary", "tabletop food", "food photography", "F&B", "food and beverage", "gastronomy", "cuisine", "dining", "restaurant", "edible", "recipe", "cooking", "chef", "kitchen"],
+    "automotive": ["cars", "vehicles", "auto", "transportation", "automotive photography", "car photography", "motorcycles", "trucks", "EV", "electric vehicle", "driving"],
+    "fashion": ["apparel", "clothing", "garments", "style", "runway", "couture", "streetwear", "ready-to-wear", "fashion photography", "lookbook"],
+    "sports": ["athletics", "fitness", "athletic", "sporting", "action sports", "extreme sports", "sports photography", "workout", "training", "gym"],
+    "documentary": ["docu-style", "verité", "observational", "fly-on-the-wall", "unscripted", "real", "journalistic", "reportage", "photojournalism"]
+  }
+}

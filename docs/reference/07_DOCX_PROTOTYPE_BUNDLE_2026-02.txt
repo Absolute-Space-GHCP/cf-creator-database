@@ -1,0 +1,1982 @@
+Creator Database
+
+Complete Documentation Bundle
+
+Version 1.2 | February 2026
+
+Table of Contents
+
+Project Summary
+
+Database Schema
+
+Synonym Normalization Map
+
+Luminaries Reference Library
+
+Search Query Translation Guide
+
+Image Analysis Tool Specification
+
+Source Extraction Rules
+
+1. Project Summary
+
+Finding the Right Makers at the Right Budget
+
+The Problem
+
+When our teams need to find creators—photographers, filmmakers, illustrators, animators—for projects that don't require high-end talent budgets, the search process is inefficient. We rely on memory, word-of-mouth, and manual searches across scattered directories. Meanwhile, our best producers and creative directors carry invaluable knowledge about emerging talent that isn't systematically captured anywhere.
+
+The Solution
+
+We're building a searchable database of mid-tier and emerging creators, organized around how our people actually think and search. Rather than rigid categories, the system uses flexible tagging that mirrors creative intuition: "I need a social video like that scene in Sinners" or "someone who shoots like Annie Leibovitz but at a mid-tier budget."
+
+How It Works
+
+Three-Layer Architecture
+
+Hard Fields — The basics every record needs: primary medium (still/video/audio), budget tier, location, contact info, last active date.
+
+Extractable Tags — Attributes scraped automatically from creator profiles, bios, and directories: subject matter (food, automotive, fashion), approach (documentary, narrative, conceptual), visual style (cinematic, gritty, minimalist), tone (aspirational, playful, edgy), and platform fit (broadcast, social, digital).
+
+AI-Derived Attributes — Visual analysis of actual portfolio work to extract color palettes, lighting signatures, composition style, and similarity to known reference points.
+
+The "It's Like..." Problem, Solved
+
+When someone says "Spielberg-like," do they mean childlike wonder? Reaction shots with swelling music? VFX spectacle? We've built a reference library of 100+ industry luminaries—directors, photographers, artists—decomposed into their specific visual and tonal signatures. The system can translate vague references into precise, searchable attributes.
+
+Current Status
+
+Deliverable
+
+Status
+
+Description
+
+Database Schema
+
+✓ Complete
+
+Field structure for creator records
+
+Taxonomy & Synonym Map
+
+✓ Complete
+
+200+ normalized tags across 10 categories
+
+Subject Subcategories
+
+✓ Complete
+
+Narrower filtering within broad categories
+
+Luminaries Reference Library
+
+✓ Complete
+
+100+ decomposed profiles
+
+Image Analysis Tool
+
+✓ Prototype
+
+AI-powered visual attribute extraction
+
+Source Extraction Rules
+
+✓ Complete
+
+14 sources mapped with field extraction logic
+
+What Comes Next
+
+Scraper implementation and testing
+
+Batch processing for portfolio-scale image analysis
+
+Confidence scoring for AI tagging reliability
+
+Search interface for end users
+
+2. Database Schema
+
+Tier 1: Hard Fields (Structured, Required)
+
+These are non-negotiable filterable fields present for every creator record.
+
+Field
+
+Type
+
+Description
+
+Source
+
+id
+
+UUID
+
+Unique identifier
+
+System generated
+
+name
+
+String
+
+Creator/studio name
+
+Scraped
+
+primary_output
+
+Enum
+
+STILL / VIDEO / AUDIO
+
+Scraped from categorization
+
+secondary_output
+
+Enum
+
+Optional secondary medium
+
+Scraped
+
+output_subtype
+
+Enum
+
+See subtypes below
+
+Scraped
+
+budget_tier
+
+Enum
+
+emerging / mid-tier / established
+
+Derived
+
+location_city
+
+String
+
+Primary city
+
+Scraped
+
+location_country
+
+String
+
+Country
+
+Scraped
+
+remote_available
+
+Boolean
+
+Works remotely
+
+Scraped/inferred
+
+last_active
+
+Date
+
+Most recent portfolio update
+
+Scraped
+
+portfolio_url
+
+URL
+
+Primary portfolio link
+
+Scraped
+
+contact_email
+
+String
+
+Direct email
+
+Scraped
+
+contact_method
+
+Enum
+
+email / DM / rep / form
+
+Scraped
+
+rep_name
+
+String
+
+Representative name (if any)
+
+Scraped
+
+rep_contact
+
+String
+
+Rep contact info
+
+Scraped
+
+source_url
+
+URL
+
+Where record was scraped from
+
+System
+
+created_at
+
+Timestamp
+
+Record creation
+
+System
+
+updated_at
+
+Timestamp
+
+Last update
+
+System
+
+Output Subtypes
+
+Under STILL:
+
+photography
+
+illustration
+
+ai_imagery
+
+art (painting/sculpture)
+
+Under VIDEO:
+
+film_narrative
+
+commercial
+
+social_platform
+
+documentary
+
+music_video
+
+animation
+
+Under AUDIO:
+
+podcast_spoken_word
+
+music_composition
+
+sound_design
+
+Tier 2: Extractable Tags (Folksonomy)
+
+Stored as arrays of canonical tag strings. See Section 3 for normalization rules.
+
+Field
+
+Type
+
+Max Items
+
+Description
+
+subject_matter
+
+String[]
+
+10
+
+What they create content about
+
+subject_subcategory
+
+String[]
+
+5
+
+Narrower specialization within subject matter
+
+approach_style
+
+String[]
+
+5
+
+How they approach work
+
+visual_style
+
+String[]
+
+8
+
+Aesthetic signatures
+
+tone
+
+String[]
+
+5
+
+Emotional register
+
+technical_capability
+
+String[]
+
+10
+
+Special skills/equipment
+
+platform_usage
+
+String[]
+
+5
+
+Where work is deployed
+
+industry_vertical
+
+String[]
+
+10
+
+Client categories
+
+illustration_style
+
+String[]
+
+5
+
+For illustrators only
+
+Tier 3: AI-Derived Attributes
+
+Populated by vision model analysis of portfolio images.
+
+color_analysis: {
+
+dominant_color: String,
+
+secondary_color: String,
+
+palette_mood: "warm" | "cool" | "neutral" | "mixed",
+
+saturation_level: "saturated" | "muted" | "desaturated"
+
+}
+
+composition_analysis: {
+
+typical_framing: "tight_closeup" | "closeup" | "medium" | "wide" | "extreme_wide",
+
+composition_style: "symmetrical" | "rule_of_thirds" | "dynamic" | "centered" | "negative_space"
+
+}
+
+lighting_analysis: {
+
+quality: "hard" | "soft" | "mixed",
+
+direction: "front" | "side" | "back" | "overhead" | "ambient",
+
+mood: "bright" | "moody" | "dramatic" | "natural" | "studio"
+
+}
+
+comparable_to: [
+
+{
+
+reference_type: "luminary" | "work" | "scene" | "brand_campaign",
+
+reference_name: String,
+
+reference_aspect: String,
+
+confidence: Float
+
+}
+
+]
+
+analysis_confidence: Float (0-1)
+
+images_analyzed: Integer
+
+last_analyzed: Timestamp
+
+
+
+3. Synonym Normalization Map
+
+Format: canonical_tag ← [variants that resolve to it]
+
+Subject Matter Tags
+
+food ← [culinary, tabletop food, food photography, F&B, food and beverage, gastronomy, cuisine, dining, restaurant, edible, recipe, cooking, chef, kitchen]
+
+beverage ← [drinks, cocktails, spirits, wine, beer, coffee, tea, liquid pour, beverage photography, mixology]
+
+automotive ← [cars, vehicles, auto, transportation, automotive photography, car photography, motorcycles, trucks, EV, electric vehicle, driving]
+
+fashion ← [apparel, clothing, garments, style, runway, couture, streetwear, ready-to-wear, fashion photography, lookbook]
+
+beauty ← [cosmetics, makeup, skincare, haircare, grooming, beauty photography, cosmetic, personal care, fragrance, perfume]
+
+lifestyle ← [everyday life, slice of life, real life, authentic moments, candid, lifestyle photography, lived-in, domestic]
+
+portrait ← [portraiture, headshot, people photography, faces, character study, environmental portrait]
+
+product ← [still life, product photography, packshot, e-commerce, hero shot, tabletop, object photography]
+
+sports ← [athletics, fitness, athletic, sporting, action sports, extreme sports, sports photography, workout, training, gym]
+
+travel ← [destination, tourism, wanderlust, travel photography, location, adventure travel, hospitality]
+
+tech ← [technology, gadgets, electronics, devices, hardware, software, digital, innovation, startup]
+
+medical ← [healthcare, health, pharma, pharmaceutical, clinical, hospital, wellness, biotech, life sciences]
+
+architecture ← [buildings, structures, interiors, exteriors, real estate, architectural photography, spaces, built environment]
+
+nature ← [landscape, outdoor, wilderness, wildlife, animals, flora, fauna, environment, natural, botanical]
+
+children ← [kids, youth, family, pediatric, juvenile, young people, childhood, parenting]
+
+seniors ← [elderly, aging, mature, older adults, retirement, 50+, 60+, silver generation]
+
+corporate ← [business, B2B, enterprise, professional, institutional, executive, workplace, office]
+
+entertainment ← [celebrity, talent, film, TV, gaming, esports, streaming, influencer, creator economy]
+
+luxury ← [premium, high-end, prestige, affluent, aspirational luxury, wealth, exclusive]
+
+Subject Subcategory Tags
+
+Subcategories provide narrower filtering within broad subject matter tags. A record tagged entertainment + music can be found by searching either term.
+
+Under entertainment:
+
+music ← [concert, live music, band, musician, rock, hip-hop, tour, backstage, festival, recording studio, album art, artist portrait]
+
+film-tv ← [movie, television, on-set, behind the scenes, promotional, key art, episodic]
+
+gaming ← [esports, video games, streaming, twitch, gameplay, gaming lifestyle]
+
+celebrity ← [talent, red carpet, publicity, press, editorial celebrity]
+
+Under sports:
+
+team-sports ← [football, basketball, soccer, baseball, hockey, rugby]
+
+individual-sports ← [tennis, golf, boxing, MMA, track and field, swimming]
+
+action-sports ← [skateboarding, surfing, snowboarding, BMX, motocross, extreme]
+
+fitness ← [gym, training, workout, wellness, athletic lifestyle, CrossFit]
+
+Under food:
+
+restaurant ← [dining, chef, kitchen, plating, hospitality, menu]
+
+packaged-goods ← [CPG, grocery, packaging, product food, e-commerce food]
+
+recipe ← [cooking, ingredients, process, editorial food, cookbook]
+
+beverage ← [drinks, cocktails, spirits, wine, beer, coffee, liquid pour]
+
+Under automotive:
+
+luxury-automotive ← [exotic, supercar, premium auto, prestige vehicles]
+
+commercial-automotive ← [trucks, fleet, industrial vehicles, dealership]
+
+motorsport ← [racing, F1, NASCAR, rally, track]
+
+lifestyle-automotive ← [road trip, adventure driving, car culture, enthusiast]
+
+Under fashion:
+
+high-fashion ← [couture, runway, editorial fashion, designer, avant-garde fashion]
+
+commercial-fashion ← [catalog, e-commerce fashion, lookbook, retail]
+
+streetwear ← [urban fashion, sneakers, street style, youth fashion]
+
+accessories ← [jewelry, watches, bags, eyewear, shoes]
+
+Approach/Style Tags
+
+documentary ← [docu-style, verité, observational, fly-on-the-wall, unscripted, real, journalistic, reportage, photojournalism]
+
+narrative ← [storytelling, story-driven, cinematic narrative, scripted, story, plot-driven]
+
+conceptual ← [idea-driven, symbolic, metaphorical, abstract concept, high-concept, artistic]
+
+editorial ← [magazine style, editorial photography, publication-ready, editorial look]
+
+commercial ← [advertising, ad, branded, promotional, marketing, campaign]
+
+experimental ← [avant-garde, unconventional, innovative, boundary-pushing, artistic experimentation]
+
+humor ← [comedy, comedic, funny, humorous, witty, satirical, parody, tongue-in-cheek, playful]
+
+dramatic ← [drama, intense, emotional intensity, serious, weighty, gravitas]
+
+romantic ← [love, intimacy, tender, soft romantic, sensual, affectionate, warm emotional]
+
+fantasy ← [fantastical, magical, otherworldly, surreal fantasy, mythical, fairy tale]
+
+sci-fi ← [science fiction, futuristic, speculative, dystopian, space, cyberpunk, tech-noir]
+
+horror ← [scary, dark horror, thriller, suspense, macabre, gothic, unsettling]
+
+action ← [dynamic action, high-energy, kinetic, adrenaline, explosive, fast-paced]
+
+slice-of-life ← [everyday, mundane beauty, quotidian, ordinary moments, simple moments]
+
+Visual Style Tags
+
+black-and-white ← [B&W, BW, monochrome, monochromatic, grayscale, noir]
+
+high-contrast ← [contrasty, bold contrast, dramatic lighting, chiaroscuro, shadow-heavy]
+
+soft-light ← [diffused, gentle light, even lighting, flattering light, beauty lighting]
+
+natural-light ← [available light, daylight, window light, ambient, practical lighting]
+
+cinematic ← [filmic, movie-like, cinema-quality, theatrical, widescreen aesthetic]
+
+gritty ← [raw, unpolished, textured, rough, lo-fi aesthetic, imperfect]
+
+polished ← [clean, refined, high-production, slick, glossy, premium finish]
+
+retro ← [vintage, throwback, nostalgic, period, classic aesthetic, old-school]
+
+minimalist ← [minimal, simple, clean lines, negative space, sparse, restrained]
+
+maximalist ← [busy, layered, dense, rich visual, ornate, baroque]
+
+warm-tones ← [warm palette, golden, amber, orange-red spectrum, warm color grade]
+
+cool-tones ← [cool palette, blue, teal, cold, clinical color, desaturated cool]
+
+saturated ← [vivid, vibrant colors, punchy, colorful, bold color, high saturation]
+
+desaturated ← [muted, washed out, faded, low saturation, subtle color, pastel]
+
+Tone/Emotional Register Tags
+
+aspirational ← [inspirational, elevated, premium feel, luxury tone, desirable]
+
+approachable ← [friendly, accessible, warm and inviting, relatable, down-to-earth]
+
+edgy ← [provocative, bold, boundary-pushing, rebellious, subversive, counterculture]
+
+wholesome ← [heartwarming, feel-good, family-friendly, innocent, pure, uplifting]
+
+sophisticated ← [refined, cultured, intellectual, discerning, elevated taste]
+
+playful ← [fun, whimsical, lighthearted, cheerful, energetic joy, bouncy]
+
+serious ← [grave, weighty, sober, earnest, no-nonsense, substantial]
+
+quirky ← [offbeat, eccentric, idiosyncratic, weird in a good way, unconventional charm]
+
+nostalgic ← [wistful, memory-laden, sentimental, reminiscent, longing]
+
+urgent ← [immediate, pressing, time-sensitive feel, now, breaking, vital]
+
+Technical Capability Tags
+
+aerial ← [drone, overhead, bird's eye, helicopter shot, top-down]
+
+underwater ← [aquatic, submerged, pool, ocean photography, wet]
+
+stop-motion ← [frame-by-frame, puppet animation, object animation]
+
+motion-graphics ← [MoGraph, animated graphics, kinetic typography, motion design]
+
+vfx ← [visual effects, CGI, compositing, post-production effects, digital effects]
+
+3d ← [CGI, three-dimensional, rendered, CG, computer generated]
+
+2d-animation ← [traditional animation, cel animation, hand-drawn, frame animation]
+
+time-lapse ← [hyperlapse, accelerated time, sped-up, compressed time]
+
+slow-motion ← [slow-mo, high-speed, overcranked, ramping]
+
+macro ← [close-up extreme, micro, detail photography, magnified]
+
+motion-control ← [robotic camera, programmed movement, repeatable moves, MOCO]
+
+Platform/Usage Tags
+
+broadcast ← [TV, television, network, cable, streaming platform, OTT]
+
+social ← [social media, Instagram, TikTok, YouTube, Reels, Shorts, Stories, feed content]
+
+digital ← [online, web, banner, display, programmatic, digital advertising]
+
+print ← [magazine, newspaper, OOH, out-of-home, billboard, poster]
+
+experiential ← [event, activation, installation, immersive, live experience, pop-up]
+
+ugc-style ← [user-generated, lo-fi social, authentic social, creator-style, native content]
+
+Illustration Style Tags
+
+line-art ← [line drawing, outline, linework, contour, pen and ink]
+
+cartoon ← [cartoony, animated style, toon, comic style]
+
+painterly ← [painted, brushwork, fine art style, impressionistic, expressive]
+
+vector ← [flat, geometric, digital illustration, clean vector, graphic illustration]
+
+realistic ← [photorealistic, hyperrealistic, lifelike, true-to-life]
+
+collage ← [cut-and-paste, mixed media, assemblage, composite]
+
+vintage-illustration ← [retro illustration, classic illustration, mid-century, throwback style]
+
+graffiti ← [street art, urban art, spray paint, mural style, tagging]
+
+4. Luminaries Reference Library
+
+Each entry decomposes a major creative figure into searchable attributes with disambiguation for common references. Organized by category and specialist vertical.
+
+Section Contents:
+
+Film Directors (14 profiles)
+
+Commercial/Music Video Directors (5 profiles)
+
+Specialist Photographers by Vertical:
+
+Music & Entertainment Photography (6 profiles)
+
+Food Photography (3 profiles)
+
+Automotive Photography (3 profiles)
+
+Sports Photography (3 profiles)
+
+Fashion Photography Extended (6 profiles)
+
+Documentary & Photojournalism (4 profiles)
+
+Portrait Photography Extended (3 profiles)
+
+Commercial Directors Extended (5 profiles)
+
+Animators & Motion Designers (5 studios/individuals)
+
+Artists/Illustrators (5 profiles)
+
+Film Directors
+
+Martin Scorsese
+
+Visual Signatures: Tracking shots, freeze frames, slow motion violence, pop music needle drops, tight close-ups on faces, handheld intimacy
+
+Tonal Attributes: Operatic, masculine intensity, moral ambiguity, working-class authenticity, Catholic guilt
+
+Color Tendency: High contrast, often desaturated with warm skin tones, red accents
+
+When Someone Says "Scorsese-like" They Mean:
+
+Kinetic camera movement with rock soundtrack
+
+Intense male protagonist close-ups
+
+Stylized violence with operatic grandeur
+
+Working-class New York authenticity
+
+Steven Spielberg
+
+Visual Signatures: God rays/backlight, awe-inspiring reveals, child's POV shots, dolly-in on reaction faces, practical creature effects, lens flare
+
+Tonal Attributes: Wonder, sentimentality, father-son dynamics, childlike perspective, optimistic humanism
+
+Color Tendency: Warm, golden, high-key lighting, magic hour
+
+When Someone Says "Spielberg-like" They Mean:
+
+Sense of childlike wonder and discovery
+
+Emotional reaction shots with swelling music
+
+Spectacular reveals with audience gasps
+
+Sentimental but not saccharine
+
+Wes Anderson
+
+Visual Signatures: Symmetrical framing, flat staging, whip pans, centered subjects, pastel palettes, miniatures, hand-lettered titles, diorama aesthetic
+
+Tonal Attributes: Whimsical melancholy, deadpan humor, nostalgia for imagined pasts, emotional repression played for comedy
+
+Color Tendency: Pastels, highly controlled palette, often pink/yellow/mint, desaturated earth tones
+
+When Someone Says "Wes Anderson-like" They Mean:
+
+Obsessive symmetry and color control
+
+Deadpan delivery with dry humor
+
+Nostalgic storybook aesthetic
+
+Quirky but emotionally sincere
+
+Sofia Coppola
+
+Visual Signatures: Natural light, lingering shots, observational distance, luxury environments, feminine gaze, dreamy soft focus
+
+Tonal Attributes: Ennui, isolation amid privilege, feminine interiority, boredom as aesthetic, melancholic beauty
+
+Color Tendency: Soft, desaturated, champagne tones, hazy pastels
+
+When Someone Says "Coppola-like" They Mean:
+
+Dreamy, contemplative pacing
+
+Beautiful young women looking bored in nice places
+
+Atmospheric over plot-driven
+
+Luxurious but lonely
+
+Spike Jonze
+
+Visual Signatures: Practical effects over CGI, music video energy, absurdist concepts executed realistically, emotional sincerity within surrealism
+
+Tonal Attributes: Playful but emotionally deep, childlike wonder, melancholy beneath whimsy, sincere weirdness
+
+Color Tendency: Naturalistic, not heavily graded, earthy
+
+When Someone Says "Spike Jonze-like" They Mean:
+
+High-concept executed with emotional truth
+
+Practical/in-camera creativity
+
+Music video inventiveness
+
+Weird but heartfelt
+
+Terrence Malick
+
+Visual Signatures: Magic hour shooting, voiceover narration, nature intercuts, handheld wandering camera, wide-angle close-ups, improvisational performance
+
+Tonal Attributes: Philosophical, spiritual, nature as character, memory and consciousness, transcendence
+
+Color Tendency: Golden hour, natural light, earth tones, celestial
+
+When Someone Says "Malick-like" They Mean:
+
+Poetic voiceover with nature imagery
+
+Golden hour everything
+
+Contemplative, non-linear
+
+Spiritual/philosophical undertone
+
+Denis Villeneuve
+
+Visual Signatures: Epic scale with intimate moments, architectural compositions, muted palettes, deliberate pacing, geometric framing, ominous atmosphere
+
+Tonal Attributes: Dread, awe, intellectual sci-fi, existential weight, cold beauty
+
+Color Tendency: Desaturated, monochromatic tendencies, orange/teal, dusty
+
+When Someone Says "Villeneuve-like" They Mean:
+
+Massive scale with emotional restraint
+
+Dread and atmosphere over action
+
+Geometric, architectural framing
+
+Serious sci-fi tone
+
+Taika Waititi
+
+Visual Signatures: Comedic timing in editing, improvised dialogue feel, heartfelt moments undercutting cynicism, colorful palette
+
+Tonal Attributes: Warm humor, sincerity, found family, outsider POV, earnest without being sappy
+
+Color Tendency: Bright, saturated, warm
+
+When Someone Says "Waititi-like" They Mean:
+
+Comedy that's also genuinely emotional
+
+Improvised, naturalistic dialogue
+
+Warm and inclusive tone
+
+Underdog/outsider perspective
+
+Christopher Nolan
+
+Visual Signatures: IMAX scale, practical effects, complex timelines, architectural spaces, formal compositions, minimal handheld
+
+Tonal Attributes: Cerebral, puzzle-like, masculine stoicism, time obsession, high-concept executed seriously
+
+Color Tendency: Cool, steel blues, desaturated, high contrast
+
+When Someone Says "Nolan-like" They Mean:
+
+High-concept narrative complexity
+
+Serious tone, no humor
+
+Practical effects at massive scale
+
+Time manipulation themes
+
+Quentin Tarantino
+
+Visual Signatures: Long dialogue scenes, trunk shots, foot shots, chapter structure, vintage film stock look, split screens, freeze frames with titles
+
+Tonal Attributes: Self-aware cool, violence as ballet, dialogue-driven, referential to film history, provocative
+
+Color Tendency: Varies by film, often 70s-influenced, saturated
+
+When Someone Says "Tarantino-like" They Mean:
+
+Stylized dialogue scenes
+
+Violence as aesthetic spectacle
+
+Cool factor over realism
+
+Pop culture references embedded
+
+David Fincher
+
+Visual Signatures: Precise camera movement, dark environments with selective lighting, desaturated palette, digital perfection, impossible camera moves
+
+Tonal Attributes: Clinical, pessimistic, obsessive detail, darkness of human nature, procedural tension
+
+Color Tendency: Dark, desaturated, sickly greens and yellows, shadows
+
+When Someone Says "Fincher-like" They Mean:
+
+Dark, precise, controlled
+
+Thriller tension without jump scares
+
+Visual perfection/obsessive detail
+
+Cynical worldview
+
+Tarsem Singh
+
+Visual Signatures: Painterly compositions, art historical references, elaborate costumes/sets, saturated color, surrealist imagery, visual excess
+
+Tonal Attributes: Operatic beauty, dream logic, spectacle over narrative, visual poetry
+
+Color Tendency: Rich, saturated, jewel tones, golden
+
+When Someone Says "Tarsem-like" They Mean:
+
+Painterly, art-directed to extreme
+
+Visual spectacle as priority
+
+Surreal, dreamlike imagery
+
+Costume/production design excess
+
+Jordan Peele
+
+Visual Signatures: Slow push-ins, symmetrical dread, everyday settings made sinister, visual symbolism, horror reveal shots
+
+Tonal Attributes: Social horror, comedic timing in terror, metaphor-rich, smart genre, Black experience centered
+
+Color Tendency: Controlled, often warm that turns sinister
+
+When Someone Says "Peele-like" They Mean:
+
+Horror with social commentary
+
+Everyday made terrifying
+
+Smart/thoughtful genre
+
+Comedic sensibility within dread
+
+Greta Gerwig
+
+Visual Signatures: Warm naturalistic lighting, handheld intimacy, literary references, ensemble staging, dance sequences, nostalgic settings
+
+Tonal Attributes: Warmth, female coming-of-age, verbal wit, literary sensibility, optimistic humanism
+
+Color Tendency: Warm, golden, soft, period-appropriate pastels
+
+When Someone Says "Gerwig-like" They Mean:
+
+Warm, literate, feminine perspective
+
+Coming-of-age emotional truth
+
+Verbal/dialogue-driven
+
+Nostalgic but not precious
+
+Commercial/Music Video Directors
+
+Hiro Murai
+
+Visual Signatures: Long takes, surrealist imagery in mundane settings, precise choreography, music-driven editing, symbolic imagery
+
+Tonal Attributes: Atmospheric dread, cultural commentary, dream logic, controlled chaos
+
+When Someone Says "Hiro Murai-like" They Mean: Unexpected surrealism, "This Is America" energy, or controlled long-take virtuosity
+
+Spike Lee
+
+Visual Signatures: Double dolly shots, Dutch angles, direct-to-camera address, Brooklyn authenticity, bold color, theatrical staging
+
+Tonal Attributes: Political, confrontational, Black joy and rage, operatic emotion
+
+When Someone Says "Spike Lee-like" They Mean: Political urgency, theatrical staging, or direct audience confrontation
+
+Michel Gondry
+
+Visual Signatures: In-camera practical effects, handmade aesthetic, paper/cardboard sets, stop-motion integration, visual puns
+
+Tonal Attributes: Childlike wonder, handmade charm, romantic melancholy, DIY creativity
+
+When Someone Says "Gondry-like" They Mean: Practical magic, handmade aesthetic, or clever in-camera tricks
+
+Dave Meyers
+
+Visual Signatures: High production value, bold color, cinematic scale for music videos, cultural moments, choreography-forward
+
+Tonal Attributes: Maximalist, event-level, trendsetting, culturally tuned
+
+When Someone Says "Dave Meyers-like" They Mean: High-budget music video polish, cultural moments, or cinematic pop
+
+Floria Sigismondi
+
+Visual Signatures: Gothic glamour, fashion-forward, dark beauty, theatrical lighting, feminine power imagery
+
+Tonal Attributes: Dark romanticism, fashion-meets-film, feminine darkness, operatic
+
+When Someone Says "Sigismondi-like" They Mean: Gothic beauty, dark fashion aesthetic, or powerful feminine imagery
+
+Photographers
+
+Annie Leibovitz
+
+Visual Signatures: Theatrical staging, celebrity transformation, elaborate sets, painterly lighting, narrative tableaux
+
+Tonal Attributes: Iconic, transformative, conceptual celebrity, magazine cover power
+
+When Someone Says "Leibovitz-like" They Mean: Theatrical celebrity portraiture, elaborate concept execution, or "Vanity Fair cover" energy
+
+Peter Lindbergh
+
+Visual Signatures: Black and white, minimal retouching, raw beauty, industrial locations, supermodel intimacy
+
+Tonal Attributes: Authentic beauty, anti-glamour glamour, timeless, humanizing
+
+When Someone Says "Lindbergh-like" They Mean: Black-and-white fashion, authentic/unretouched beauty, or supermodel-as-human
+
+Steven Meisel
+
+Visual Signatures: Chameleon style, provocative concepts, fashion-forward, Italian Vogue maximalism, character creation
+
+Tonal Attributes: Provocative, trendsetting, fashion authority, conceptual depth
+
+When Someone Says "Meisel-like" They Mean: High-fashion editorial, provocative concepts, or Italian Vogue sophistication
+
+Tim Walker
+
+Visual Signatures: Fantastical sets, fairy tale imagery, elaborate props, British eccentricity, handmade theatrical
+
+Tonal Attributes: Whimsical, escapist, storybook, maximalist fantasy
+
+When Someone Says "Tim Walker-like" They Mean: Fairy tale fashion, elaborate fantasy sets, or British whimsy
+
+Juergen Teller
+
+Visual Signatures: Flash photography, anti-glamour, awkward poses, snapshot aesthetic, humor, raw
+
+Tonal Attributes: Anti-establishment fashion, deliberately unflattering, provocative casualness
+
+When Someone Says "Juergen Teller-like" They Mean: Intentionally awkward, flash-lit anti-fashion, or provocative casualness
+
+Nadav Kander
+
+Visual Signatures: Environmental portraiture, negative space, muted palettes, formal compositions, contemplative
+
+Tonal Attributes: Quiet power, environmental context, psychological depth, painterly
+
+When Someone Says "Kander-like" They Mean: Moody environmental portraits, negative space, or Obama-portrait restraint
+
+Platon
+
+Visual Signatures: Extreme close-up, confrontational, high contrast black and white, power portrait, minimal background
+
+Tonal Attributes: Intense, revelatory, power dynamics, intimate confrontation
+
+When Someone Says "Platon-like" They Mean: Intense close-up portraiture, confrontational gaze, or world-leader-level gravitas
+
+Ryan McGinley
+
+Visual Signatures: Youth culture, nudity as freedom, natural settings, sun-drenched, spontaneous-feeling
+
+Tonal Attributes: Youthful freedom, hedonistic innocence, American road trip, liberated
+
+When Someone Says "McGinley-like" They Mean: Youthful abandon, sun-drenched nudes, or free-spirited Americana
+
+Petra Collins
+
+Visual Signatures: Soft focus, pink tones, feminine gaze, dreamy, vulnerability, Gen-Z aesthetic
+
+Tonal Attributes: Female interiority, soft rebellion, coming-of-age, Instagram-native
+
+When Someone Says "Petra Collins-like" They Mean: Soft pink feminine, Gen-Z aesthetic, or dreamy girlhood
+
+Tyler Mitchell
+
+Visual Signatures: Golden light, Black joy, idyllic settings, leisurely poses, warm tones, utopian
+
+Tonal Attributes: Aspirational Black life, pastoral beauty, joy as political, accessible luxury
+
+When Someone Says "Tyler Mitchell-like" They Mean: Black joy imagery, golden pastoral, or Beyoncé-Vogue optimism
+
+Specialist Photographers by Vertical
+
+Music & Entertainment Photography
+
+Danny Clinch
+
+Visual Signatures: Intimate backstage access, raw concert energy, black-and-white grit, authentic artist connection, environmental musician portraits
+
+Tonal Attributes: Authentic, unguarded, rock and roll intimacy, respect for the artist
+
+Color Tendency: Often black-and-white; when color, desaturated and natural
+
+When Someone Says "Danny Clinch-like" They Mean:
+
+Raw, backstage access feel
+
+Musician portraits that feel earned, not posed
+
+Concert photography with intimacy despite chaos
+
+Bruce Springsteen / Pearl Jam energy
+
+Mick Rock
+
+Visual Signatures: Iconic glam rock imagery, theatrical lighting, high-contrast black-and-white, defining artist personas, album cover aesthetic
+
+Tonal Attributes: Legendary, persona-defining, theatrical, glam, decadent
+
+Color Tendency: High-contrast B&W, or saturated glam color
+
+When Someone Says "Mick Rock-like" They Mean:
+
+Iconic, era-defining artist imagery
+
+Glam rock theatrical aesthetic
+
+Bowie / Queen / Lou Reed energy
+
+Album cover quality
+
+Anton Corbijn
+
+Visual Signatures: Grainy black-and-white, stark landscapes with figures, melancholic tone, European sensibility, band identity creation
+
+Tonal Attributes: Brooding, atmospheric, iconic minimalism, existential cool
+
+Color Tendency: Almost exclusively black-and-white, high grain
+
+When Someone Says "Corbijn-like" They Mean:
+
+Moody, grainy black-and-white
+
+U2 / Depeche Mode / Joy Division aesthetic
+
+Band photography as art photography
+
+European melancholy
+
+Ross Halfin
+
+Visual Signatures: Heavy metal authority, stage action, artist trust over decades, definitive band photography
+
+Tonal Attributes: Powerful, trusted insider, genre-defining, loud
+
+When Someone Says "Ross Halfin-like" They Mean: Hard rock/metal authenticity, Metallica-level access
+
+Mark Seliger
+
+Visual Signatures: Rolling Stone cover style, character-revealing celebrity portraits, environmental setups, wit within portraiture
+
+Tonal Attributes: Warm, humanizing, clever, editorial prestige
+
+Color Tendency: Rich color, well-lit, magazine-polished
+
+When Someone Says "Mark Seliger-like" They Mean:
+
+Rolling Stone cover quality
+
+Celebrity portraits with personality
+
+Editorial portraiture gold standard
+
+Accessible warmth with famous faces
+
+David LaChapelle
+
+Visual Signatures: Hyper-saturated color, surrealist staging, pop culture excess, celebrity as art object, baroque maximalism
+
+Tonal Attributes: Outrageous, camp, critique-through-excess, pop surrealism
+
+Color Tendency: Extreme saturation, candy colors, neon
+
+When Someone Says "LaChapelle-like" They Mean:
+
+Over-the-top surrealist staging
+
+Pop art meets celebrity
+
+Maximalist color explosion
+
+Deliberately artificial/theatrical
+
+Food Photography
+
+Penny De Los Santos
+
+Visual Signatures: Cultural food storytelling, travel context, warm natural light, hands-in-frame authenticity, editorial depth
+
+Tonal Attributes: Cultural respect, storytelling, warmth, National Geographic editorial quality
+
+Color Tendency: Warm, earthy, natural light
+
+When Someone Says "Penny De Los Santos-like" They Mean:
+
+Food with cultural context and story
+
+Travel/documentary approach to cuisine
+
+Hands, people, and place—not just plates
+
+Warm, authentic, editorial
+
+Andrew Scrivani
+
+Visual Signatures: New York Times food aesthetic, clean but not sterile, accessible elegance, natural light mastery
+
+Tonal Attributes: Refined, approachable, editorially clean, appetite appeal
+
+Color Tendency: Natural, clean whites, ingredient-forward color
+
+When Someone Says "Scrivani-like" They Mean:
+
+New York Times food section quality
+
+Clean, bright, appetizing
+
+Editorial food that feels achievable
+
+Natural light, white surfaces
+
+Lennart Weibull
+
+Visual Signatures: High-impact beverage and liquid photography, splash precision, commercial polish, technical mastery
+
+Tonal Attributes: Precision, impact, premium commercial, technical virtuosity
+
+Color Tendency: Controlled, product-forward, dramatic lighting
+
+When Someone Says "Lennart Weibull-like" They Mean:
+
+Liquid/splash technical perfection
+
+High-end beverage advertising
+
+Precise, controlled, dramatic
+
+Commercial food/beverage gold standard
+
+Automotive Photography
+
+Easton Chang
+
+Visual Signatures: Supercar specialist, dramatic lighting, CGI-level in-camera perfection, speed and power, night shoots
+
+Tonal Attributes: Premium, powerful, aspirational, technically flawless
+
+Color Tendency: Dramatic, often dark with selective lighting, rich metallics
+
+When Someone Says "Easton Chang-like" They Mean:
+
+Hypercar/supercar prestige
+
+Dramatic night lighting
+
+Technical perfection in-camera
+
+Automotive poster quality
+
+Tim Wallace
+
+Visual Signatures: Aviation and automotive, epic scale, industrial beauty, commercial polish, dramatic skies
+
+Tonal Attributes: Epic, premium, industrial elegance, British precision
+
+Color Tendency: Rich, dramatic, often moody skies, metallic sheen
+
+When Someone Says "Tim Wallace-like" They Mean:
+
+Aviation or automotive epic scale
+
+Industrial subjects made beautiful
+
+Dramatic environmental context
+
+British commercial polish
+
+Amy Shore
+
+Visual Signatures: Automotive lifestyle, classic cars, feminine perspective in male-dominated genre, warmth, road trip aesthetic
+
+Tonal Attributes: Warm, lifestyle-forward, accessible, nostalgic
+
+Color Tendency: Warm, golden light, lifestyle palette
+
+When Someone Says "Amy Shore-like" They Mean:
+
+Automotive with lifestyle warmth
+
+Classic car culture
+
+Road trip / adventure aesthetic
+
+Accessible rather than unapproachable
+
+Sports Photography
+
+Walter Iooss Jr.
+
+Visual Signatures: Definitive sports portraiture, Sports Illustrated legacy, athlete-as-hero, peak action, swimsuit elegance
+
+Tonal Attributes: Iconic, heroic, definitive American sports imagery
+
+Color Tendency: Clean, vivid, sports-broadcast quality
+
+When Someone Says "Walter Iooss-like" They Mean:
+
+Sports Illustrated cover legacy
+
+Athlete as icon
+
+Definitive sports moment capture
+
+American sports photography gold standard
+
+Neil Leifer
+
+Visual Signatures: Overhead boxing shots, geometric sports composition, color pioneer, Ali-era defining imagery
+
+Tonal Attributes: Historic, compositionally innovative, boxing authority
+
+Color Tendency: Bold, pioneering color in sports
+
+When Someone Says "Neil Leifer-like" They Mean:
+
+Iconic overhead compositions
+
+Boxing photography authority
+
+Historically significant sports moments
+
+Ali-era energy
+
+Simon Bruty
+
+Visual Signatures: Olympic authority, global sports range, peak moment capture, editorial excellence, athlete emotion
+
+Tonal Attributes: International, emotional, peak-moment specialist
+
+When Someone Says "Simon Bruty-like" They Mean: Olympic-quality sports photography, global athletic range, emotional peak moments
+
+Fashion Photography (Extended)
+
+Mario Testino
+
+Visual Signatures: Glamorous, golden-lit, celebrity-fashion fusion, sensual but elegant, high-wattage energy
+
+Tonal Attributes: Glamour, warmth, celebrity access, aspirational sensuality
+
+Color Tendency: Warm, golden, sun-kissed, rich
+
+When Someone Says "Testino-like" They Mean:
+
+High-glamour fashion
+
+Celebrity-fashion fusion
+
+Sensual but tasteful
+
+Golden, warm, glamorous lighting
+
+Helmut Newton
+
+Visual Signatures: Provocative power, strong women, erotic tension, architectural settings, film noir influence
+
+Tonal Attributes: Provocative, powerful, subversive, cinematic noir
+
+Color Tendency: Often black-and-white, high contrast
+
+When Someone Says "Helmut Newton-like" They Mean:
+
+Provocative fashion
+
+Power and sexuality combined
+
+Strong women, often confrontational
+
+Noir-influenced, architectural
+
+Guy Bourdin
+
+Visual Signatures: Surrealist color, narrative mystery, disturbing beauty, fashion-as-art, cropped compositions
+
+Tonal Attributes: Surreal, mysterious, unsettling glamour, avant-garde
+
+Color Tendency: Bold, saturated, surreal palette
+
+When Someone Says "Guy Bourdin-like" They Mean:
+
+Surrealist fashion
+
+Mysterious/unsettling beauty
+
+Narrative ambiguity
+
+Art-forward editorial
+
+Ellen von Unwerth
+
+Visual Signatures: Playful sensuality, retro glamour, feminine joy, vintage Hollywood influence, blonde bombshell aesthetic
+
+Tonal Attributes: Playful, sexy, joyful, retro-feminine, fun
+
+Color Tendency: Warm, vintage-toned, or classic black-and-white
+
+When Someone Says "Ellen von Unwerth-like" They Mean:
+
+Playful, joyful sensuality
+
+Retro Hollywood glamour
+
+Fun and sexy without being dark
+
+Feminine energy, often blonde/bombshell
+
+Irving Penn
+
+Visual Signatures: Studio perfection, spare compositions, still life mastery, Vogue authority, timeless elegance
+
+Tonal Attributes: Timeless, spare, perfectionist, quietly authoritative
+
+Color Tendency: Often muted or black-and-white, controlled
+
+When Someone Says "Irving Penn-like" They Mean:
+
+Timeless studio perfection
+
+Spare, clean compositions
+
+Still life as high art
+
+Vogue legacy elegance
+
+Richard Avedon
+
+Visual Signatures: White background portraiture, movement in fashion, stark psychological portraits, minimalist studio
+
+Tonal Attributes: Dynamic, psychological, minimalist power, movement
+
+Color Tendency: Often black-and-white, stark white backgrounds
+
+When Someone Says "Avedon-like" They Mean:
+
+White seamless/stark studio
+
+Movement in fashion
+
+Psychologically penetrating portraits
+
+Minimalist but dynamic
+
+Documentary & Photojournalism
+
+Steve McCurry
+
+Visual Signatures: "Afghan Girl" eyes, National Geographic color, war-zone humanity, saturated global imagery
+
+Tonal Attributes: Humanist, global, iconic, National Geographic authority
+
+Color Tendency: Rich, saturated, jewel-toned
+
+When Someone Says "McCurry-like" They Mean:
+
+National Geographic iconic style
+
+Human connection in global contexts
+
+Rich, saturated color
+
+Eyes that tell stories
+
+Sebastião Salgado
+
+Visual Signatures: Epic black-and-white, labor and migration, environmental scale, humanitarian grandeur
+
+Tonal Attributes: Epic, humanitarian, operatic scale, morally weighted
+
+Color Tendency: Exclusively black-and-white, rich tonal range
+
+When Someone Says "Salgado-like" They Mean:
+
+Epic black-and-white documentary
+
+Human labor and dignity
+
+Environmental/humanitarian scale
+
+Grand, almost biblical compositions
+
+James Nachtwey
+
+Visual Signatures: War and conflict proximity, unflinching witness, black-and-white intensity, human cost of violence
+
+Tonal Attributes: Intense, morally urgent, witness, devastating
+
+Color Tendency: Black-and-white, high contrast
+
+When Someone Says "Nachtwey-like" They Mean:
+
+War photography intensity
+
+Unflinching documentation
+
+Moral witness
+
+Human cost made visible
+
+Lynsey Addario
+
+Visual Signatures: Conflict and women's issues, access in dangerous zones, humanizing the overlooked, Pulitzer authority
+
+Tonal Attributes: Empathetic, courageous, humanizing, urgent
+
+When Someone Says "Lynsey Addario-like" They Mean: Conflict documentation with humanity, women's stories in crisis, courageous access
+
+Portrait Photography (Extended)
+
+Martin Schoeller
+
+Visual Signatures: Extreme close-up, identical framing, democratic treatment of subjects, forensic detail
+
+Tonal Attributes: Democratic, forensic, leveling, confrontational
+
+Color Tendency: Clean, neutral, no-hiding-place lighting
+
+When Someone Says "Martin Schoeller-like" They Mean:
+
+Extreme close-up, identical framing
+
+Everyone shot the same way
+
+Forensic, nowhere-to-hide detail
+
+Democratizing portraiture
+
+Dan Winters
+
+Visual Signatures: Conceptual celebrity portraiture, lighting mastery, idea-driven setups, technical craftsmanship
+
+Tonal Attributes: Conceptual, crafted, idea-forward, technically virtuosic
+
+Color Tendency: Controlled, often dramatic, concept-dependent
+
+When Someone Says "Dan Winters-like" They Mean:
+
+Concept-driven celebrity portraits
+
+Technical lighting mastery
+
+Ideas embedded in the image
+
+Craftsmanship visible
+
+Gregory Heisler
+
+Visual Signatures: Editorial portraiture variety, lighting innovation, Time cover legacy, subject-specific approach
+
+Tonal Attributes: Versatile, editorially authoritative, subject-responsive
+
+When Someone Says "Gregory Heisler-like" They Mean: Editorial portrait mastery, lighting innovation, Time-cover quality
+
+Commercial Directors (Extended)
+
+Jonathan Glazer
+
+Visual Signatures: Unsettling beauty, surrealist undertones, Kubrickian precision, long-take dread, commercial-as-art
+
+Tonal Attributes: Disturbing, precise, art-house in commercial clothing, hypnotic
+
+Color Tendency: Controlled, often desaturated or monochromatic
+
+When Someone Says "Glazer-like" They Mean:
+
+Commercial work as art cinema
+
+Unsettling, hypnotic beauty
+
+Kubrickian precision
+
+Disturbing undertones in polished surface
+
+Rupert Sanders
+
+Visual Signatures: Epic scale, fantasy/sci-fi polish, VFX integration, cinematic scope in commercial format
+
+Tonal Attributes: Epic, fantastical, high-production, blockbuster sensibility
+
+Color Tendency: Cinematic, often desaturated or stylized
+
+When Someone Says "Rupert Sanders-like" They Mean:
+
+Epic scale in commercials
+
+Fantasy/sci-fi visual polish
+
+Blockbuster production value
+
+VFX-integrated storytelling
+
+Fredrik Bond
+
+Visual Signatures: Character-driven comedy, performance-focused, warm humor, European wit in American format
+
+Tonal Attributes: Warm, funny, character-focused, humanist comedy
+
+When Someone Says "Fredrik Bond-like" They Mean: Performance-driven commercials, warm comedy, character over spectacle
+
+Ringan Ledwidge
+
+Visual Signatures: Emotional narrative, British authenticity, working-class warmth, John Lewis Christmas-ad sensibility
+
+Tonal Attributes: Emotional, authentic, heartstring-pulling, British warmth
+
+When Someone Says "Ringan Ledwidge-like" They Mean:
+
+Emotional storytelling in commercials
+
+British authenticity and warmth
+
+John Lewis Christmas-ad feeling
+
+Heart over spectacle
+
+Martin de Thurah
+
+Visual Signatures: Abstract beauty, non-linear narrative, sensory experience over story, European art-film influence
+
+Tonal Attributes: Abstract, sensory, art-film crossover, elliptical
+
+Color Tendency: Stylized, often desaturated or color-shifted
+
+When Someone Says "Martin de Thurah-like" They Mean:
+
+Abstract, sensory commercial work
+
+Art-film approach to advertising
+
+Feeling over narrative
+
+Visually poetic
+
+Animators & Motion Designers
+
+Buck (Studio)
+
+Visual Signatures: Design-forward animation, brand storytelling, illustration-to-motion, playful sophistication
+
+Tonal Attributes: Smart, playful, design-led, brand-savvy
+
+When Someone Says "Buck-like" They Mean: Design-led animation, sophisticated brand storytelling, illustration-forward motion
+
+Psyop
+
+Visual Signatures: Character animation, emotional storytelling, CG-integrated live action, commercial narrative
+
+Tonal Attributes: Emotional, character-driven, polished, narrative-focused
+
+When Someone Says "Psyop-like" They Mean: Character-driven CG animation, emotional commercial storytelling
+
+Elastic (Studio)
+
+Visual Signatures: Title sequence mastery, HBO-level main titles, narrative density in 90 seconds, cinematic craft
+
+Tonal Attributes: Prestigious, narrative-dense, cinematic, title-sequence authority
+
+When Someone Says "Elastic-like" They Mean:
+
+HBO/prestige title sequences
+
+Narrative complexity in short form
+
+Game of Thrones / Westworld energy
+
+Cinematic main title mastery
+
+Imaginary Forces
+
+Visual Signatures: Title design pioneers, Mad Men elegance, brand-building motion, cross-platform design
+
+Tonal Attributes: Pioneering, elegant, brand-defining, design-historical
+
+When Someone Says "Imaginary Forces-like" They Mean:
+
+Mad Men title sequence elegance
+
+Pioneering motion design
+
+Brand-defining visual identity
+
+Design legacy
+
+GMUNK (Bradley G Munkowitz)
+
+Visual Signatures: Data visualization, UI fantasy, Tron Legacy aesthetic, tech-art crossover, projection mapping
+
+Tonal Attributes: Futuristic, tech-utopian, data-as-beauty, immersive
+
+When Someone Says "GMUNK-like" They Mean:
+
+Tron Legacy UI aesthetic
+
+Data visualization as art
+
+Tech-futuristic motion
+
+Projection mapping / immersive
+
+Artists/Illustrators
+
+Cindy Sherman
+
+Visual Signatures: Self-portraiture as character, film still aesthetic, costume transformation, constructed identity
+
+When Someone Says "Sherman-like" They Mean: Identity performance, constructed self, or critical self-portraiture
+
+Jean-Michel Basquiat
+
+Visual Signatures: Raw mark-making, text integration, crown motif, anatomical elements, graffiti-fine art fusion
+
+When Someone Says "Basquiat-like" They Mean: Raw urban energy, text-as-image, or street-to-gallery aesthetic
+
+KAWS
+
+Visual Signatures: Cartoon appropriation, X eyes, vinyl toy aesthetic, pop art scale, accessible contemporary
+
+When Someone Says "KAWS-like" They Mean: Pop-commercial crossover, toy aesthetic, or accessible art market
+
+Takashi Murakami
+
+Visual Signatures: Superflat, smiling flowers, anime influence, pop maximalism, kawaii-dark duality
+
+When Someone Says "Murakami-like" They Mean: Japanese pop maximalism, kawaii aesthetic, or Louis Vuitton collaboration energy
+
+Shepard Fairey
+
+Visual Signatures: Propaganda aesthetic, limited palette (red/black/cream), Obey iconography, political messaging
+
+When Someone Says "Fairey-like" They Mean: Propaganda poster style, political street art, or Hope-poster aesthetic
+
+5. Search Query Translation Guide
+
+How natural language queries resolve to database tag combinations.
+
+Natural Language Query
+
+Tag Resolution
+
+"I need someone who shoots like that scene in Sinners with the romantic musical transition"
+
+output:video + approach:narrative + approach:romantic + style:cinematic + tone:musical-integration + comparable:Ryan-Coogler
+
+"Looking for a documentary approach to sports, but with some humor"
+
+output:video + subject:sports + approach:documentary + tone:humor
+
+"Spielberg but for social video"
+
+output:video + platform:social + tone:wonder + style:reaction-shots + lighting:warm
+
+"Someone who paints unicorns in a kawaii style"
+
+output:still + subtype:illustration + subject:fantasy + style:kawaii + content:unicorns
+
+"Annie Leibovitz energy but mid-tier budget"
+
+output:still + subtype:photography + approach:conceptual + style:theatrical + subject:portrait + budget:mid-tier
+
+"Gritty documentary food content for TikTok"
+
+output:video + subject:food + approach:documentary + style:gritty + platform:social
+
+"Wes Anderson vibes for a product launch"
+
+output:video + style:symmetrical + color:pastel + tone:whimsical + approach:conceptual
+
+"Need a photographer who does real human stories, not polished lifestyle"
+
+output:still + subtype:photography + approach:documentary + style:gritty + tone:approachable + NOT style:polished
+
+"Concert photographer for a rock tour"
+
+output:still + subject:entertainment + subcategory:music + style:gritty + style:high-contrast
+
+"Someone who shoots extreme sports but with a cinematic feel"
+
+output:video + subject:sports + subcategory:action-sports + style:cinematic
+
+"Food photographer specializing in restaurant work, not packaged goods"
+
+output:still + subject:food + subcategory:restaurant + NOT subcategory:packaged-goods
+
+6. Image Analysis Tool Specification
+
+Purpose
+
+Automated extraction of visual attributes from portfolio images to populate Tier 3 database fields.
+
+Input
+
+Single image (uploaded file or URL)
+
+Accepts: PNG, JPG, WebP up to 10MB
+
+Output Schema
+
+{
+
+"primary_output": "STILL | VIDEO",
+
+"output_subtype": "photography | illustration | ai_imagery | art | film_frame | commercial_frame | social_frame",
+
+"subject_matter": ["tag1", "tag2", "..."],
+
+"subject_subcategory": ["tag1", "tag2", "..."],
+
+"approach_style": ["tag1", "tag2", "..."],
+
+"visual_style": ["tag1", "tag2", "..."],
+
+"tone": ["tag1", "tag2", "..."],
+
+"color_palette": {
+
+"dominant": "color name",
+
+"secondary": "color name",
+
+"mood": "warm | cool | neutral | mixed"
+
+},
+
+"composition": {
+
+"framing": "tight_closeup | closeup | medium | wide | extreme_wide",
+
+"style": "symmetrical | rule_of_thirds | dynamic | centered | negative_space"
+
+},
+
+"lighting": {
+
+"quality": "hard | soft | mixed",
+
+"direction": "front | side | back | overhead | ambient",
+
+"mood": "bright | moody | dramatic | natural | studio"
+
+},
+
+"comparable_to": ["Luminary Name 1", "Luminary Name 2"],
+
+"confidence": 0.0-1.0
+
+}
+
+Implementation Notes
+
+Tool uses Claude's vision capabilities via API
+
+Prompt engineering ensures consistent JSON output
+
+Tags constrained to canonical vocabulary from Section 3
+
+Comparable_to references limited to luminaries in Section 4
+
+Confidence score indicates reliability of analysis
+
+Future Enhancements (Planned)
+
+Batch Processing: Analyze N images per creator, aggregate most frequent tags
+
+Confidence Thresholding: Flag low-confidence analyses for human review
+
+Portfolio Coherence Score: Measure consistency across creator's work
+
+Temporal Analysis: Track style evolution over time
+
+Appendix: Tag Extraction Priority Matrix
+
+When scraping, prioritize extracting tags in this order based on signal reliability:
+
+Priority
+
+Source
+
+Reliability
+
+Example Tags
+
+1
+
+Directory categorization
+
+High
+
+Subject matter, output type
+
+2
+
+Self-declared specialties
+
+High
+
+"I specialize in food and beverage"
+
+3
+
+Client list
+
+High
+
+Industry vertical inference
+
+4
+
+Awards/recognition
+
+Medium-High
+
+Quality signals, approach
+
+5
+
+Bio keywords
+
+Medium
+
+Style, tone descriptors
+
+6
+
+Hashtags used
+
+Medium
+
+Subject, style
+
+7
+
+Press quotes
+
+Medium
+
+Comparables, tone
+
+8
+
+Portfolio titles/descriptions
+
+Medium
+
+Subject, approach
+
+9
+
+Social engagement patterns
+
+Low-Medium
+
+Audience/platform fit
+
+10
+
+AI visual analysis
+
+Variable
+
+All visual attributes
+
+Document Version 1.2 | February 2026
+
+Changelog:
+
+v1.2: Expanded luminaries library to 100+ profiles; added specialist verticals (Music, Food, Automotive, Sports, Documentary, extended Fashion, Commercial Directors, Motion Design studios)
+
+v1.1: Added subject subcategories (Section 3); Added source extraction rules for 14 scraping sources (Section 7)
+
+v1.0: Initial release
+
+For questions or contributions, contact the project team.
+

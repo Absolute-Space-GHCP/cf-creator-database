@@ -9,6 +9,7 @@ package-lock.json
 *.json
 !package.json
 !data/golden-records.json
+!config/subject-taxonomy.json
 gcp-service-account-key.json
 
 # Config files (contain deployment-specific settings)
@@ -67,3 +68,4 @@ chat-transcripts/
 *.tmp
 *.temp
 ._.
+.tmp_docx/

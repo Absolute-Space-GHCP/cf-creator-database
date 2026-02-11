@@ -29,6 +29,9 @@ export interface ScoringWeights {
     goldenRecordBonus: number;
     qualityScoreWeight: number;
     negativeKeywordPenalty: number;
+    subjectMatterMatch: number;
+    subjectSubcategoryMatch: number;
+    primaryMediumMatch: number;
 }
 
 export const WEIGHTS: ScoringWeights = {
@@ -40,7 +43,10 @@ export const WEIGHTS: ScoringWeights = {
     positiveKeywordMatch: 5,  // Per matching positive keyword
     goldenRecordBonus: 15,    // Bonus for golden record creators
     qualityScoreWeight: 0.2,  // Multiplier for quality score
-    negativeKeywordPenalty: -20 // Penalty per negative keyword match
+    negativeKeywordPenalty: -20, // Penalty per negative keyword match
+    subjectMatterMatch: 12,   // Subject matter tag overlap (deck/docx)
+    subjectSubcategoryMatch: 8, // Subcategory tag overlap
+    primaryMediumMatch: 10   // Primary medium (still/video/audio) match
 };
 
 // =============================================================================
@@ -110,6 +116,31 @@ const STYLE_KEYWORDS: readonly string[] = [
     'clean', 'minimal', 'bold', 'experimental'
 ];
 
+/** Subject matter keywords (brief → canonical tag hint). Deck/docx alignment. */
+const SUBJECT_BRIEF_KEYWORDS: Record<string, string[]> = {
+    food: ['food', 'culinary', 'restaurant', 'recipe', 'cooking', 'chef', 'dining', 'F&B', 'gastronomy'],
+    beverage: ['beverage', 'drinks', 'cocktails', 'wine', 'beer', 'coffee', 'tea', 'liquid'],
+    automotive: ['automotive', 'cars', 'auto', 'vehicles', 'car photography', 'driving', 'motorsport'],
+    fashion: ['fashion', 'apparel', 'runway', 'couture', 'streetwear', 'lookbook'],
+    beauty: ['beauty', 'cosmetics', 'makeup', 'skincare', 'grooming'],
+    sports: ['sports', 'athletics', 'fitness', 'sporting', 'action sports', 'workout', 'gym'],
+    travel: ['travel', 'destination', 'tourism', 'wanderlust', 'hospitality'],
+    tech: ['tech', 'technology', 'gadgets', 'electronics', 'digital', 'innovation'],
+    entertainment: ['entertainment', 'celebrity', 'film', 'TV', 'gaming', 'music', 'concert'],
+    portrait: ['portrait', 'portraiture', 'headshot', 'people photography'],
+    product: ['product', 'still life', 'packshot', 'e-commerce', 'tabletop'],
+    nature: ['nature', 'landscape', 'wildlife', 'outdoor', 'botanical'],
+    corporate: ['corporate', 'business', 'B2B', 'enterprise', 'executive'],
+    luxury: ['luxury', 'premium', 'high-end', 'prestige']
+};
+
+/** Brief phrases that imply primary medium. */
+const MEDIUM_BRIEF_KEYWORDS: Record<string, string[]> = {
+    still: ['photographer', 'photography', 'still', 'photo', 'illustration', 'illustrator', 'print'],
+    video: ['video', 'film', 'cinematographer', 'director', 'editor', 'motion', 'commercial', 'documentary', 'music video', 'animation', 'reel'],
+    audio: ['audio', 'sound', 'podcast', 'music composition', 'sound design']
+};
+
 /**
  * Extract keywords from a brief text
  * @param brief - The client brief text
@@ -117,12 +148,24 @@ const STYLE_KEYWORDS: readonly string[] = [
  */
 export function extractBriefKeywords(brief: string): ExtractedKeywords {
     const lowerBrief = brief.toLowerCase();
-    
+    const subjects: string[] = [];
+    for (const [tag, keywords] of Object.entries(SUBJECT_BRIEF_KEYWORDS)) {
+        if (keywords.some(k => lowerBrief.includes(k))) subjects.push(tag);
+    }
+    let primaryMediumHint: string | null = null;
+    for (const [medium, keywords] of Object.entries(MEDIUM_BRIEF_KEYWORDS)) {
+        if (keywords.some(k => lowerBrief.includes(k))) {
+            primaryMediumHint = medium;
+            break;
+        }
+    }
     return {
         crafts: CRAFT_KEYWORDS.filter(k => lowerBrief.includes(k)),
         technical: TECHNICAL_KEYWORDS.filter(k => lowerBrief.includes(k)),
         locations: LOCATION_KEYWORDS.filter(k => lowerBrief.includes(k)),
         styles: STYLE_KEYWORDS.filter(k => lowerBrief.includes(k)),
+        subjects,
+        primaryMediumHint,
         raw: lowerBrief.split(/\s+/).filter(w => w.length > 3)
     };
 }
@@ -343,7 +386,34 @@ export function scoreCreator(
         reasons.push(`Style match: +${styleScore} pts`);
     }
     
-    // 11. Influencer noise penalty (auto-detect)
+    // 11. Subject matter overlap (deck/docx taxonomy)
+    const subjectMatterTags = creator.craft?.subjectMatterTags ?? [];
+    const subjectOverlap = keywords.subjects.filter(s => subjectMatterTags.map(t => t.toLowerCase()).includes(s));
+    if (subjectOverlap.length > 0) {
+        const subjectScore = subjectOverlap.length * WEIGHTS.subjectMatterMatch;
+        score += subjectScore;
+        breakdown.subjectMatter = subjectScore;
+        reasons.push(`Subject matter: ${subjectOverlap.join(', ')}`);
+    }
+    
+    // 12. Subject subcategory overlap (creator subcategory mentioned in brief)
+    const subcategoryTags = creator.craft?.subjectSubcategoryTags ?? [];
+    const subcategoryMatch = subcategoryTags.some(t => lowerBrief.includes(t.toLowerCase().replace(/-/g, ' ')));
+    if (subcategoryMatch) {
+        score += WEIGHTS.subjectSubcategoryMatch;
+        breakdown.subjectSubcategory = WEIGHTS.subjectSubcategoryMatch;
+        reasons.push('Subcategory match');
+    }
+    
+    // 13. Primary medium match
+    const creatorMedium = creator.craft?.primaryMedium?.toLowerCase();
+    if (creatorMedium && keywords.primaryMediumHint && creatorMedium === keywords.primaryMediumHint) {
+        score += WEIGHTS.primaryMediumMatch;
+        breakdown.primaryMedium = WEIGHTS.primaryMediumMatch;
+        reasons.push(`Primary medium: ${creatorMedium}`);
+    }
+    
+    // 14. Influencer noise penalty (auto-detect)
     const noise = detectInfluencerNoise(creator);
     if (noise.count > 0) {
         const noisePenalty = noise.count * -10; // -10 per indicator
@@ -351,7 +421,7 @@ export function scoreCreator(
         reasons.push(`Influencer noise detected: ${noise.indicators.slice(0, 2).join(', ')} (${noisePenalty} pts)`);
     }
     
-    // 12. Craft professionalism bonus (auto-detect)
+    // 15. Craft professionalism bonus (auto-detect)
     const craftBonus = detectCraftIndicators(creator);
     if (craftBonus.count > 0) {
         const bonus = Math.min(craftBonus.count * 5, 20); // +5 per indicator, max +20

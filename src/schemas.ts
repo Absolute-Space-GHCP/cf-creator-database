@@ -58,6 +58,32 @@ export const LOCATION_CONSTRAINTS = [
     'flexible'
 ] as const;
 
+// Deck/docx alignment: primary output medium and classification
+export const PRIMARY_MEDIA = ['still', 'video', 'audio'] as const;
+export const BUDGET_TIERS = ['emerging', 'mid-tier', 'established'] as const;
+
+/** Classification subtypes (docx Tier 1 output_subtype) */
+export const CLASSIFICATION_STILL = ['photography', 'illustration', 'ai_imagery', 'art'] as const;
+export const CLASSIFICATION_VIDEO = ['film_narrative', 'commercial', 'social_platform', 'documentary', 'music_video', 'animation'] as const;
+export const CLASSIFICATION_AUDIO = ['podcast_spoken_word', 'music_composition', 'sound_design'] as const;
+export const CLASSIFICATION_TYPES = [...CLASSIFICATION_STILL, ...CLASSIFICATION_VIDEO, ...CLASSIFICATION_AUDIO] as const;
+
+/** Subject matter tags (deck/docx Tier 2) */
+export const SUBJECT_MATTER_TAGS = [
+    'food', 'beverage', 'automotive', 'fashion', 'beauty', 'lifestyle', 'portrait', 'product',
+    'sports', 'travel', 'tech', 'medical', 'architecture', 'nature', 'children', 'seniors',
+    'corporate', 'entertainment', 'luxury'
+] as const;
+
+/** Subcategory tags (narrower within subject matter); see config/subject-taxonomy.json for parent mapping */
+export const SUBJECT_SUBCATEGORY_TAGS = [
+    'music', 'film-tv', 'gaming', 'celebrity',
+    'team-sports', 'individual-sports', 'action-sports', 'fitness',
+    'restaurant', 'packaged-goods', 'recipe', 'beverage',
+    'luxury-automotive', 'commercial-automotive', 'motorsport', 'lifestyle-automotive',
+    'high-fashion', 'commercial-fashion', 'streetwear', 'accessories'
+] as const;
+
 // =============================================================================
 // 📋 TYPE DEFINITIONS (inferred from constants)
 // =============================================================================
@@ -66,6 +92,11 @@ export type CraftType = typeof CRAFT_TYPES[number];
 export type Platform = typeof PLATFORMS[number];
 export type SourceType = typeof SOURCE_TYPES[number];
 export type LocationConstraint = typeof LOCATION_CONSTRAINTS[number];
+export type PrimaryMedium = typeof PRIMARY_MEDIA[number];
+export type BudgetTier = typeof BUDGET_TIERS[number];
+export type SubjectMatterTag = typeof SUBJECT_MATTER_TAGS[number];
+export type SubjectSubcategoryTag = typeof SUBJECT_SUBCATEGORY_TAGS[number];
+export type ClassificationType = typeof CLASSIFICATION_TYPES[number];
 
 // =============================================================================
 // 📋 SUB-SCHEMAS
@@ -82,7 +113,15 @@ export const CraftSchema = z.object({
     primary: z.enum(CRAFT_TYPES).optional().default('other'),
     secondary: z.array(z.string()).optional().default([]),
     styleSignature: z.string().optional(),
-    technicalTags: z.array(z.string()).optional().default([])
+    technicalTags: z.array(z.string()).optional().default([]),
+    /** Subject matter (e.g. food, automotive, fashion). Max 10 per docx. */
+    subjectMatterTags: z.array(z.string()).optional().default([]),
+    /** Narrower subcategory (e.g. restaurant, luxury-automotive). Max 5 per docx. */
+    subjectSubcategoryTags: z.array(z.string()).optional().default([]),
+    /** Primary output medium: still | video | audio (deck/docx Tier 1). */
+    primaryMedium: z.enum(PRIMARY_MEDIA).optional(),
+    /** Output subtype (e.g. photography, documentary, music_video). */
+    classification: z.string().optional()
 }).optional();
 
 export const MatchingSchema = z.object({
@@ -99,6 +138,8 @@ export const ContactSchema = z.object({
     location: z.string().optional(),
     locationConstraints: z.enum(LOCATION_CONSTRAINTS).optional(),
     rateRange: z.string().optional(),
+    /** Normalized budget tier (deck/docx): emerging | mid-tier | established. */
+    budgetTier: z.enum(BUDGET_TIERS).optional(),
     isHireable: z.boolean().optional().default(true)
 }).optional();
 
@@ -116,7 +157,9 @@ export const CreateCreatorSchema = z.object({
     source: SourceSchema,
     craft: CraftSchema,
     matching: MatchingSchema,
-    contact: ContactSchema
+    contact: ContactSchema,
+    /** Last portfolio/activity date (ISO or YYYY-MM-DD). Deck/docx Tier 1. */
+    lastActiveDate: z.string().optional()
 });
 
 /**
@@ -138,7 +181,8 @@ export const BatchCreatorSchema = z.object({
     source: SourceSchema,
     craft: CraftSchema,
     matching: MatchingSchema,
-    contact: ContactSchema
+    contact: ContactSchema,
+    lastActiveDate: z.string().optional()
 });
 
 /**
@@ -150,6 +194,10 @@ export const MatchRequestSchema = z.object({
         craft: z.string().optional(),
         location: z.string().optional(),
         tags: z.array(z.string()).optional(),
+        subjectMatter: z.union([z.string(), z.array(z.string())]).optional(),
+        subjectSubcategory: z.union([z.string(), z.array(z.string())]).optional(),
+        primaryMedium: z.enum(PRIMARY_MEDIA).optional(),
+        budgetTier: z.enum(BUDGET_TIERS).optional(),
         minQualityScore: z.number().min(0).max(100).optional(),
         goldenRecordsOnly: z.boolean().optional(),
         limit: z.number().min(1).max(100).default(10)
@@ -211,6 +259,9 @@ export interface ScoreBreakdown {
     negativeKeywords?: number;
     goldenRecord?: number;
     qualityScore?: number;
+    subjectMatter?: number;
+    subjectSubcategory?: number;
+    primaryMedium?: number;
 }
 
 export interface ScoreResult {
@@ -231,6 +282,10 @@ export interface ExtractedKeywords {
     technical: string[];
     locations: string[];
     styles: string[];
+    /** Subject matter inferred from brief (e.g. food, automotive). */
+    subjects: string[];
+    /** Primary medium inferred from brief (still, video, audio). */
+    primaryMediumHint: string | null;
     raw: string[];
 }
 

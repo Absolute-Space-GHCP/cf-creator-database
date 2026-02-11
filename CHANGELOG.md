@@ -45,23 +45,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Roadmap
 
-### v0.2.0 - API Foundation
+### v0.2.0 - API Foundation — ✅ Complete
 
-- [ ] Implement `/api/v1/creators` CRUD
-- [ ] Implement `/api/v1/match` endpoint
-- [ ] Adapt scoring algorithm for creators
+- [x] Implement `/api/v1/creators` CRUD
+- [x] Implement `/api/v1/match` endpoint
+- [x] Adapt scoring algorithm for creators
 
-### v0.3.0 - Intelligence Layer
+### v0.3.0 - Intelligence Layer — ✅ Complete
 
-- [ ] LLM categorization pipeline
-- [ ] Style signature generation
-- [ ] Batch import from scrapers
+- [x] LLM categorization pipeline
+- [x] Style signature generation
+- [x] Batch import from scrapers
 
-### v0.4.0 - Search & Discovery
+### v0.4.0 - Search & Discovery (Current)
 
 - [ ] Semantic search with embeddings
 - [ ] Lookalike model training
 - [ ] Auto-scan scheduling
+
+### Future (v0.5.0+)
+
+- [ ] **End-user option: links to specific work, refs, and sources** — Prompt or preference (e.g. in match results or creator detail) to include links to: specific work (portfolio/reel URLs), references (festivals, awards), and discovery sources (source name + URL). API support (e.g. `includeWorkLinks` / `includeSourceLinks`) and schema fields for per-creator work and source URLs.
 
 ---
 

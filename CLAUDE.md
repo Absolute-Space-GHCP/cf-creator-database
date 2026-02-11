@@ -162,7 +162,11 @@ Build a proprietary database of the world's best up-and-coming storytellers, wit
     primary: string,             // "cinematographer" | "motion_designer"
     secondary: string[],         // ["colorist", "editor"]
     styleSignature: string,      // LLM-generated style description
-    technicalTags: string[]      // ["#ArriAlexa", "#Anamorphic"]
+    technicalTags: string[],     // ["#ArriAlexa", "#Anamorphic"]
+    subjectMatterTags: string[], // Deck/docx: food, automotive, fashion, sports, etc.
+    subjectSubcategoryTags: string[], // e.g. restaurant, luxury-automotive, music
+    primaryMedium: string,       // "still" | "video" | "audio" (deck Tier 1)
+    classification: string      // e.g. photography, documentary, music_video
   },
 
   matching: {
@@ -179,8 +183,10 @@ Build a proprietary database of the world's best up-and-coming storytellers, wit
     location: string,
     locationConstraints: string, // "digital_only" | "on_site" | "flexible"
     rateRange: string,
+    budgetTier: string,          // "emerging" | "mid-tier" | "established" (deck)
     isHireable: boolean
-  }
+  },
+  lastActiveDate: string         // ISO or YYYY-MM-DD (deck Tier 1)
 }
 ```
 
@@ -193,7 +199,7 @@ POST /api/v1/match          - Match creators to a brief
 POST /api/v1/creators       - Add single creator
 POST /api/v1/creators/batch - Bulk import from scraper
 GET  /api/v1/creators/:id   - Get creator details
-GET  /api/v1/creators       - Search/filter creators
+GET  /api/v1/creators       - Search/filter creators (query: craft, location, tags, subjectMatter, subjectSubcategory, primaryMedium, budgetTier, limit)
 POST /api/v1/categorize     - LLM-categorize a bio
 GET  /health                - Health check
 GET  /dashboard             - Monitoring dashboard
@@ -386,6 +392,12 @@ Provides structured workflows for TDD, systematic debugging, and collaborative p
 - `/superpowers:execute-plan` - Execute plans step-by-step
 - `/superpowers:tdd` - Test-driven development workflow
 - `/superpowers:debug` - Systematic debugging
+
+---
+
+## Future Enhancements
+
+- **End-user option: links to specific work, refs, and sources** — Ask the end user (match results or creator detail) whether to include links to: **specific work** (portfolio/reel URLs), **references** (festival entries, awards), **sources** (discovery source name + URL). Support via API (e.g. `includeWorkLinks` / `includeSourceLinks` or `includeLinks`) and in Catchfire MVP; ensure creator schema can store per-creator work and source URLs. Details: [docs/PLAN.md § 10. Future Enhancements](docs/PLAN.md#10-future-enhancements).
 
 ---
 

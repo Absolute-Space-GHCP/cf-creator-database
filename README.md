@@ -152,24 +152,28 @@ cf-influencer-matching-engine/
 
 ## Roadmap
 
-### Phase 1: Foundation (Current)
+### Phase 1: Foundation — ✅ Complete
 
 - [x] Clone base framework
-- [ ] Implement creator schema
-- [ ] Build REST API endpoints
-- [ ] Create matching algorithm
+- [x] Implement creator schema
+- [x] Build REST API endpoints
+- [x] Create matching algorithm
 
-### Phase 2: Data Collection
+### Phase 2: Data Collection — ✅ Complete
 
-- [ ] Integrate Apify scrapers
-- [ ] Set up batch import pipeline
-- [ ] Build categorization bot
+- [x] Integrate Apify scrapers
+- [x] Set up batch import pipeline
+- [x] Build categorization bot
 
-### Phase 3: Intelligence
+### Phase 3: Intelligence (Current)
 
 - [ ] Train lookalike model on Golden Records
 - [ ] Enable semantic search
 - [ ] Auto-scan weekly for new creators
+
+### Future enhancements
+
+- [ ] **End-user preference: links to work, refs, and sources** — Ask whether to show links to specific work (portfolio/reel), references (festivals, awards), and discovery sources; support in API and Catchfire MVP. See [docs/PLAN.md](docs/PLAN.md#10-future-enhancements).
 
 ---
 

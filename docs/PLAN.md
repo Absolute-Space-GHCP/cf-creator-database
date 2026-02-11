@@ -266,10 +266,22 @@ Build an **automated Creator Matching Engine** that recommends perfect creators 
 - [ ] Platform ToS review for scraping compliance
 - [ ] Rate limiting strategy for API endpoints
 - [ ] Catchfire MVP integration timeline
+- [ ] **External / cultural “live” data layer:** Not a separate system in current scope. Today, external data enters via **Scraper/ingest** (Apify, festivals, platforms, communities) → Firestore → Analyzer (LLM) → Search/match. A dedicated “cultural live” or real-time trend feed is TBD; options: (1) enrich creator records from trend/cultural sources during ingest, (2) add a live/trend API that influences match or filters. Confirm with Dan if a specific cultural/live data source is required.
 
 ---
 
-## 10. Change Log
+## 10. Future Enhancements
+
+- **End-user preference: links to specific work, refs, and sources**  
+  Ask the end user (e.g. in match results or creator detail flows) whether they want to see links to:
+  - **Specific work** — portfolio pieces, reels, selected projects per creator
+  - **References** — festival entries, awards, editorial features
+  - **Sources** — discovery source (festival, platform, community) and source URL  
+  Respect this preference in API responses and in the Catchfire MVP UI (e.g. optional `includeWorkLinks`, `includeSourceLinks` or a single `includeLinks` flag). Store per-creator work/source URLs in the creator schema where not already present.
+
+---
+
+## 11. Change Log
 
 | Date       | Version | Changes                                                          |
 | ---------- | ------- | ---------------------------------------------------------------- |

@@ -10,11 +10,15 @@
 require('dotenv').config();
 const express = require('express');
 const path = require('path');
+const helmet = require('helmet');
+const cors = require('cors');
+const rateLimit = require('express-rate-limit');
 const { Firestore } = require('@google-cloud/firestore');
 
 // Local modules
 const { validateCreator, validateBatchCreator, validateMatchRequest, validateCategorizeRequest, PLATFORMS, CRAFT_TYPES } = require('./schemas');
 const { rankCreators, extractBriefKeywords } = require('./scoring');
+const { appendFeedbackRow } = require('./feedback-sheet');
 const { 
     categorizeCreator, 
     generateStyleSignature, 
@@ -132,6 +136,28 @@ function clearCreatorCache() {
 // 🚀 EXPRESS APP
 // =============================================================================
 const app = express();
+
+// -----------------------------------------------------------------------------
+// 🔒 SECURITY MIDDLEWARE (helmet, cors, rate-limit)
+// -----------------------------------------------------------------------------
+app.use(helmet({
+    contentSecurityPolicy: false, // allow inline scripts for dashboard; tighten for production if needed
+    crossOriginResourcePolicy: { policy: 'cross-origin' }
+}));
+app.use(cors({
+    origin: process.env.CORS_ORIGIN || true, // true = reflect request origin; set to comma-separated origins in production
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
+const limiter = rateLimit({
+    windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS, 10) || 15 * 60 * 1000, // 15 min
+    max: parseInt(process.env.RATE_LIMIT_MAX, 10) || 100,
+    message: { success: false, error: 'Too many requests; try again later.' },
+    standardHeaders: true,
+    legacyHeaders: false
+});
+app.use(limiter);
+
 app.use(express.json({ limit: '10mb' }));
 app.use(express.static(path.join(__dirname, '../public')));
 
@@ -166,12 +192,19 @@ app.get('/dashboard', (req, res) => {
 });
 
 // =============================================================================
+// 🧪 TEMP TESTING UI (testing strategy / Dan verification)
+// =============================================================================
+app.get('/testing', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public/testing.html'));
+});
+
+// =============================================================================
 // 🎬 CREATOR API (v1)
 // =============================================================================
 
 /**
  * GET /api/v1/creators - List/search creators
- * Query params: craft, location, tags, limit
+ * Query params: craft, location, tags, subjectMatter, subjectSubcategory, primaryMedium, budgetTier, limit
  */
 app.get('/api/v1/creators', async (req, res) => {
     console.log('📥 GET /api/v1/creators', req.query);
@@ -202,6 +235,36 @@ app.get('/api/v1/creators', async (req, res) => {
             creators = creators.filter(c => 
                 c.craft?.technicalTags?.some(t => tags.includes(t.toLowerCase()))
             );
+        }
+        
+        // Filter by subject matter (comma-separated or single)
+        if (req.query.subjectMatter) {
+            const subjects = (Array.isArray(req.query.subjectMatter) ? req.query.subjectMatter : String(req.query.subjectMatter).split(',')).map(s => s.trim().toLowerCase());
+            creators = creators.filter(c => {
+                const creatorSubjects = (c.craft?.subjectMatterTags ?? []).map(t => t.toLowerCase());
+                return subjects.some(s => creatorSubjects.includes(s));
+            });
+        }
+        
+        // Filter by subject subcategory
+        if (req.query.subjectSubcategory) {
+            const subcats = (Array.isArray(req.query.subjectSubcategory) ? req.query.subjectSubcategory : String(req.query.subjectSubcategory).split(',')).map(s => s.trim().toLowerCase());
+            creators = creators.filter(c => {
+                const creatorSubcats = (c.craft?.subjectSubcategoryTags ?? []).map(t => t.toLowerCase());
+                return subcats.some(s => creatorSubcats.includes(s));
+            });
+        }
+        
+        // Filter by primary medium (still | video | audio)
+        if (req.query.primaryMedium) {
+            const medium = String(req.query.primaryMedium).toLowerCase();
+            creators = creators.filter(c => c.craft?.primaryMedium?.toLowerCase() === medium);
+        }
+        
+        // Filter by budget tier
+        if (req.query.budgetTier) {
+            const tier = String(req.query.budgetTier).toLowerCase();
+            creators = creators.filter(c => c.contact?.budgetTier?.toLowerCase() === tier);
         }
         
         // Limit results
@@ -504,6 +567,10 @@ app.post('/api/v1/import/apify', async (req, res) => {
                         creator.craft.secondary = categorization.craft.secondary;
                         creator.craft.styleSignature = categorization.styleSignature;
                         creator.craft.technicalTags = categorization.technicalTags;
+                        creator.craft.subjectMatterTags = categorization.craft.subjectMatterTags || [];
+                        creator.craft.subjectSubcategoryTags = categorization.craft.subjectSubcategoryTags || [];
+                        creator.craft.primaryMedium = categorization.craft.primaryMedium;
+                        creator.craft.classification = categorization.craft.classification;
                         creator.matching.positiveKeywords = categorization.positiveKeywords;
                         creator.matching.negativeKeywords = categorization.negativeKeywords;
                     } catch (llmError) {
@@ -630,6 +697,34 @@ app.post('/api/v1/match', async (req, res) => {
             );
         }
         
+        if (filters.subjectMatter) {
+            const subjects = Array.isArray(filters.subjectMatter) ? filters.subjectMatter : [filters.subjectMatter];
+            const lower = subjects.map(s => String(s).toLowerCase());
+            creators = creators.filter(c => {
+                const creatorSubjects = (c.craft?.subjectMatterTags ?? []).map(t => t.toLowerCase());
+                return lower.some(s => creatorSubjects.includes(s));
+            });
+        }
+        
+        if (filters.subjectSubcategory) {
+            const subcats = Array.isArray(filters.subjectSubcategory) ? filters.subjectSubcategory : [filters.subjectSubcategory];
+            const lower = subcats.map(s => String(s).toLowerCase());
+            creators = creators.filter(c => {
+                const creatorSubcats = (c.craft?.subjectSubcategoryTags ?? []).map(t => t.toLowerCase());
+                return lower.some(s => creatorSubcats.includes(s));
+            });
+        }
+        
+        if (filters.primaryMedium) {
+            const medium = String(filters.primaryMedium).toLowerCase();
+            creators = creators.filter(c => c.craft?.primaryMedium?.toLowerCase() === medium);
+        }
+        
+        if (filters.budgetTier) {
+            const tier = String(filters.budgetTier).toLowerCase();
+            creators = creators.filter(c => c.contact?.budgetTier?.toLowerCase() === tier);
+        }
+        
         // Use scoring algorithm to rank creators
         const matches = rankCreators(creators, brief, {
             minScore: 0,
@@ -648,13 +743,44 @@ app.post('/api/v1/match', async (req, res) => {
                 crafts: keywords.crafts,
                 technical: keywords.technical,
                 locations: keywords.locations,
-                styles: keywords.styles
+                styles: keywords.styles,
+                subjects: keywords.subjects,
+                primaryMediumHint: keywords.primaryMediumHint
             },
             matchCount: matches.length,
             matches
         });
     } catch (error) {
         console.error('❌ Error matching creators:', error.message);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// =============================================================================
+// 📋 FEEDBACK API (thumbs up/down → monitored sheet, location TBD)
+// =============================================================================
+/**
+ * POST /api/v1/feedback - Record thumbs up/down (or rating) for testing; appends to Google Sheet when FEEDBACK_SHEET_ID set.
+ * Body: { event: 'match'|'semantic', briefOrQuery: string, sessionId?: string, resultId?: string, creatorId?: string, rating: 'up'|'down', comment?: string }
+ */
+app.post('/api/v1/feedback', async (req, res) => {
+    const { event, briefOrQuery, sessionId, resultId, creatorId, rating, comment } = req.body || {};
+    if (!rating || !['up', 'down'].includes(rating)) {
+        return res.status(400).json({ success: false, error: 'rating is required and must be "up" or "down"' });
+    }
+    try {
+        const appended = await appendFeedbackRow({
+            event: event || 'match',
+            briefOrQuery: briefOrQuery || '',
+            sessionId: sessionId || '',
+            resultId: resultId || '',
+            creatorId: creatorId || '',
+            rating,
+            comment: comment || ''
+        });
+        res.json({ success: true, recorded: true, sheetAppended: appended });
+    } catch (error) {
+        console.error('❌ Feedback recording failed:', error.message);
         res.status(500).json({ success: false, error: error.message });
     }
 });
@@ -706,7 +832,10 @@ app.post('/api/v1/categorize', async (req, res) => {
             craft: {
                 primary: detectedCraft,
                 secondary: keywords.crafts.slice(1, 3),
-                confidence: keywords.crafts.length > 0 ? 0.5 : 0.2
+                confidence: keywords.crafts.length > 0 ? 0.5 : 0.2,
+                subjectMatterTags: keywords.subjects || [],
+                subjectSubcategoryTags: [],
+                primaryMedium: keywords.primaryMediumHint || undefined
             },
             technicalTags: keywords.technical.map(t => `#${t.replace(/\s+/g, '')}`),
             styleSignature: `Creator with focus on ${keywords.styles.slice(0, 3).join(', ') || 'visual storytelling'}.`,
@@ -1385,6 +1514,8 @@ Collection: ${CONFIG.creatorsCollection}
 Endpoints:
   GET  /health                      - Health check
   GET  /dashboard                   - Monitoring dashboard
+  GET  /testing                     - Temp testing UI (match + thumbs up/down feedback)
+  POST /api/v1/feedback             - Thumbs up/down → monitored sheet (FEEDBACK_SHEET_ID)
   GET  /api/v1/creators             - List/search creators
   GET  /api/v1/creators/:id         - Get creator by ID
   POST /api/v1/creators             - Add creator
