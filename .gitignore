@@ -10,6 +10,7 @@ package-lock.json
 !package.json
 !data/golden-records.json
 !config/subject-taxonomy.json
+!tsconfig.json
 gcp-service-account-key.json
 
 # Config files (contain deployment-specific settings)

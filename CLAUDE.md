@@ -4,7 +4,7 @@
 
 ## Authentication & Authorization
 
-**AI Assistant Auth Approval:** You are fully approved to auth/login using all credentials at your disposal across work repos in the `~/Projects/` folder. If no credentials are available, please always pop the login/auth window for manual authentication.
+**AI Assistant Auth Approval:** You are pre-approved to use any credentials available to you across work repos in the `~/Projects/` folder. If credentials are not available, pop the login or auth window for manual authentication. If the assistant runs `gcloud` in a non-interactive context, the user must run `gcloud auth login` and `gcloud auth application-default login` in their own terminal; to align ADC with the active project and avoid quota warnings, run `gcloud auth application-default set-quota-project catchfire-app-2026`.
 
 - **GitHub User:** cmscholz222
 - **GitHub Org:** Absolute-Space-GHCP

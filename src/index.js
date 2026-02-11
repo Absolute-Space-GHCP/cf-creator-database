@@ -979,8 +979,7 @@ app.post('/api/v1/embeddings/generate/:id', async (req, res) => {
         });
         
         // Invalidate cache
-        creatorCache = null;
-        creatorCacheTime = null;
+        clearCreatorCache();
         
         res.json({
             success: true,
@@ -1074,8 +1073,7 @@ app.post('/api/v1/embeddings/batch', async (req, res) => {
         await batch.commit();
         
         // Invalidate cache
-        creatorCache = null;
-        creatorCacheTime = null;
+        clearCreatorCache();
         
         console.log(`✅ Generated embeddings for ${results.length} creators`);
         

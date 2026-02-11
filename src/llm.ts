@@ -413,8 +413,17 @@ export interface CreatorEmbeddingData {
 export function buildCreatorEmbeddingText(creator: {
     name: string;
     handle?: string;
-    craft?: { primary?: string; secondary?: string[]; styleSignature?: string };
-    matching?: { positiveKeywords?: string[]; technicalTags?: string[] };
+    craft?: {
+        primary?: string;
+        secondary?: string[];
+        styleSignature?: string;
+        technicalTags?: string[];
+        subjectMatterTags?: string[];
+        subjectSubcategoryTags?: string[];
+        primaryMedium?: string;
+        classification?: string;
+    };
+    matching?: { positiveKeywords?: string[] };
     contact?: { location?: string };
     bio?: string;
 }): string {
@@ -435,10 +444,26 @@ export function buildCreatorEmbeddingText(creator: {
         parts.push(`Style: ${creator.craft.styleSignature}`);
     }
     
-    // Technical tags and keywords
-    if (creator.matching?.technicalTags?.length) {
-        parts.push(`Technical expertise: ${creator.matching.technicalTags.join(', ')}`);
+    // Technical tags (under craft, not matching)
+    if (creator.craft?.technicalTags?.length) {
+        parts.push(`Technical expertise: ${creator.craft.technicalTags.join(', ')}`);
     }
+    
+    // Subject matter and medium (deck/docx taxonomy)
+    if (creator.craft?.subjectMatterTags?.length) {
+        parts.push(`Subject matter: ${creator.craft.subjectMatterTags.join(', ')}`);
+    }
+    if (creator.craft?.subjectSubcategoryTags?.length) {
+        parts.push(`Specialization: ${creator.craft.subjectSubcategoryTags.join(', ')}`);
+    }
+    if (creator.craft?.primaryMedium) {
+        parts.push(`Primary medium: ${creator.craft.primaryMedium}`);
+    }
+    if (creator.craft?.classification) {
+        parts.push(`Classification: ${creator.craft.classification}`);
+    }
+    
+    // Positive keywords
     if (creator.matching?.positiveKeywords?.length) {
         parts.push(`Keywords: ${creator.matching.positiveKeywords.join(', ')}`);
     }
