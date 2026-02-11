@@ -21,8 +21,15 @@
 
 - **Target:** Cloud Run (project catchfire-app-2026), region us-central1.
 - **Command:** `npm run deploy` (see package.json: `gcloud run deploy cf-matching-engine --source .`).
-- **Env in Cloud Run:** Set `GCP_PROJECT_ID`, `GCP_REGION`, `FIRESTORE_COLLECTION`, `GEMINI_MODEL`; for feedback, `FEEDBACK_SHEET_ID` and `FEEDBACK_TAB_NAME` (TBD). For Gemini without Vertex: `GEMINI_API_KEY` or `GOOGLE_API_KEY`.
-- **Post-deploy checks:** Hit `/health`, then temp testing UI: one match request, one thumbs up/down.
+- **Before first deploy:** Ensure you’re logged in and have access to the project:
+  ```bash
+  gcloud auth login
+  gcloud auth application-default login
+  gcloud config set project catchfire-app-2026
+  ```
+  Then from the repo root: `npm run deploy`.
+- **Env in Cloud Run:** After first deploy, set env vars in the Cloud Run console (or `gcloud run services update`) for `GCP_PROJECT_ID`, `GCP_REGION`, `FIRESTORE_COLLECTION`, `GEMINI_MODEL`; optional: `FEEDBACK_SHEET_ID`, `FEEDBACK_TAB_NAME`. For Gemini without Vertex: `GEMINI_API_KEY` or `GOOGLE_API_KEY`.
+- **Post-deploy checks:** Hit `https://<service-url>/health`, then `https://<service-url>/testing` for one match and one thumbs up/down.
 
 ---
 
