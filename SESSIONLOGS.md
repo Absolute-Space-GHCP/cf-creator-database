@@ -5,6 +5,42 @@ Format inspired by other JL project session docs (e.g. jlai-ongoing-rsrcs-and-mn
 
 ---
 
+## Session 2026-02-11 (Review, bug fixes, deploy to Cloud Run)
+
+**Focus:** True-up review of all prior changes; fix bugs found; deploy to Cloud Run; verify all endpoints live.
+
+### Progress
+
+| Item | Status |
+|------|--------|
+| Full code review (schemas, scoring, llm, index, testing UI, Dockerfile) | ✅ Done |
+| Bug fix: `buildCreatorEmbeddingText` read `technicalTags` from `matching` (wrong); moved to `craft` | ✅ Done |
+| Bug fix: embedding text now includes subjectMatterTags, primaryMedium, classification | ✅ Done |
+| Bug fix: `.gitignore` excluded `tsconfig.json` via `*.json` rule — deploy would fail | ✅ Done |
+| Bug fix: inconsistent cache clearing in embeddings routes (null → clearCreatorCache) | ✅ Done |
+| Commit and deploy to Cloud Run | ✅ Done |
+| Verify health, creators API (14 records), match, testing UI, feedback endpoint | ✅ Done |
+
+### Successes
+
+- **Deploy live:** `https://cf-matching-engine-34240596768.us-central1.run.app`
+- All endpoints verified: `/health` (200), `/testing` (200), `/api/v1/creators` (14 creators), `/api/v1/match` (ranked results with keyword extraction), `/api/v1/feedback` (records feedback, `sheetAppended: false` until `FEEDBACK_SHEET_ID` set).
+- Embedding quality improved: technical tags + taxonomy fields now included in embedding text.
+
+### Failures / Notes
+
+- `FEEDBACK_SHEET_ID` still TBD — feedback logs to console but doesn't append to Google Sheet yet.
+- `package.json` version is `0.1.0` but actual progress is ~v0.4 (Phase 3 complete). Not blocking.
+- `express` still at `^4.18.2` (CLAUDE.md targets 5.x). Not blocking.
+- `@google-cloud/vertexai` still in dependencies (deprecated May 2026). Migration is a TASKS item.
+
+### Files changed
+
+- **Modified:** `.gitignore` (!tsconfig.json), `CLAUDE.md` (gcloud auth one-liner), `src/index.js` (cache clearing), `src/llm.ts` (embedding text bug fix + taxonomy fields)
+- **Tracked:** `tsconfig.json` (was gitignored, now tracked)
+
+---
+
 ## Session 2026-02-11 (Deploy goal, temp testing UI, feedback loop)
 
 **Focus:** Deployed URL with interface for testing strategy; temp web UI; thumbs up/down → monitored sheet (location TBD); testing data confirmation; external/cultural live data layer clarified.
@@ -18,7 +54,7 @@ Format inspired by other JL project session docs (e.g. jlai-ongoing-rsrcs-and-mn
 | GET /testing + public/testing.html (match by brief + 👍/👎) | ✅ Done |
 | PLAN.md: external/cultural live data layer note | ✅ Done |
 | .env.example: FEEDBACK_SHEET_ID note | ✅ Done |
-| Deploy to Cloud Run (run npm run deploy) | 📋 Pending |
+| Deploy to Cloud Run (run npm run deploy) | ✅ Done (later session) |
 | FEEDBACK_SHEET_ID + tab (location TBD) | 📋 TBD |
 
 ### Successes
