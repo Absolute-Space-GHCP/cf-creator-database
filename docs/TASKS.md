@@ -41,7 +41,7 @@ All tasks completed 2026-01-28.
 | 4.1 | Run first batch scrape (Ciclope, The Rookies, Motionographer) | 🔴 not_started | High | IT | Python scrapers in cf-creator-database | Start with 3 highest-priority sources |
 | 4.2 | Test Python scraper → Matching Engine sync flow | 🔴 not_started | High | IT | 4.1 | Verify matching-engine.ts integration service works |
 | 4.3 | Verify auto-embedding on batch import | 🔴 not_started | High | IT | 4.2 | Embeddings should generate automatically |
-| 4.4 | Create "Golden Records Ask" one-pager for Creative team | 🔴 not_started | Medium | IT/Strategy | Dan's approval | See acceptance criteria below |
+| 4.4 | Create "Golden Records Ask" one-pager for Creative team | 🟢 completed | Medium | IT/Strategy | Dan's approval | Sent to Dan 2026-02-13 |
 | 4.5 | Add scraping cadence scheduler | 🔴 not_started | Medium | IT | 4.1-4.3 | Festivals=annual, portfolios=quarterly |
 | 4.6 | Build deduplication logic | 🔴 not_started | Medium | IT | 4.1-4.3 | Same person may appear across sources |
 
@@ -98,6 +98,7 @@ All tasks completed 2026-01-28.
 
 | ID | Task | Completed | Notes |
 |----|------|-----------|-------|
+| 4.4 | Create Golden Records one-pager | 2026-02-13 | Sent to Dan for Creative team |
 | — | Create matching-engine.ts integration service | 2026-02-12 | In cf-creator-database |
 | — | Document schema mapping (INTEGRATION.md) | 2026-02-12 | Full field mapping |
 | — | Push cf-creator-database to GitHub | 2026-02-12 | Absolute-Space-GHCP org |
