@@ -10,14 +10,7 @@
 
 import { GoogleGenAI } from '@google/genai';
 import { VertexAI } from '@google-cloud/vertexai';
-import {
-    CRAFT_TYPES,
-    CraftType,
-    SUBJECT_MATTER_TAGS,
-    SUBJECT_SUBCATEGORY_TAGS,
-    PRIMARY_MEDIA,
-    type PrimaryMedium
-} from './schemas';
+import { CRAFT_TYPES, CraftType } from './schemas';
 
 // =============================================================================
 // 🔧 CONFIGURATION
@@ -103,14 +96,6 @@ export interface CategorizationResult {
         primary: CraftType;
         secondary: string[];
         confidence: number;
-        /** Subject matter tags (deck/docx). Max 10. */
-        subjectMatterTags?: string[];
-        /** Subcategory tags (e.g. restaurant, music). Max 5. */
-        subjectSubcategoryTags?: string[];
-        /** Primary output medium: still | video | audio. */
-        primaryMedium?: string;
-        /** Output subtype (e.g. photography, documentary). */
-        classification?: string;
     };
     technicalTags: string[];
     styleSignature: string;
@@ -119,29 +104,12 @@ export interface CategorizationResult {
     reasoning: string;
 }
 
-const SUBJECT_MATTER_LIST = SUBJECT_MATTER_TAGS.join(', ');
-const SUBJECT_SUBCATEGORY_LIST = SUBJECT_SUBCATEGORY_TAGS.join(', ');
-const PRIMARY_MEDIA_LIST = PRIMARY_MEDIA.join(', ');
-
 const CATEGORIZATION_PROMPT = `You are an expert at categorizing creative professionals in the film, video, and digital arts industry. 
 
-Analyze the following creator bio/description and extract structured information about their craft and what content they make.
+Analyze the following creator bio/description and extract structured information about their craft.
 
 AVAILABLE CRAFT TYPES (use exactly one for primary):
 ${CRAFT_TYPES.join(', ')}
-
-SUBJECT MATTER (what they create content about; use only from this list; max 10):
-${SUBJECT_MATTER_LIST}
-
-SUBJECT SUBCATEGORIES (narrower specialization; use only from this list; max 5):
-${SUBJECT_SUBCATEGORY_LIST}
-
-PRIMARY OUTPUT MEDIUM (exactly one): ${PRIMARY_MEDIA_LIST}
-- still = photography, illustration, print, static visuals
-- video = film, commercial, documentary, music video, animation, social video
-- audio = podcast, music composition, sound design
-
-CLASSIFICATION (optional; examples): photography, illustration, film_narrative, commercial, documentary, music_video, animation, podcast_spoken_word, music_composition, sound_design
 
 IMPORTANT CONTEXT:
 - This is for CatchFire, a system that values CRAFT over CLOUT
@@ -155,11 +123,7 @@ Given this bio, return ONLY valid JSON (no markdown, no explanation):
   "craft": {
     "primary": "the most relevant CRAFT_TYPE from the list above",
     "secondary": ["up to 3 secondary crafts from the list"],
-    "confidence": 0.0 to 1.0,
-    "subjectMatterTags": ["only tags from SUBJECT MATTER list above, max 10"],
-    "subjectSubcategoryTags": ["only tags from SUBJECT SUBCATEGORIES list, max 5"],
-    "primaryMedium": "still | video | audio",
-    "classification": "one classification from examples above if clear"
+    "confidence": 0.0 to 1.0
   },
   "technicalTags": ["#EquipmentOrTechnique", "max 10 tags"],
   "styleSignature": "A 1-2 sentence description of their unique visual/creative style",
@@ -217,30 +181,6 @@ export async function categorizeCreator(
         result.technicalTags = result.technicalTags || [];
         result.positiveKeywords = result.positiveKeywords || [];
         result.negativeKeywords = result.negativeKeywords || [];
-        
-        // Normalize subject matter and subcategory to canonical tags only (6.1 ingest)
-        const allowedSubject = new Set(SUBJECT_MATTER_TAGS as unknown as string[]);
-        const allowedSubcategory = new Set(SUBJECT_SUBCATEGORY_TAGS as unknown as string[]);
-        result.craft.subjectMatterTags = (result.craft.subjectMatterTags || [])
-            .map((t: string) => t.toLowerCase().trim())
-            .filter((t: string) => allowedSubject.has(t))
-            .slice(0, 10);
-        result.craft.subjectSubcategoryTags = (result.craft.subjectSubcategoryTags || [])
-            .map((t: string) => t.toLowerCase().trim().replace(/\s+/g, '-'))
-            .filter((t: string) => allowedSubcategory.has(t))
-            .slice(0, 5);
-        
-        // Normalize primary medium
-        const medium = (result.craft.primaryMedium || '').toLowerCase();
-        if (PRIMARY_MEDIA.includes(medium as PrimaryMedium)) {
-            result.craft.primaryMedium = medium;
-        } else {
-            result.craft.primaryMedium = undefined;
-        }
-        
-        if (!result.craft.classification || typeof result.craft.classification !== 'string') {
-            result.craft.classification = undefined;
-        }
         
         return result;
     } catch (error) {
@@ -413,17 +353,8 @@ export interface CreatorEmbeddingData {
 export function buildCreatorEmbeddingText(creator: {
     name: string;
     handle?: string;
-    craft?: {
-        primary?: string;
-        secondary?: string[];
-        styleSignature?: string;
-        technicalTags?: string[];
-        subjectMatterTags?: string[];
-        subjectSubcategoryTags?: string[];
-        primaryMedium?: string;
-        classification?: string;
-    };
-    matching?: { positiveKeywords?: string[] };
+    craft?: { primary?: string; secondary?: string[]; styleSignature?: string };
+    matching?: { positiveKeywords?: string[]; technicalTags?: string[] };
     contact?: { location?: string };
     bio?: string;
 }): string {
@@ -444,26 +375,10 @@ export function buildCreatorEmbeddingText(creator: {
         parts.push(`Style: ${creator.craft.styleSignature}`);
     }
     
-    // Technical tags (under craft, not matching)
-    if (creator.craft?.technicalTags?.length) {
-        parts.push(`Technical expertise: ${creator.craft.technicalTags.join(', ')}`);
+    // Technical tags and keywords
+    if (creator.matching?.technicalTags?.length) {
+        parts.push(`Technical expertise: ${creator.matching.technicalTags.join(', ')}`);
     }
-    
-    // Subject matter and medium (deck/docx taxonomy)
-    if (creator.craft?.subjectMatterTags?.length) {
-        parts.push(`Subject matter: ${creator.craft.subjectMatterTags.join(', ')}`);
-    }
-    if (creator.craft?.subjectSubcategoryTags?.length) {
-        parts.push(`Specialization: ${creator.craft.subjectSubcategoryTags.join(', ')}`);
-    }
-    if (creator.craft?.primaryMedium) {
-        parts.push(`Primary medium: ${creator.craft.primaryMedium}`);
-    }
-    if (creator.craft?.classification) {
-        parts.push(`Classification: ${creator.craft.classification}`);
-    }
-    
-    // Positive keywords
     if (creator.matching?.positiveKeywords?.length) {
         parts.push(`Keywords: ${creator.matching.positiveKeywords.join(', ')}`);
     }
