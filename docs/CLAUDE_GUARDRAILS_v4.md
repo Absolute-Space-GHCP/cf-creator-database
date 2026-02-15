@@ -1,11 +1,11 @@
-> **Version:** 1.0.0-clean | **Date:** 2026-01-28 | **Repo:** ai-agents-gmaster-build
+﻿> **Version:** 1.0.0-clean | **Date:** 2026-01-28 | **Repo:** ai-agents-gmaster-build
 
 ---
 
 ## AI GOLDEN MASTER: REPOSITORY GUARDRAILS v1.0.0-clean
 
 Last Updated: January 6, 2026
-Author: Charley Scholz (Johannes Leonardo IT)
+Author: Charley Scholz, JLAI
 Co-author: Claude (Anthropic AI Assistant), Cursor (IDE)
 
 ---
@@ -134,7 +134,7 @@ cd /Users/charleymm/Projects/[PROJECT_NAME] && git fetch origin && git status &&
 ```
 
 **Authentication Protocol:**
-⚠️ AI is **ALWAYS ALLOWED** to pop up authentication windows for:
+âš ï¸ AI is **ALWAYS ALLOWED** to pop up authentication windows for:
 
 - **Google Cloud (GCP):** Run `gcloud auth login` whenever auth is needed
 - **GitHub:** Trigger browser-based OAuth/PAT authentication for git operations
@@ -143,16 +143,16 @@ cd /Users/charleymm/Projects/[PROJECT_NAME] && git fetch origin && git status &&
 This is expected behavior - never hesitate to trigger auth prompts.
 
 **Deployment Protocol:**
-✅ AI is **ALWAYS ALLOWED** to deploy to Google Cloud Run without asking permission:
+âœ… AI is **ALWAYS ALLOWED** to deploy to Google Cloud Run without asking permission:
 
 - **Deploy command:** `gcloud run deploy [SERVICE_NAME] --source . --region us-central1 --platform managed --allow-unauthenticated --memory 512Mi --timeout 120`
 - **Required permissions:** Always use `["all"]` permissions for gcloud commands to avoid sandbox restrictions
 - **Project:** Use the project's configured GCP project ID
 - **Region:** `us-central1` (default)
 
-Deployment is a core part of our CI/CD workflow. Authentication windows may pop up during deployment—this is expected and allowed.
+Deployment is a core part of our CI/CD workflow. Authentication windows may pop up during deploymentâ€”this is expected and allowed.
 
-**⚠️ POST-DEPLOYMENT VERIFICATION:**
+**âš ï¸ POST-DEPLOYMENT VERIFICATION:**
 After every deployment, verify the service is healthy:
 
 ```bash
@@ -236,7 +236,7 @@ This protocol MUST be followed when modifying:
 **Impact Analysis Template:**
 
 ```
-⚠️ GLOBAL CONFIGURATION CHANGE: [Description]
+âš ï¸ GLOBAL CONFIGURATION CHANGE: [Description]
 
 Affected Systems:
 - [ ] Cloud Run services
@@ -247,10 +247,10 @@ Affected Systems:
 - [ ] Other: [specify]
 
 Intended Effects:
-- ✅ [What should happen]
+- âœ… [What should happen]
 
 Potential Unintended Consequences:
-- ⚠️ [What might break] → Mitigation: [solution]
+- âš ï¸ [What might break] â†’ Mitigation: [solution]
 
 Recommendation: [Proceed / Proceed with caution / Do not proceed]
 

@@ -1,7 +1,7 @@
-/**
+﻿/**
  * @file scoring.ts
  * @description Scoring algorithm for matching creators to client briefs
- * @author Charley Scholz, JLIT
+ * @author Charley Scholz, JLAI
  * @coauthor Claude Opus 4.5, Claude Code (coding assistant), Cursor (IDE)
  * @created 2026-01-28
  * @updated 2026-01-28
@@ -16,7 +16,7 @@ import type {
 } from './schemas';
 
 // =============================================================================
-// 🎯 SCORING WEIGHTS
+// ðŸŽ¯ SCORING WEIGHTS
 // =============================================================================
 
 export interface ScoringWeights {
@@ -50,7 +50,7 @@ export const WEIGHTS: ScoringWeights = {
 };
 
 // =============================================================================
-// 🚫 INFLUENCER NOISE DETECTION
+// ðŸš« INFLUENCER NOISE DETECTION
 // =============================================================================
 
 /** Keywords that indicate lifestyle/influencer content (anti-pattern for craft focus) */
@@ -73,7 +73,7 @@ const CRAFT_POSITIVE_INDICATORS: readonly string[] = [
 ];
 
 // =============================================================================
-// 📝 KEYWORD EXTRACTION
+// ðŸ“ KEYWORD EXTRACTION
 // =============================================================================
 
 /** Craft-related keywords to detect in briefs */
@@ -116,7 +116,7 @@ const STYLE_KEYWORDS: readonly string[] = [
     'clean', 'minimal', 'bold', 'experimental'
 ];
 
-/** Subject matter keywords (brief → canonical tag hint). Deck/docx alignment. */
+/** Subject matter keywords (brief â†’ canonical tag hint). Deck/docx alignment. */
 const SUBJECT_BRIEF_KEYWORDS: Record<string, string[]> = {
     food: ['food', 'culinary', 'restaurant', 'recipe', 'cooking', 'chef', 'dining', 'F&B', 'gastronomy'],
     beverage: ['beverage', 'drinks', 'cocktails', 'wine', 'beer', 'coffee', 'tea', 'liquid'],
@@ -243,7 +243,7 @@ export function calculateStyleMatch(briefStyles: string[], styleSignature: strin
 }
 
 // =============================================================================
-// 🎬 SCORING FUNCTIONS
+// ðŸŽ¬ SCORING FUNCTIONS
 // =============================================================================
 
 /**
@@ -465,8 +465,8 @@ export function rankCreators(
     // Pre-extract keywords once
     const briefKeywords = extractBriefKeywords(brief);
     
-    console.log(`🎯 Scoring ${creators.length} creators against brief...`);
-    console.log(`📝 Extracted keywords:`, {
+    console.log(`ðŸŽ¯ Scoring ${creators.length} creators against brief...`);
+    console.log(`ðŸ“ Extracted keywords:`, {
         crafts: briefKeywords.crafts.slice(0, 5),
         technical: briefKeywords.technical.slice(0, 5),
         locations: briefKeywords.locations
@@ -489,7 +489,7 @@ export function rankCreators(
         .sort((a, b) => b.matchScore - a.matchScore)
         .slice(0, limit);
     
-    console.log(`✅ Ranked ${filtered.length} creators (min score: ${minScore})`);
+    console.log(`âœ… Ranked ${filtered.length} creators (min score: ${minScore})`);
     
     return filtered;
 }

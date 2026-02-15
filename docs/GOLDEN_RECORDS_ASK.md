@@ -1,4 +1,4 @@
-# CatchFire: Golden Records Request
+﻿# CatchFire: Golden Records Request
 
 **For:** Creative Team Leads  
 **From:** IT / Dan (Strategy)  
@@ -9,7 +9,7 @@
 
 ## The One-Sentence Ask
 
-> **Name 10-15 creators you'd want to work with tomorrow** — across cinematography, motion design, VFX, animation, and color grading.
+> **Name 10-15 creators you'd want to work with tomorrow** â€” across cinematography, motion design, VFX, animation, and color grading.
 
 ---
 
@@ -42,9 +42,9 @@ For each creator, provide:
 | **Name** | Bradford Young |
 | **Craft** | Cinematographer |
 | **Portfolio URL** | vimeo.com/bradfordyoung |
-| **Why they're great** | "Naturalistic lighting, texture, atmosphere — the Arrival look" |
+| **Why they're great** | "Naturalistic lighting, texture, atmosphere â€” the Arrival look" |
 
-That's it. No extensive research needed — just names that come to mind when you think "I wish we could work with them."
+That's it. No extensive research needed â€” just names that come to mind when you think "I wish we could work with them."
 
 ---
 
@@ -68,13 +68,13 @@ That's it. No extensive research needed — just names that come to mind when yo
 
 We already have these benchmark creators loaded:
 
-- **Roger Deakins** — Cinematographer (1917, Blade Runner 2049)
-- **Bradford Young** — Cinematographer (Arrival, Selma)
-- **Autumn Durald** — Cinematographer (The Bling Ring, Palo Alto)
-- **Hiro Murai** — Director (Atlanta, This Is America)
-- **Ash Thorp** — Motion Designer (Ghost in the Shell titles)
-- **Andrew Kramer** — VFX Artist (Star Trek, Video Copilot)
-- **Ren Klyce** — Sound Designer (Fight Club, Gone Girl)
+- **Roger Deakins** â€” Cinematographer (1917, Blade Runner 2049)
+- **Bradford Young** â€” Cinematographer (Arrival, Selma)
+- **Autumn Durald** â€” Cinematographer (The Bling Ring, Palo Alto)
+- **Hiro Murai** â€” Director (Atlanta, This Is America)
+- **Ash Thorp** â€” Motion Designer (Ghost in the Shell titles)
+- **Andrew Kramer** â€” VFX Artist (Star Trek, Video Copilot)
+- **Ren Klyce** â€” Sound Designer (Fight Club, Gone Girl)
 
 ---
 
@@ -102,10 +102,10 @@ Contact Dan (Strategy) or Charley (IT).
 
 ---
 
-*CatchFire — Finding craft, not clout.*
+*CatchFire â€” Finding craft, not clout.*
 
 ---
 
-**Author:** Charley Scholz, JLIT  
+**Author:** Charley Scholz, JLAI  
 **Co-authored:** Claude Opus 4.5, Claude Code (coding assistant), Cursor (IDE)  
 **Last Updated:** 2026-02-13

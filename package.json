@@ -1,4 +1,4 @@
-{
+﻿{
   "name": "cf-influencer-matching-engine",
   "version": "0.1.0",
   "description": "CatchFire Creator Matching Engine - AI-powered influencer discovery and matching based on craft storytelling skills",
@@ -34,7 +34,7 @@
     "type": "git",
     "url": "https://github.com/Absolute-Space-GHCP/cf-influencer-matching-engine"
   },
-  "author": "CatchFire / Johannes Leonardo",
+  "author": "Charley Scholz, JLAI",
   "license": "MIT",
   "private": true,
   "devDependencies": {

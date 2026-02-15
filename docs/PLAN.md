@@ -1,9 +1,9 @@
-> **Version:** 0.3.0 | **Date:** 2026-01-28 | **Repo:** cf-influencer-matching-engine
+﻿> **Version:** 0.3.0 | **Date:** 2026-01-28 | **Repo:** cf-influencer-matching-engine
 
 # CatchFire Matching Engine - Project Plan
 
 **Version:** v0.4.0  
-**Status:** 🚀 Active Development (Phase 2 Complete)  
+**Status:** ðŸš€ Active Development (Phase 2 Complete)  
 **Priority:** High (Founder-level project)
 
 ---
@@ -14,13 +14,13 @@
 
 Build an **automated Creator Matching Engine** that recommends perfect creators for client briefs based on:
 
-- **Style** — Content aesthetics, tone, format preferences
-- **Passion** — Niche expertise, authentic interests
-- **Location** — Geographic relevance for campaigns
+- **Style** â€” Content aesthetics, tone, format preferences
+- **Passion** â€” Niche expertise, authentic interests
+- **Location** â€” Geographic relevance for campaigns
 
 ### 3-Month Goal
 
-> Feed a client brief into the system → Get ranked creator recommendations
+> Feed a client brief into the system â†’ Get ranked creator recommendations
 
 ### Key Differentiator: Craft Over Clout
 
@@ -36,35 +36,35 @@ Build an **automated Creator Matching Engine** that recommends perfect creators 
 ## 2. Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                    CATCHFIRE MATCHING ENGINE                                 │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                              │
-│  ┌──────────────────┐    ┌──────────────────┐    ┌────────────────────────┐ │
-│  │  DATA SOURCES    │    │  MATCHING ENGINE │    │  API / OUTPUT          │ │
-│  │                  │    │                  │    │                        │ │
-│  │  • Festivals     │───▶│  • Firestore DB  │───▶│  POST /api/v1/match    │ │
-│  │  • Platforms     │    │  • LLM Categorize│    │  GET  /api/v1/creators │ │
-│  │  • Communities   │    │  • Scoring Algo  │    │  POST /api/v1/batch    │ │
-│  │  • Apify Scraper │    │  • Embeddings    │    │  GET  /dashboard       │ │
-│  └──────────────────┘    └──────────────────┘    └────────────────────────┘ │
-│                                                                              │
-│  Integration: Catchfire MVP (Next.js) ←──── REST API ────→ This Engine      │
-│                                                                              │
-└─────────────────────────────────────────────────────────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚                    CATCHFIRE MATCHING ENGINE                                 â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚                                                                              â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”    â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”    â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â” â”‚
+â”‚  â”‚  DATA SOURCES    â”‚    â”‚  MATCHING ENGINE â”‚    â”‚  API / OUTPUT          â”‚ â”‚
+â”‚  â”‚                  â”‚    â”‚                  â”‚    â”‚                        â”‚ â”‚
+â”‚  â”‚  â€¢ Festivals     â”‚â”€â”€â”€â–¶â”‚  â€¢ Firestore DB  â”‚â”€â”€â”€â–¶â”‚  POST /api/v1/match    â”‚ â”‚
+â”‚  â”‚  â€¢ Platforms     â”‚    â”‚  â€¢ LLM Categorizeâ”‚    â”‚  GET  /api/v1/creators â”‚ â”‚
+â”‚  â”‚  â€¢ Communities   â”‚    â”‚  â€¢ Scoring Algo  â”‚    â”‚  POST /api/v1/batch    â”‚ â”‚
+â”‚  â”‚  â€¢ Apify Scraper â”‚    â”‚  â€¢ Embeddings    â”‚    â”‚  GET  /dashboard       â”‚ â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜    â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜    â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜ â”‚
+â”‚                                                                              â”‚
+â”‚  Integration: Catchfire MVP (Next.js) â†â”€â”€â”€â”€ REST API â”€â”€â”€â”€â†’ This Engine      â”‚
+â”‚                                                                              â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
 ```
 
 ### Tech Stack
 
 | Layer                  | Technology                 | Status       | Notes                                  |
 | ---------------------- | -------------------------- | ------------ | -------------------------------------- |
-| **Runtime**            | Node.js 24                 | ✅ Ready     | Built-in fetch, ES modules             |
-| **Framework**          | Express 4.x → 5.x          | ⏳ Upgrade   | Migrate when stable                    |
-| **AI/LLM**             | @google/genai (Gemini 2.5) | ⏳ Migrate   | From deprecated @google-cloud/vertexai |
-| **Database**           | Firestore 7.11+            | ⏳ Configure | Creator profiles collection            |
-| **Scraping**           | Apify (external)           | 📋 Planned   | $500 budget allocated                  |
-| **Contact Enrichment** | Clay.com / Hunter.io       | 📋 Planned   | $1,000 budget allocated                |
-| **Deployment**         | Cloud Run                  | ✅ Exists    | catchfire-app-2026 project             |
+| **Runtime**            | Node.js 24                 | âœ… Ready     | Built-in fetch, ES modules             |
+| **Framework**          | Express 4.x â†’ 5.x          | â³ Upgrade   | Migrate when stable                    |
+| **AI/LLM**             | @google/genai (Gemini 2.5) | â³ Migrate   | From deprecated @google-cloud/vertexai |
+| **Database**           | Firestore 7.11+            | â³ Configure | Creator profiles collection            |
+| **Scraping**           | Apify (external)           | ðŸ“‹ Planned   | $500 budget allocated                  |
+| **Contact Enrichment** | Clay.com / Hunter.io       | ðŸ“‹ Planned   | $1,000 budget allocated                |
+| **Deployment**         | Cloud Run                  | âœ… Exists    | catchfire-app-2026 project             |
 
 ---
 
@@ -171,42 +171,42 @@ Build an **automated Creator Matching Engine** that recommends perfect creators 
 
 | #   | Task                             | Status  | Notes                               |
 | --- | -------------------------------- | ------- | ----------------------------------- |
-| 0.1 | Clone golden master framework    | ✅ Done | From ai-agents-gmaster-build        |
-| 0.2 | Set up GCP authentication        | ✅ Done | catchfire-app-2026 project          |
-| 0.3 | Create .env configuration        | ✅ Done | Project ID, region, model           |
-| 0.4 | Create URL_API_REFERENCE.md      | ✅ Done | All accounts documented             |
-| 0.5 | Organize requestor context files | ✅ Done | docs/context/ folder                |
-| 0.6 | Create comprehensive PLAN.md     | ✅ Done | This document                       |
-| 0.7 | Install dependencies             | ✅ Done | 238 packages, 0 vulnerabilities     |
-| 0.8 | Verify local server starts       | ✅ Done | New index.js, all endpoints working |
-| 0.9 | Migrate to @google/genai SDK     | ✅ Done | Both SDKs installed (new + legacy)  |
+| 0.1 | Clone golden master framework    | âœ… Done | From ai-agents-gmaster-build        |
+| 0.2 | Set up GCP authentication        | âœ… Done | catchfire-app-2026 project          |
+| 0.3 | Create .env configuration        | âœ… Done | Project ID, region, model           |
+| 0.4 | Create URL_API_REFERENCE.md      | âœ… Done | All accounts documented             |
+| 0.5 | Organize requestor context files | âœ… Done | docs/context/ folder                |
+| 0.6 | Create comprehensive PLAN.md     | âœ… Done | This document                       |
+| 0.7 | Install dependencies             | âœ… Done | 238 packages, 0 vulnerabilities     |
+| 0.8 | Verify local server starts       | âœ… Done | New index.js, all endpoints working |
+| 0.9 | Migrate to @google/genai SDK     | âœ… Done | Both SDKs installed (new + legacy)  |
 
-### Phase 1: API Foundation (v0.2.0) ✅ COMPLETE
+### Phase 1: API Foundation (v0.2.0) âœ… COMPLETE
 
 **Goal:** Working CRUD API for creators
 
 | #   | Task                              | Status  | Notes                        |
 | --- | --------------------------------- | ------- | ---------------------------- |
-| 1.0 | Enable Firestore API & create DB  | ✅ Done | nam5 region                  |
-| 1.1 | Implement creator schema (zod)    | ✅ Done | src/schemas.js               |
-| 1.2 | Build GET /api/v1/creators        | ✅ Done | List/search/filter           |
-| 1.3 | Build POST /api/v1/creators       | ✅ Done | With validation              |
-| 1.4 | Build POST /api/v1/creators/batch | ✅ Done | With validation              |
-| 1.5 | Build GET /api/v1/creators/:id    | ✅ Done | Get by ID                    |
-| 1.6 | Implement scoring algorithm       | ✅ Done | src/scoring.js               |
-| 1.7 | Build POST /api/v1/match          | ✅ Done | Keyword extraction + scoring |
+| 1.0 | Enable Firestore API & create DB  | âœ… Done | nam5 region                  |
+| 1.1 | Implement creator schema (zod)    | âœ… Done | src/schemas.js               |
+| 1.2 | Build GET /api/v1/creators        | âœ… Done | List/search/filter           |
+| 1.3 | Build POST /api/v1/creators       | âœ… Done | With validation              |
+| 1.4 | Build POST /api/v1/creators/batch | âœ… Done | With validation              |
+| 1.5 | Build GET /api/v1/creators/:id    | âœ… Done | Get by ID                    |
+| 1.6 | Implement scoring algorithm       | âœ… Done | src/scoring.js               |
+| 1.7 | Build POST /api/v1/match          | âœ… Done | Keyword extraction + scoring |
 
-### Phase 2: Intelligence Layer (v0.3.0) ✅ COMPLETE
+### Phase 2: Intelligence Layer (v0.3.0) âœ… COMPLETE
 
 **Goal:** LLM-powered categorization and style analysis
 
 | #   | Task                                  | Status  | Notes                                    |
 | --- | ------------------------------------- | ------- | ---------------------------------------- |
-| 2.1 | Build POST /api/v1/categorize         | ✅ Done | Vertex AI + Gemini 2.5 Flash             |
-| 2.2 | Implement style signature generation  | ✅ Done | POST /api/v1/style-signature             |
-| 2.3 | Add positive/negative keyword scoring | ✅ Done | Auto-detect influencer noise + pro bonus |
-| 2.4 | Create "Golden Records" import        | ✅ Done | 10 benchmark creators imported           |
-| 2.5 | Build batch processing pipeline       | ✅ Done | POST /api/v1/import/apify with LLM       |
+| 2.1 | Build POST /api/v1/categorize         | âœ… Done | Vertex AI + Gemini 2.5 Flash             |
+| 2.2 | Implement style signature generation  | âœ… Done | POST /api/v1/style-signature             |
+| 2.3 | Add positive/negative keyword scoring | âœ… Done | Auto-detect influencer noise + pro bonus |
+| 2.4 | Create "Golden Records" import        | âœ… Done | 10 benchmark creators imported           |
+| 2.5 | Build batch processing pipeline       | âœ… Done | POST /api/v1/import/apify with LLM       |
 
 ### Phase 3: Search & Discovery (v0.4.0)
 
@@ -214,11 +214,11 @@ Build an **automated Creator Matching Engine** that recommends perfect creators 
 
 | #   | Task                                    | Status     | Notes                    |
 | --- | --------------------------------------- | ---------- | ------------------------ |
-| 3.1 | Implement embeddings generation         | ⏳ Pending | Vertex AI text-embedding |
-| 3.2 | Build semantic search endpoint          | ⏳ Pending | "Find similar to X"      |
-| 3.3 | Train lookalike model on Golden Records | ⏳ Pending | 500+ vetted creators     |
-| 3.4 | Set up weekly auto-scan                 | ⏳ Pending | Cloud Scheduler          |
-| 3.5 | Integration with Catchfire MVP          | ⏳ Pending | REST API bridge          |
+| 3.1 | Implement embeddings generation         | â³ Pending | Vertex AI text-embedding |
+| 3.2 | Build semantic search endpoint          | â³ Pending | "Find similar to X"      |
+| 3.3 | Train lookalike model on Golden Records | â³ Pending | 500+ vetted creators     |
+| 3.4 | Set up weekly auto-scan                 | â³ Pending | Cloud Scheduler          |
+| 3.5 | Integration with Catchfire MVP          | â³ Pending | REST API bridge          |
 
 ---
 
@@ -226,9 +226,9 @@ Build an **automated Creator Matching Engine** that recommends perfect creators 
 
 | Category            | Amount | Status      | Tools                                     |
 | ------------------- | ------ | ----------- | ----------------------------------------- |
-| **Scraping & Data** | $1,500 | 📋 Planned  | Apify ($500), Clay.com/Hunter.io ($1,000) |
-| **Infrastructure**  | $500   | 📋 Planned  | Firestore, Cloud Run                      |
-| **TBD Fund**        | $3,000 | 📋 Reserved | Additional needs                          |
+| **Scraping & Data** | $1,500 | ðŸ“‹ Planned  | Apify ($500), Clay.com/Hunter.io ($1,000) |
+| **Infrastructure**  | $500   | ðŸ“‹ Planned  | Firestore, Cloud Run                      |
+| **TBD Fund**        | $3,000 | ðŸ“‹ Reserved | Additional needs                          |
 
 ---
 
@@ -248,14 +248,14 @@ Build an **automated Creator Matching Engine** that recommends perfect creators 
 
 | Milestone                    | Target  | Status |
 | ---------------------------- | ------- | ------ |
-| Local server running         | Week 1  | ⏳     |
-| CRUD API working             | Week 2  | ⏳     |
-| First 50 creators imported   | Week 3  | ⏳     |
-| LLM categorization working   | Week 4  | ⏳     |
-| First match query successful | Week 5  | ⏳     |
-| 500 vetted creators          | Month 2 | ⏳     |
-| Lookalike model trained      | Month 2 | ⏳     |
-| Auto-scan running            | Month 3 | ⏳     |
+| Local server running         | Week 1  | â³     |
+| CRUD API working             | Week 2  | â³     |
+| First 50 creators imported   | Week 3  | â³     |
+| LLM categorization working   | Week 4  | â³     |
+| First match query successful | Week 5  | â³     |
+| 500 vetted creators          | Month 2 | â³     |
+| Lookalike model trained      | Month 2 | â³     |
+| Auto-scan running            | Month 3 | â³     |
 
 ---
 
@@ -266,7 +266,7 @@ Build an **automated Creator Matching Engine** that recommends perfect creators 
 - [ ] Platform ToS review for scraping compliance
 - [ ] Rate limiting strategy for API endpoints
 - [ ] Catchfire MVP integration timeline
-- [ ] **External / cultural “live” data layer:** Not a separate system in current scope. Today, external data enters via **Scraper/ingest** (Apify, festivals, platforms, communities) → Firestore → Analyzer (LLM) → Search/match. A dedicated “cultural live” or real-time trend feed is TBD; options: (1) enrich creator records from trend/cultural sources during ingest, (2) add a live/trend API that influences match or filters. Confirm with Dan if a specific cultural/live data source is required.
+- [ ] **External / cultural â€œliveâ€ data layer:** Not a separate system in current scope. Today, external data enters via **Scraper/ingest** (Apify, festivals, platforms, communities) â†’ Firestore â†’ Analyzer (LLM) â†’ Search/match. A dedicated â€œcultural liveâ€ or real-time trend feed is TBD; options: (1) enrich creator records from trend/cultural sources during ingest, (2) add a live/trend API that influences match or filters. Confirm with Dan if a specific cultural/live data source is required.
 
 ---
 
@@ -274,9 +274,9 @@ Build an **automated Creator Matching Engine** that recommends perfect creators 
 
 - **End-user preference: links to specific work, refs, and sources**  
   Ask the end user (e.g. in match results or creator detail flows) whether they want to see links to:
-  - **Specific work** — portfolio pieces, reels, selected projects per creator
-  - **References** — festival entries, awards, editorial features
-  - **Sources** — discovery source (festival, platform, community) and source URL  
+  - **Specific work** â€” portfolio pieces, reels, selected projects per creator
+  - **References** â€” festival entries, awards, editorial features
+  - **Sources** â€” discovery source (festival, platform, community) and source URL  
   Respect this preference in API responses and in the Catchfire MVP UI (e.g. optional `includeWorkLinks`, `includeSourceLinks` or a single `includeLinks` flag). Store per-creator work/source URLs in the creator schema where not already present.
 
 ---
@@ -292,10 +292,10 @@ Build an **automated Creator Matching Engine** that recommends perfect creators 
 
 ---
 
-_CatchFire — Finding craft, not clout._
+_CatchFire â€” Finding craft, not clout._
 
 ---
 
-Author: Charley Scholz, JLIT  
+Author: Charley Scholz, JLAI  
 Co-authored: Claude Opus 4.5, Claude Code (coding assistant), Cursor (IDE)  
 Last Updated: 2026-01-28

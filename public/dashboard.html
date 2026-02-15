@@ -1,6 +1,6 @@
-<!--
+﻿<!--
   CatchFire Creator Matching Engine - Dashboard
-  Author: Charley Scholz, JLIT
+  Author: Charley Scholz, JLAI
   Co-authored: Claude Opus 4.5, Claude Code (coding assistant), Cursor (IDE)
   Last Updated: 2026-01-28
   
@@ -762,7 +762,7 @@
             <!-- Search Section -->
             <div class="search-section">
                 <div class="section-header">
-                    <div class="section-icon">🔍</div>
+                    <div class="section-icon">ðŸ”</div>
                     <h2 class="section-title">Semantic Search</h2>
                 </div>
                 
@@ -777,11 +777,11 @@
                 </div>
 
                 <div class="search-hints">
-                    <span class="search-hint" data-query="moody cinematographer with ARRI experience">🎬 Moody DP</span>
-                    <span class="search-hint" data-query="motion designer for tech brand">✨ Motion Designer</span>
-                    <span class="search-hint" data-query="VFX artist for commercial work">🎨 VFX Artist</span>
-                    <span class="search-hint" data-query="music video director with bold visual style">🎵 MV Director</span>
-                    <span class="search-hint" data-query="colorist for film projects">🎨 Colorist</span>
+                    <span class="search-hint" data-query="moody cinematographer with ARRI experience">ðŸŽ¬ Moody DP</span>
+                    <span class="search-hint" data-query="motion designer for tech brand">âœ¨ Motion Designer</span>
+                    <span class="search-hint" data-query="VFX artist for commercial work">ðŸŽ¨ VFX Artist</span>
+                    <span class="search-hint" data-query="music video director with bold visual style">ðŸŽµ MV Director</span>
+                    <span class="search-hint" data-query="colorist for film projects">ðŸŽ¨ Colorist</span>
                 </div>
 
                 <div class="results-container" id="resultsContainer">
@@ -795,7 +795,7 @@
             <div class="sidebar">
                 <!-- Craft Distribution -->
                 <div class="sidebar-card">
-                    <h3 class="sidebar-title">📊 By Craft</h3>
+                    <h3 class="sidebar-title">ðŸ“Š By Craft</h3>
                     <div class="craft-list" id="craftList">
                         <!-- Populated by JS -->
                     </div>
@@ -803,7 +803,7 @@
 
                 <!-- Golden Records -->
                 <div class="sidebar-card">
-                    <h3 class="sidebar-title">⭐ Golden Records</h3>
+                    <h3 class="sidebar-title">â­ Golden Records</h3>
                     <div class="golden-list" id="goldenList">
                         <!-- Populated by JS -->
                     </div>
@@ -811,7 +811,7 @@
 
                 <!-- API Endpoints -->
                 <div class="sidebar-card">
-                    <h3 class="sidebar-title">🔗 API</h3>
+                    <h3 class="sidebar-title">ðŸ”— API</h3>
                     <div class="endpoint-list">
                         <div class="endpoint">
                             <span class="endpoint-method post">POST</span>
@@ -841,8 +841,8 @@
         <!-- Footer -->
         <footer class="footer">
             <p class="footer-text">
-                <span>CatchFire</span> · Finding craft, not clout · 
-                Powered by Gemini Embeddings · 
+                <span>CatchFire</span> Â· Finding craft, not clout Â· 
+                Powered by Gemini Embeddings Â· 
                 Last updated: <span id="lastUpdate">--</span>
             </p>
         </footer>
@@ -908,7 +908,7 @@
                     const container = document.getElementById('goldenList');
                     container.innerHTML = data.model.goldenRecords.slice(0, 6).map(gr => `
                         <div class="golden-item">
-                            <span class="golden-icon">⭐</span>
+                            <span class="golden-icon">â­</span>
                             <span class="golden-name">${gr.name}</span>
                             <span class="golden-craft">${gr.craft || 'creator'}</span>
                         </div>
@@ -939,11 +939,11 @@
                             <div class="result-info">
                                 <div class="result-name">
                                     ${result.name}
-                                    ${result.isGoldenRecord ? '<span class="golden-badge">⭐ Golden</span>' : ''}
+                                    ${result.isGoldenRecord ? '<span class="golden-badge">â­ Golden</span>' : ''}
                                 </div>
                                 <div class="result-meta">
-                                    ${result.craft || 'Creator'} · ${result.platform || 'Multi-platform'}
-                                    ${result.location ? ` · ${result.location}` : ''}
+                                    ${result.craft || 'Creator'} Â· ${result.platform || 'Multi-platform'}
+                                    ${result.location ? ` Â· ${result.location}` : ''}
                                 </div>
                             </div>
                             <div class="result-score">
@@ -964,17 +964,17 @@
         // Get icon for craft type
         function getCraftIcon(craft) {
             const icons = {
-                'cinematographer': '🎬',
-                'director': '🎥',
-                'motion_designer': '✨',
-                'vfx_artist': '🎨',
-                'colorist': '🎨',
-                'animator': '🎭',
-                'sound_designer': '🎧',
-                '3d_artist': '💎',
-                'editor': '✂️'
+                'cinematographer': 'ðŸŽ¬',
+                'director': 'ðŸŽ¥',
+                'motion_designer': 'âœ¨',
+                'vfx_artist': 'ðŸŽ¨',
+                'colorist': 'ðŸŽ¨',
+                'animator': 'ðŸŽ­',
+                'sound_designer': 'ðŸŽ§',
+                '3d_artist': 'ðŸ’Ž',
+                'editor': 'âœ‚ï¸'
             };
-            return icons[craft] || '🎬';
+            return icons[craft] || 'ðŸŽ¬';
         }
 
         // Event listeners

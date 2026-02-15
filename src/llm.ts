@@ -1,8 +1,8 @@
-/**
+﻿/**
  * @file llm.ts
  * @description Gemini LLM integration for creator categorization and style analysis
  *              Supports both Google AI API (with API key) and Vertex AI (with ADC)
- * @author Charley Scholz, JLIT
+ * @author Charley Scholz, JLAI
  * @coauthor Claude Opus 4.5, Claude Code (coding assistant), Cursor (IDE)
  * @created 2026-01-28
  * @updated 2026-01-28
@@ -13,7 +13,7 @@ import { VertexAI } from '@google-cloud/vertexai';
 import { CRAFT_TYPES, CraftType } from './schemas';
 
 // =============================================================================
-// 🔧 CONFIGURATION
+// ðŸ”§ CONFIGURATION
 // =============================================================================
 
 const MODEL_ID = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
@@ -36,7 +36,7 @@ function initializeClient(): void {
         // Use Google AI API with API key
         genAI = new GoogleGenAI({ apiKey });
         useVertexAI = false;
-        console.log('✅ Gemini AI client initialized (Google AI API)');
+        console.log('âœ… Gemini AI client initialized (Google AI API)');
     } else {
         // Fall back to Vertex AI with ADC
         vertexAI = new VertexAI({
@@ -44,7 +44,7 @@ function initializeClient(): void {
             location: GCP_REGION
         });
         useVertexAI = true;
-        console.log(`✅ Gemini AI client initialized (Vertex AI: ${GCP_PROJECT_ID}/${GCP_REGION})`);
+        console.log(`âœ… Gemini AI client initialized (Vertex AI: ${GCP_PROJECT_ID}/${GCP_REGION})`);
     }
 }
 
@@ -88,7 +88,7 @@ async function generateContent(prompt: string, options: { temperature?: number; 
 }
 
 // =============================================================================
-// 🎬 CRAFT CATEGORIZATION
+// ðŸŽ¬ CRAFT CATEGORIZATION
 // =============================================================================
 
 export interface CategorizationResult {
@@ -154,14 +154,14 @@ export async function categorizeCreator(
     
     const prompt = CATEGORIZATION_PROMPT + context;
     
-    console.log(`🤖 Categorizing with ${MODEL_ID}...`);
+    console.log(`ðŸ¤– Categorizing with ${MODEL_ID}...`);
     const startTime = Date.now();
     
     try {
         const text = await generateContent(prompt, { temperature: 0.3, maxOutputTokens: 1024 });
         
         const elapsed = Date.now() - startTime;
-        console.log(`⏱️ LLM response in ${elapsed}ms`);
+        console.log(`â±ï¸ LLM response in ${elapsed}ms`);
         
         // Parse JSON from response
         const jsonMatch = text.match(/\{[\s\S]*\}/);
@@ -184,13 +184,13 @@ export async function categorizeCreator(
         
         return result;
     } catch (error) {
-        console.error('❌ LLM categorization failed:', error);
+        console.error('âŒ LLM categorization failed:', error);
         throw error;
     }
 }
 
 // =============================================================================
-// 🎨 STYLE SIGNATURE GENERATION
+// ðŸŽ¨ STYLE SIGNATURE GENERATION
 // =============================================================================
 
 const STYLE_SIGNATURE_PROMPT = `You are an expert at describing creative professionals' unique visual and storytelling styles.
@@ -226,25 +226,25 @@ export async function generateStyleSignature(
         .replace('{bio}', bio)
         .replace('{tags}', technicalTags.join(', ') || 'none specified');
     
-    console.log(`🎨 Generating style signature for ${name}...`);
+    console.log(`ðŸŽ¨ Generating style signature for ${name}...`);
     const startTime = Date.now();
     
     try {
         const text = await generateContent(prompt, { temperature: 0.7, maxOutputTokens: 256 });
         
         const elapsed = Date.now() - startTime;
-        console.log(`⏱️ Style signature generated in ${elapsed}ms`);
+        console.log(`â±ï¸ Style signature generated in ${elapsed}ms`);
         
         const signature = text.trim();
         return signature || `${name} is a talented ${craft} with a distinctive creative vision.`;
     } catch (error) {
-        console.error('❌ Style signature generation failed:', error);
+        console.error('âŒ Style signature generation failed:', error);
         return `${name} is a talented ${craft} with a distinctive creative vision.`;
     }
 }
 
 // =============================================================================
-// 🔍 BRIEF ANALYSIS
+// ðŸ” BRIEF ANALYSIS
 // =============================================================================
 
 const BRIEF_ANALYSIS_PROMPT = `You are an expert at analyzing creative project briefs for talent matching.
@@ -284,14 +284,14 @@ export interface BriefAnalysis {
 export async function analyzeBrief(brief: string): Promise<BriefAnalysis> {
     const prompt = BRIEF_ANALYSIS_PROMPT + brief;
     
-    console.log('📋 Analyzing brief with LLM...');
+    console.log('ðŸ“‹ Analyzing brief with LLM...');
     const startTime = Date.now();
     
     try {
         const text = await generateContent(prompt, { temperature: 0.2, maxOutputTokens: 512 });
         
         const elapsed = Date.now() - startTime;
-        console.log(`⏱️ Brief analysis in ${elapsed}ms`);
+        console.log(`â±ï¸ Brief analysis in ${elapsed}ms`);
         
         const jsonMatch = text.match(/\{[\s\S]*\}/);
         if (!jsonMatch) {
@@ -300,7 +300,7 @@ export async function analyzeBrief(brief: string): Promise<BriefAnalysis> {
         
         return JSON.parse(jsonMatch[0]) as BriefAnalysis;
     } catch (error) {
-        console.error('❌ Brief analysis failed:', error);
+        console.error('âŒ Brief analysis failed:', error);
         // Return a basic analysis on failure
         return {
             craftsNeeded: [],
@@ -316,7 +316,7 @@ export async function analyzeBrief(brief: string): Promise<BriefAnalysis> {
 }
 
 // =============================================================================
-// 🔢 EMBEDDINGS
+// ðŸ”¢ EMBEDDINGS
 // =============================================================================
 
 const EMBEDDING_MODEL = 'gemini-embedding-001';
@@ -408,7 +408,7 @@ export async function generateEmbedding(
         initializeClient();
     }
     
-    console.log(`🔢 Generating embedding (${EMBEDDING_DIMENSIONS}d, ${taskType})...`);
+    console.log(`ðŸ”¢ Generating embedding (${EMBEDDING_DIMENSIONS}d, ${taskType})...`);
     const startTime = Date.now();
     
     try {
@@ -424,7 +424,7 @@ export async function generateEmbedding(
             });
             
             const elapsed = Date.now() - startTime;
-            console.log(`⏱️ Embedding generated in ${elapsed}ms`);
+            console.log(`â±ï¸ Embedding generated in ${elapsed}ms`);
             
             // Get the embedding from response
             const embedding = response.embeddings?.[0];
@@ -445,7 +445,7 @@ export async function generateEmbedding(
             throw new Error('No AI client available');
         }
     } catch (error) {
-        console.error('❌ Embedding generation failed:', error);
+        console.error('âŒ Embedding generation failed:', error);
         throw error;
     }
 }
@@ -462,7 +462,7 @@ export async function generateEmbeddings(
         initializeClient();
     }
     
-    console.log(`🔢 Generating ${texts.length} embeddings (${EMBEDDING_DIMENSIONS}d, ${taskType})...`);
+    console.log(`ðŸ”¢ Generating ${texts.length} embeddings (${EMBEDDING_DIMENSIONS}d, ${taskType})...`);
     const startTime = Date.now();
     
     try {
@@ -478,7 +478,7 @@ export async function generateEmbeddings(
             });
             
             const elapsed = Date.now() - startTime;
-            console.log(`⏱️ ${texts.length} embeddings generated in ${elapsed}ms`);
+            console.log(`â±ï¸ ${texts.length} embeddings generated in ${elapsed}ms`);
             
             if (!response.embeddings?.length) {
                 throw new Error('No embeddings in response');
@@ -500,7 +500,7 @@ export async function generateEmbeddings(
             throw new Error('No AI client available');
         }
     } catch (error) {
-        console.error('❌ Batch embedding generation failed:', error);
+        console.error('âŒ Batch embedding generation failed:', error);
         throw error;
     }
 }
@@ -564,7 +564,7 @@ export function normalizeEmbedding(embedding: number[]): number[] {
 }
 
 // =============================================================================
-// 🌟 GOLDEN RECORD LOOKALIKE MODEL
+// ðŸŒŸ GOLDEN RECORD LOOKALIKE MODEL
 // =============================================================================
 
 export interface GoldenRecordModel {
@@ -700,7 +700,7 @@ export function buildCraftSpecificModels(
 }
 
 // =============================================================================
-// 🧪 TEST FUNCTIONS
+// ðŸ§ª TEST FUNCTIONS
 // =============================================================================
 
 /**
@@ -711,7 +711,7 @@ export async function testLLMConnection(): Promise<boolean> {
         const text = await generateContent('Reply with just the word "connected" if you can read this.');
         return text.toLowerCase().includes('connected');
     } catch (error) {
-        console.error('❌ LLM connection test failed:', error);
+        console.error('âŒ LLM connection test failed:', error);
         return false;
     }
 }

@@ -1,4 +1,4 @@
-> **Version:** 0.1.0 | **Date:** 2026-01-28 | **Repo:** cf-influencer-matching-engine
+﻿> **Version:** 0.1.0 | **Date:** 2026-01-28 | **Repo:** cf-influencer-matching-engine
 
 # CatchFire Influencer Matching Engine - URL & API Reference
 
@@ -219,23 +219,23 @@ gcloud run services logs read cf-matching-engine \
 ## Quick Reference Card
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│ CatchFire Influencer Matching Engine                        │
-├─────────────────────────────────────────────────────────────┤
-│ GCP Account:    charleys@johannesleonardo.com               │
-│ GCP Project:    catchfire-app-2026                          │
-│ GitHub User:    cmscholz222                                 │
-│ GitHub Org:     Absolute-Space-GHCP                         │
-├─────────────────────────────────────────────────────────────┤
-│ Production:     https://catchfire-mvp-34240596768...run.app │
-│ Local Dev:      http://localhost:8090                       │
-│ AI Model:       gemini-2.5-flash                            │
-│ Database:       Firestore (creators collection)             │
-└─────────────────────────────────────────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚ CatchFire Influencer Matching Engine                        â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚ GCP Account:    charleys@johannesleonardo.com               â”‚
+â”‚ GCP Project:    catchfire-app-2026                          â”‚
+â”‚ GitHub User:    cmscholz222                                 â”‚
+â”‚ GitHub Org:     Absolute-Space-GHCP                         â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚ Production:     https://catchfire-mvp-34240596768...run.app â”‚
+â”‚ Local Dev:      http://localhost:8090                       â”‚
+â”‚ AI Model:       gemini-2.5-flash                            â”‚
+â”‚ Database:       Firestore (creators collection)             â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
 ```
 
 ---
 
-Author: Charley Scholz, JLIT  
+Author: Charley Scholz, JLAI  
 Co-authored: Claude Opus 4.5, Claude Code (coding assistant), Cursor (IDE)  
 Last Updated: 2026-01-28

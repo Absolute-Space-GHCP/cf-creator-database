@@ -1,4 +1,4 @@
-# Context Files - Requestor-Provided Materials
+﻿# Context Files - Requestor-Provided Materials
 
 > **Project:** CatchFire Influencer Matching Engine  
 > **Received:** 2026-01-28
@@ -22,7 +22,7 @@
 Build a proprietary database of craft storytellers (not influencers) based on **skill over audience size**.
 
 ### 3-Month Goal
-Feed a client brief → Get ranked creator recommendations based on style, passion, location.
+Feed a client brief â†’ Get ranked creator recommendations based on style, passion, location.
 
 ### Budget
 $5,000 total allocation.
@@ -51,6 +51,6 @@ The presence of a **credits list** ("Gaffer: [Name]", "Colorist: [Name]") is the
 
 ---
 
-Author: Charley Scholz, JLIT  
+Author: Charley Scholz, JLAI  
 Co-authored: Claude Opus 4.5, Claude Code (coding assistant), Cursor (IDE)  
 Last Updated: 2026-01-28

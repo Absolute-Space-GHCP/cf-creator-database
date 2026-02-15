@@ -1,4 +1,4 @@
-> **Version:** 1.0.0-clean | **Date:** 2026-01-28 | **Repo:** ai-agents-gmaster-build
+﻿> **Version:** 1.0.0-clean | **Date:** 2026-01-28 | **Repo:** ai-agents-gmaster-build
 
 # AI Project Initiation Template
 
@@ -7,7 +7,7 @@
 **Updated:** January 6, 2026  
 **Based on:** AI Golden Master Framework
 
-**Author:** Charley Scholz (Johannes Leonardo IT)  
+**Author:** Charley Scholz, JLAI  
 **Co-author:** Claude (Anthropic AI Assistant), Cursor (IDE)
 
 ---
@@ -19,23 +19,23 @@ This template provides a step-by-step guide for creating new AI projects using t
 ### The 3-Tier Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                    TIER 1: GOLDEN MASTER                     │
-│         (Foundational Framework - Already Built ✅)          │
-│  • 12-layer architecture  • Security patterns  • CI/CD      │
-└─────────────────────────────────────────────────────────────┘
-                              ↓
-┌─────────────────────────────────────────────────────────────┐
-│                 TIER 2: DEV BUILD ENVIRONMENT                │
-│            (Clone, Configure, Customize - Per Project)       │
-│  • Private GitHub repo  • Local dev setup  • Docs           │
-└─────────────────────────────────────────────────────────────┘
-                              ↓
-┌─────────────────────────────────────────────────────────────┐
-│                  TIER 3: PRODUCTION DEPLOYMENT               │
-│              (Cloud Run + Slack + IAP Security)              │
-│  • Domain-restricted  • Monitoring  • Feedback loop         │
-└─────────────────────────────────────────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚                    TIER 1: GOLDEN MASTER                     â”‚
+â”‚         (Foundational Framework - Already Built âœ…)          â”‚
+â”‚  â€¢ 12-layer architecture  â€¢ Security patterns  â€¢ CI/CD      â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                              â†“
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚                 TIER 2: DEV BUILD ENVIRONMENT                â”‚
+â”‚            (Clone, Configure, Customize - Per Project)       â”‚
+â”‚  â€¢ Private GitHub repo  â€¢ Local dev setup  â€¢ Docs           â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                              â†“
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚                  TIER 3: PRODUCTION DEPLOYMENT               â”‚
+â”‚              (Cloud Run + Slack + IAP Security)              â”‚
+â”‚  â€¢ Domain-restricted  â€¢ Monitoring  â€¢ Feedback loop         â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
 ```
 
 ---
@@ -216,13 +216,13 @@ Organize documents in folders:
 
 ```
 gs://[bucket]/[PROJECT_NAME]/
-├── 01_Category_A/
-│   ├── Document1.pdf
-│   └── Document2.pdf
-├── 02_Category_B/
-│   └── Document3.pdf
-└── 03_Category_C/
-    └── Document4.pdf
+â”œâ”€â”€ 01_Category_A/
+â”‚   â”œâ”€â”€ Document1.pdf
+â”‚   â””â”€â”€ Document2.pdf
+â”œâ”€â”€ 02_Category_B/
+â”‚   â””â”€â”€ Document3.pdf
+â””â”€â”€ 03_Category_C/
+    â””â”€â”€ Document4.pdf
 ```
 
 ```bash
@@ -236,7 +236,7 @@ Update `src/index.js` - find `DOCUMENT_CATALOG` and customize:
 
 ```javascript
 const DOCUMENT_CATALOG = {
-  // Category keywords → document mappings
+  // Category keywords â†’ document mappings
   keyword1: ["Document1.pdf"],
   keyword2: ["Document2.pdf", "Document3.pdf"],
   // Add all your keyword mappings
@@ -285,13 +285,13 @@ curl "http://localhost:8090/test?q=Hello"
 ### 3.1 Create Slack App
 
 1. Go to [api.slack.com/apps](https://api.slack.com/apps)
-2. Click **Create New App** → **From scratch**
+2. Click **Create New App** â†’ **From scratch**
 3. App Name: `[Bot Name]`
 4. Workspace: Johannes Leonardo
 
 ### 3.2 Configure Bot Token Scopes
 
-**OAuth & Permissions** → **Scopes** → **Bot Token Scopes:**
+**OAuth & Permissions** â†’ **Scopes** â†’ **Bot Token Scopes:**
 
 - [ ] `chat:write`
 - [ ] `app_mentions:read`
@@ -300,7 +300,7 @@ curl "http://localhost:8090/test?q=Hello"
 
 ### 3.3 Configure Event Subscriptions
 
-**Event Subscriptions** → Enable Events
+**Event Subscriptions** â†’ Enable Events
 
 **Request URL:** (Add after Cloud Run deployment)
 
@@ -309,22 +309,22 @@ curl "http://localhost:8090/test?q=Hello"
 - [ ] `app_mention`
 - [ ] `message.im`
 
-⚠️ **DO NOT add `message.channels`** — causes duplicate responses!
+âš ï¸ **DO NOT add `message.channels`** â€” causes duplicate responses!
 
 ### 3.4 Configure Interactivity
 
-**Interactivity & Shortcuts** → Enable
+**Interactivity & Shortcuts** â†’ Enable
 
 **Request URL:** (Same as Event Subscriptions URL)
 
 ### 3.5 Install App to Workspace
 
-**OAuth & Permissions** → **Install to Workspace**
+**OAuth & Permissions** â†’ **Install to Workspace**
 
 Copy these values to your `.env`:
 
-- **Bot User OAuth Token** → `SLACK_BOT_TOKEN`
-- **Signing Secret** (Basic Information) → `SLACK_SIGNING_SECRET`
+- **Bot User OAuth Token** â†’ `SLACK_BOT_TOKEN`
+- **Signing Secret** (Basic Information) â†’ `SLACK_SIGNING_SECRET`
 
 ### 3.6 Create Slack Channel
 
@@ -384,9 +384,9 @@ gcloud run services describe [SERVICE_NAME] \
 
 Go back to [api.slack.com/apps](https://api.slack.com/apps):
 
-1. **Event Subscriptions** → Request URL: `[CLOUD_RUN_URL]`
-2. **Interactivity** → Request URL: `[CLOUD_RUN_URL]`
-3. Verify both URLs show ✓
+1. **Event Subscriptions** â†’ Request URL: `[CLOUD_RUN_URL]`
+2. **Interactivity** â†’ Request URL: `[CLOUD_RUN_URL]`
+3. Verify both URLs show âœ“
 
 ### 4.5 Test Slack Integration
 
@@ -516,7 +516,7 @@ gcloud iap web add-iam-policy-binding \
 
 ### 5.4 Keep Slack Access Open
 
-⚠️ **IMPORTANT:** Slack webhooks need direct access. Ensure `allUsers` has invoker access:
+âš ï¸ **IMPORTANT:** Slack webhooks need direct access. Ensure `allUsers` has invoker access:
 
 ```bash
 gcloud run services add-iam-policy-binding [SERVICE_NAME] \
