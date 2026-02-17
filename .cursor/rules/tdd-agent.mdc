@@ -1,0 +1,94 @@
+---
+description: Test-Driven Development guide for CatchFire Matching Engine. Apply when writing new features, fixing bugs, or working with test files.
+globs: ["**/*.test.ts", "**/*.spec.ts", "**/tests/**"]
+alwaysApply: false
+---
+
+# TDD Agent - CatchFire Matching Engine
+
+## Full Testing Picture
+
+This project has **three layers** of testing. All three are important.
+
+### Layer 1: Automated Unit Tests (vitest)
+
+Catches regressions in schemas and scoring logic. Runs in CI and locally.
+
+- **Framework:** Vitest 3.x
+- **Config:** `vitest.config.ts`
+- **Test Location:** `tests/*.test.ts`
+- **Run Tests:** `npm test` (vitest run) or `npm run test:watch` (vitest)
+- **Module System:** TypeScript source (compiled to CommonJS)
+
+| File | Tests | Coverage |
+|------|-------|----------|
+| `tests/schemas.test.ts` | 38 tests: Zod schemas, validation helpers, constants | `src/schemas.ts` |
+| `tests/scoring.test.ts` | 41 tests: Scoring algorithm, keyword extraction, ranking | `src/scoring.ts` |
+
+### Layer 2: Stakeholder / Manual QA Testing
+
+For Dan and stakeholders to evaluate match quality and API behavior hands-on.
+
+| Resource | Purpose |
+|----------|---------|
+| `docs/TESTING_FOR_STAKEHOLDERS.md` | Step-by-step guide: how to run the server, test endpoints, curl examples for POST /match |
+| `docs/TESTING_AND_DEPLOY_PLAN.md` | Deploy plan, feedback loop (thumbs up/down to Google Sheets), pre-Dan checklist |
+
+### Layer 3: Browser-Based Testing UI
+
+A working temp UI for match-by-brief and per-result feedback, served by the engine itself.
+
+| Resource | Purpose |
+|----------|---------|
+| `public/testing.html` | Served at `/testing` -- paste brief, see ranked creators, give thumbs up/down per result |
+| Feedback endpoint | `POST /api/v1/feedback` -- sends ratings to Google Sheet when `FEEDBACK_SHEET_ID` is set |
+
+**How they fit together:** Unit tests (Layer 1) ensure code correctness before deploy. The testing UI (Layer 3) and stakeholder docs (Layer 2) let Dan and the team evaluate match quality and provide feedback that drives iteration.
+
+---
+
+## Test Data Sources
+
+- **Golden Records:** `data/golden-records.json` (10 benchmark creators)
+- **Subject Taxonomy:** `config/subject-taxonomy.json` (19 subject tags, subcategories, synonyms)
+- **Test Fixtures:** Create inline fixtures based on Golden Records for scoring/schema tests
+
+## TDD Workflow
+
+1. **RED:** Write a failing test that defines expected behavior
+2. **GREEN:** Write minimal code to make the test pass
+3. **REFACTOR:** Clean up while keeping tests green
+4. **VERIFY:** Run `npm test` to confirm all 79+ tests pass
+
+## What to Test
+
+### Unit Tests (Mandatory for new features)
+- Schema validation (valid/invalid inputs)
+- Scoring functions (keyword extraction, creator scoring, ranking)
+- LLM helper functions (embedding text builders, cosine similarity)
+
+### Integration Tests (For API endpoints)
+- Health check endpoint
+- Creator CRUD endpoints
+- Match endpoint with real Golden Records data
+
+### Edge Cases to Cover
+1. Empty/null inputs to validators
+2. Quality score boundaries (0, 100, out-of-range)
+3. Creators with missing optional fields
+4. Briefs with no matching keywords
+5. Influencer noise detection on edge profiles
+6. Subject matter taxonomy edge cases
+
+## Conventions
+
+- Test filenames: `{module}.test.ts`
+- Use `describe` blocks grouped by function name
+- Use Golden Records as test fixtures where possible
+- Keep test assertions clear and specific
+- When updating match quality logic, also verify results match stakeholder expectations (Layer 2/3)
+
+---
+
+Author: Charley Scholz, JLAI
+Co-authored: Claude Opus 4.6, Claude Code (coding assistant), Cursor (IDE)

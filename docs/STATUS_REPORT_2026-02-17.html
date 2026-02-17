@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CatchFire Matching Engine — Status Report | 2026-02-17</title>
+    <style>
+        @page { margin: 18mm 16mm; size: A4; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            color: #1a1a1a; background: #fff; font-size: 11px; line-height: 1.5;
+            padding: 24px 32px;
+        }
+        h1 { font-size: 22px; font-weight: 700; margin-bottom: 4px; color: #0c0c0c; }
+        h2 { font-size: 14px; font-weight: 700; margin: 20px 0 8px; color: #0c0c0c; border-bottom: 2px solid #c9a227; padding-bottom: 4px; }
+        h3 { font-size: 12px; font-weight: 600; margin: 12px 0 4px; color: #333; }
+        .subtitle { color: #666; font-size: 12px; margin-bottom: 16px; }
+        .meta { display: flex; gap: 20px; font-size: 10px; color: #888; margin-bottom: 20px; flex-wrap: wrap; }
+        .meta span { background: #f5f5f5; padding: 3px 10px; border-radius: 4px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 14px; font-size: 10.5px; }
+        th { background: #1a1a1a; color: #fff; text-align: left; padding: 6px 8px; font-weight: 600; font-size: 10px; text-transform: uppercase; letter-spacing: 0.3px; }
+        td { padding: 5px 8px; border-bottom: 1px solid #e5e5e5; vertical-align: top; }
+        tr:nth-child(even) td { background: #fafafa; }
+        .status-done { color: #059669; font-weight: 600; }
+        .status-ready { color: #059669; }
+        .status-pending { color: #d97706; }
+        .status-blocked { color: #dc2626; }
+        .status-info { color: #6b7280; }
+        .gold { color: #c9a227; }
+        .section { page-break-inside: avoid; margin-bottom: 8px; }
+        .divider { border: none; border-top: 1px solid #e5e5e5; margin: 16px 0; }
+        .footer { margin-top: 24px; padding-top: 12px; border-top: 2px solid #c9a227; font-size: 10px; color: #888; }
+        .footer .tagline { font-style: italic; color: #c9a227; font-weight: 600; margin-bottom: 4px; }
+        .badge { display: inline-block; padding: 2px 8px; border-radius: 3px; font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; }
+        .badge-green { background: #d1fae5; color: #065f46; }
+        .badge-yellow { background: #fef3c7; color: #92400e; }
+        .badge-red { background: #fee2e2; color: #991b1b; }
+        .badge-gray { background: #f3f4f6; color: #374151; }
+        @media print {
+            body { padding: 0; }
+            .no-print { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<h1>CatchFire Matching Engine <span class="gold">— Status Report</span></h1>
+<p class="subtitle">Comprehensive project status, accomplishments, next steps, and open issues</p>
+
+<div class="meta">
+    <span><strong>Date:</strong> February 17, 2026</span>
+    <span><strong>Node.js:</strong> v24.11.1</span>
+    <span><strong>Vulnerabilities:</strong> 0</span>
+    <span><strong>Tests:</strong> 79/79 passing</span>
+    <span><strong>Repo:</strong> cf-influencer-matching-engine</span>
+</div>
+
+<div class="section">
+<h2>Accomplishments — This Session (2026-02-17)</h2>
+<table>
+    <tr><th style="width:35%">Done</th><th>What</th></tr>
+    <tr><td>Dependency upgrades</td><td>Express 4 &rarr; 5, Firestore 7.1 &rarr; 8.3, @google/genai 1.38 &rarr; 1.41, axios, googleapis, dotenv</td></tr>
+    <tr><td>@google-cloud/vertexai migration</td><td>Fully removed deprecated SDK; src/llm.ts now uses unified @google/genai for both API key and Vertex AI (ADC)</td></tr>
+    <tr><td>package-lock.json committed</td><td>Removed from .gitignore; reproducible builds now possible</td></tr>
+    <tr><td>Automated test suite</td><td>79 passing tests: schemas.test.ts (38) and scoring.test.ts (41) using vitest 3.x</td></tr>
+    <tr><td>vitest.config.ts</td><td>Proper test runner config with v8 coverage targeting core modules</td></tr>
+    <tr><td>docs/LEARN.md</td><td>8 documented lessons (L001–L008) adapted from leo-participation-translator pattern</td></tr>
+    <tr><td>Cursor rules</td><td>TDD agent and LEARN.md consultation rules for AI assistant continuity</td></tr>
+</table>
+</div>
+
+<div class="section">
+<h2>Accomplishments — Previous Sessions (Phases 0–3)</h2>
+<table>
+    <tr><th>Phase</th><th>Status</th><th>Key Deliverables</th></tr>
+    <tr><td>0: Foundation</td><td><span class="badge badge-green">Complete</span></td><td>GCP auth, .env config, dependencies, local server, PLAN.md</td></tr>
+    <tr><td>1: API Foundation</td><td><span class="badge badge-green">Complete</span></td><td>Creator CRUD, Zod schemas, scoring algorithm, POST /match</td></tr>
+    <tr><td>2: Intelligence Layer</td><td><span class="badge badge-green">Complete</span></td><td>LLM categorization, style signatures, Golden Records (10), noise detection, Apify batch</td></tr>
+    <tr><td>3: Search &amp; Discovery</td><td><span class="badge badge-green">Complete</span></td><td>Embeddings, semantic search, lookalike model, Beta Control Center</td></tr>
+    <tr><td>Testing UI</td><td><span class="badge badge-green">Complete</span></td><td>/testing page with match-by-brief and thumbs up/down feedback</td></tr>
+    <tr><td>Cloud Run Deploy</td><td><span class="badge badge-green">Complete</span></td><td>cf-matching-engine-34240596768.us-central1.run.app</td></tr>
+</table>
+</div>
+
+<div class="section">
+<h2>Testing Architecture (Three Layers)</h2>
+<table>
+    <tr><th>Layer</th><th>What</th><th>Files</th><th>Audience</th></tr>
+    <tr><td>1. Automated Unit Tests</td><td>Vitest suite, 79 tests for schemas and scoring</td><td>tests/schemas.test.ts, tests/scoring.test.ts</td><td>Developers, CI</td></tr>
+    <tr><td>2. Stakeholder QA Docs</td><td>Step-by-step manual testing guides and deploy plan</td><td>docs/TESTING_FOR_STAKEHOLDERS.md, docs/TESTING_AND_DEPLOY_PLAN.md</td><td>Dan, stakeholders</td></tr>
+    <tr><td>3. Browser Testing UI</td><td>Temp UI at /testing for match-by-brief with feedback</td><td>public/testing.html, POST /api/v1/feedback</td><td>Dan, testers</td></tr>
+</table>
+</div>
+
+<div class="section">
+<h2>Uncommitted Changes</h2>
+<table>
+    <tr><th>Type</th><th>Files</th></tr>
+    <tr><td>Modified</td><td>.gitignore, package.json, src/llm.ts</td></tr>
+    <tr><td>New</td><td>vitest.config.ts, tests/schemas.test.ts, tests/scoring.test.ts, docs/LEARN.md, .cursor/rules/tdd-agent.mdc, .cursor/rules/learn-md.mdc</td></tr>
+</table>
+</div>
+
+<hr class="divider">
+
+<div class="section">
+<h2>Next Steps — Phase 4: Scraper Integration (Current Sprint)</h2>
+<table>
+    <tr><th>Task</th><th>ID</th><th>Status</th><th>Notes</th></tr>
+    <tr><td>First batch scrape (Ciclope, The Rookies, Motionographer)</td><td>4.1</td><td><span class="badge badge-yellow">Not started</span></td><td>Python scrapers in cf-creator-database repo</td></tr>
+    <tr><td>Test Python scraper &rarr; Matching Engine sync</td><td>4.2</td><td><span class="badge badge-yellow">Not started</span></td><td>Depends on 4.1</td></tr>
+    <tr><td>Verify auto-embedding on batch import</td><td>4.3</td><td><span class="badge badge-yellow">Not started</span></td><td>Depends on 4.2</td></tr>
+    <tr><td>Golden Records one-pager for Creative</td><td>4.4</td><td><span class="badge badge-green">Done</span></td><td>Sent to Dan 2026-02-13</td></tr>
+    <tr><td>Scraping cadence scheduler</td><td>4.5</td><td><span class="badge badge-yellow">Not started</span></td><td>Festivals=annual, portfolios=quarterly</td></tr>
+    <tr><td>Deduplication logic</td><td>4.6</td><td><span class="badge badge-yellow">Not started</span></td><td>Same person across multiple sources</td></tr>
+</table>
+</div>
+
+<div class="section">
+<h2>Next Steps — Phase 5: Production Hardening</h2>
+<table>
+    <tr><th>Task</th><th>ID</th><th>Status</th><th>Notes</th></tr>
+    <tr><td>Rate limiting</td><td>5.1</td><td><span class="badge badge-green">Already wired</span></td><td>express-rate-limit active in index.js</td></tr>
+    <tr><td>Helmet security headers</td><td>5.2</td><td><span class="badge badge-green">Already wired</span></td><td>helmet active in index.js</td></tr>
+    <tr><td>Cloud Monitoring alerts</td><td>5.3</td><td><span class="badge badge-yellow">Not started</span></td><td>Error rate, latency, uptime</td></tr>
+    <tr><td>Staging environment</td><td>5.4</td><td><span class="badge badge-yellow">Not started</span></td><td>Separate from production</td></tr>
+    <tr><td>Admin dashboard for scraper status</td><td>5.5</td><td><span class="badge badge-yellow">Not started</span></td><td>Show last run, success rate</td></tr>
+</table>
+</div>
+
+<div class="section">
+<h2>Deploy and Testing Readiness (for Dan)</h2>
+<table>
+    <tr><th>Item</th><th>Status</th><th>Notes</th></tr>
+    <tr><td>Server runs locally</td><td><span class="badge badge-green">Ready</span></td><td>npm start</td></tr>
+    <tr><td>Testing UI at /testing</td><td><span class="badge badge-green">Ready</span></td><td>Match-by-brief and feedback</td></tr>
+    <tr><td>Firestore has creators</td><td><span class="badge badge-yellow">Needs data</span></td><td>Only Golden Records currently; needs real creators</td></tr>
+    <tr><td>Feedback sheet configured</td><td><span class="badge badge-gray">TBD</span></td><td>FEEDBACK_SHEET_ID not set; needs PM decision</td></tr>
+    <tr><td>Cloud Run deployment current</td><td><span class="badge badge-yellow">Needs redeploy</span></td><td>Local has dependency upgrades not yet pushed</td></tr>
+</table>
+</div>
+
+<hr class="divider">
+
+<div class="section">
+<h2>Future Enhancements (Phase 6)</h2>
+<table>
+    <tr><th>ID</th><th>Enhancement</th><th>Priority</th></tr>
+    <tr><td>6.1</td><td>Image Analysis (Gemini Vision) — auto-tag visual style from portfolios</td><td><span class="badge badge-red">High</span></td></tr>
+    <tr><td>6.2</td><td>Contact Enrichment (Clay.com/Hunter.io) — $1,000 budget</td><td><span class="badge badge-yellow">Medium</span></td></tr>
+    <tr><td>6.3</td><td>Brief Templates — pre-built search queries</td><td><span class="badge badge-red">High</span></td></tr>
+    <tr><td>6.4</td><td>Slack Integration — /catchfire find slash command</td><td><span class="badge badge-yellow">Medium</span></td></tr>
+    <tr><td>6.5</td><td>Auto-Categorize Improvements — fine-tune LLM prompts from feedback</td><td><span class="badge badge-yellow">Medium</span></td></tr>
+    <tr><td>6.6</td><td>Multi-Model Support — Gemini Pro for complex briefs</td><td><span class="badge badge-gray">Low</span></td></tr>
+    <tr><td>—</td><td>End-user links to work, refs, sources — includeWorkLinks API flag</td><td><span class="badge badge-yellow">Medium</span></td></tr>
+    <tr><td>—</td><td>External/cultural live data layer — trend feed integration</td><td><span class="badge badge-gray">TBD</span></td></tr>
+</table>
+</div>
+
+<div class="section">
+<h2>Issues and Documentation Drift</h2>
+<table>
+    <tr><th>Issue</th><th>Severity</th><th>Details</th></tr>
+    <tr><td>PLAN.md is stale</td><td><span class="badge badge-yellow">Medium</span></td><td>Tech stack table shows Express, LLM, Firestore as pending — all done. Phase 3 shows pending but is complete.</td></tr>
+    <tr><td>ACCOMPLISHMENTS doc stale</td><td><span class="badge badge-yellow">Medium</span></td><td>Last updated 2026-02-11. Lists security middleware as next step but already wired.</td></tr>
+    <tr><td>TASKS.md 5.1 and 5.2</td><td><span class="badge badge-gray">Low</span></td><td>Shows rate limiting and helmet as not started — both already active in index.js.</td></tr>
+    <tr><td>dotenv major version</td><td><span class="badge badge-gray">Info</span></td><td>v17 available but drops CommonJS support. Staying on v16 is correct. No action needed.</td></tr>
+    <tr><td>vitest major version</td><td><span class="badge badge-gray">Info</span></td><td>v4 available. Staying on v3 is safe. No action needed.</td></tr>
+</table>
+</div>
+
+<div class="section">
+<h2>Blocked / Waiting on Decision</h2>
+<table>
+    <tr><th>Item</th><th>Blocked By</th><th>Resolution Needed</th></tr>
+    <tr><td>Golden Records expansion beyond 10</td><td>Creative team input</td><td>One-pager sent to Dan (4.4 complete); waiting for Creative session</td></tr>
+    <tr><td>Feedback sheet location</td><td>PM / Dan decision</td><td>Need FEEDBACK_SHEET_ID and tab name</td></tr>
+    <tr><td>External/cultural live data scope</td><td>Dan confirmation</td><td>Is a trend API needed, or is scraper+LLM sufficient?</td></tr>
+    <tr><td>Apify actor selection</td><td>Budget and ToS review</td><td>Which platforms to scrape first</td></tr>
+</table>
+</div>
+
+<hr class="divider">
+
+<div class="section">
+<h2>Key URLs</h2>
+<table>
+    <tr><th>Resource</th><th>URL</th></tr>
+    <tr><td>Production</td><td>https://cf-matching-engine-34240596768.us-central1.run.app</td></tr>
+    <tr><td>GitHub (Matching Engine)</td><td>https://github.com/Absolute-Space-GHCP/cf-influencer-matching-engine</td></tr>
+    <tr><td>GitHub (Creator Database)</td><td>https://github.com/Absolute-Space-GHCP/cf-creator-database</td></tr>
+</table>
+</div>
+
+<div class="section">
+<h2>Key Contacts</h2>
+<table>
+    <tr><th>Role</th><th>Who</th></tr>
+    <tr><td>Strategy (CSO)</td><td>Dan</td></tr>
+    <tr><td>Budget Approval</td><td>Paula</td></tr>
+    <tr><td>Creative Team</td><td>TBD (need contact for Golden Records ask)</td></tr>
+</table>
+</div>
+
+<div class="footer">
+    <p class="tagline">CatchFire — Finding craft, not clout.</p>
+    <p>Author: Charley Scholz, JLAI | Co-authored: Claude Opus 4.6, Claude Code (coding assistant), Cursor (IDE) | Report Date: February 17, 2026</p>
+</div>
+
+</body>
+</html>

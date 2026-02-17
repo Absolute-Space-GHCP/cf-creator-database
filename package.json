@@ -1,4 +1,4 @@
-﻿{
+{
   "name": "cf-influencer-matching-engine",
   "version": "0.1.0",
   "description": "CatchFire Creator Matching Engine - AI-powered influencer discovery and matching based on craft storytelling skills",
@@ -7,23 +7,24 @@
     "build": "tsc",
     "start": "npm run build && node src/index.js",
     "dev": "node src/index.js",
-    "test": "node tests/test_vertex.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:legacy": "node tests/test_vertex.js",
     "typecheck": "tsc --noEmit",
     "deploy": "npm run build && gcloud run deploy cf-matching-engine --source . --region us-central1 --project catchfire-app-2026 --allow-unauthenticated",
     "match": "node src/index.js --match",
     "import": "node src/index.js --import"
   },
   "dependencies": {
-    "@google-cloud/firestore": "^7.1.0",
-    "@google-cloud/storage": "^7.18.0",
-    "@google-cloud/vertexai": "^1.10.0",
-    "@google/genai": "^1.38.0",
-    "axios": "^1.6.0",
+    "@google-cloud/firestore": "^8.3.0",
+    "@google-cloud/storage": "^7.19.0",
+    "@google/genai": "^1.41.0",
+    "axios": "^1.13.0",
     "cors": "^2.8.6",
-    "dotenv": "^16.3.1",
-    "express": "^4.18.2",
+    "dotenv": "^16.6.1",
+    "express": "^5.1.0",
     "express-rate-limit": "^8.2.1",
-    "googleapis": "^166.0.0",
+    "googleapis": "^171.4.0",
     "helmet": "^8.1.0",
     "zod": "^4.3.6"
   },
@@ -38,9 +39,12 @@
   "license": "MIT",
   "private": true,
   "devDependencies": {
+    "@types/cors": "^2.8.17",
     "@types/express": "^5.0.6",
     "@types/node": "^25.1.0",
+    "jspdf": "^4.1.0",
     "ts-node": "^10.9.2",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^3.0.0"
   }
 }

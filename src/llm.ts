@@ -1,94 +1,77 @@
-﻿/**
+/**
  * @file llm.ts
  * @description Gemini LLM integration for creator categorization and style analysis
- *              Supports both Google AI API (with API key) and Vertex AI (with ADC)
+ *              Uses @google/genai SDK for both API key and Vertex AI (ADC) auth
  * @author Charley Scholz, JLAI
  * @coauthor Claude Opus 4.5, Claude Code (coding assistant), Cursor (IDE)
  * @created 2026-01-28
- * @updated 2026-01-28
+ * @updated 2026-02-17
  */
 
 import { GoogleGenAI } from '@google/genai';
-import { VertexAI } from '@google-cloud/vertexai';
 import { CRAFT_TYPES, CraftType } from './schemas';
 
 // =============================================================================
-// ðŸ”§ CONFIGURATION
+// 🔧 CONFIGURATION
 // =============================================================================
 
 const MODEL_ID = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
 const GCP_PROJECT_ID = process.env.GCP_PROJECT_ID || 'catchfire-app-2026';
 const GCP_REGION = process.env.GCP_REGION || 'us-central1';
 
-// Client instances
+// Unified client instance
 let genAI: GoogleGenAI | null = null;
-let vertexAI: VertexAI | null = null;
-let useVertexAI = false;
+let clientMode: 'api_key' | 'vertex_ai' = 'api_key';
 
 /**
- * Initialize the appropriate AI client based on available credentials
+ * Initialize the AI client using @google/genai SDK
  * Prefers API key (Google AI), falls back to Vertex AI with ADC
  */
 function initializeClient(): void {
     const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
     
     if (apiKey) {
-        // Use Google AI API with API key
         genAI = new GoogleGenAI({ apiKey });
-        useVertexAI = false;
-        console.log('âœ… Gemini AI client initialized (Google AI API)');
+        clientMode = 'api_key';
+        console.log('✅ Gemini AI client initialized (Google AI API)');
     } else {
-        // Fall back to Vertex AI with ADC
-        vertexAI = new VertexAI({
+        genAI = new GoogleGenAI({
+            vertexai: true,
             project: GCP_PROJECT_ID,
             location: GCP_REGION
         });
-        useVertexAI = true;
-        console.log(`âœ… Gemini AI client initialized (Vertex AI: ${GCP_PROJECT_ID}/${GCP_REGION})`);
+        clientMode = 'vertex_ai';
+        console.log(`✅ Gemini AI client initialized (Vertex AI: ${GCP_PROJECT_ID}/${GCP_REGION})`);
     }
 }
 
 /**
- * Generate content using whichever client is available
+ * Generate content using the unified @google/genai client
  */
 async function generateContent(prompt: string, options: { temperature?: number; maxOutputTokens?: number } = {}): Promise<string> {
-    // Initialize on first use
-    if (!genAI && !vertexAI) {
+    if (!genAI) {
         initializeClient();
+    }
+    
+    if (!genAI) {
+        throw new Error('No AI client available');
     }
     
     const { temperature = 0.3, maxOutputTokens = 1024 } = options;
     
-    if (useVertexAI && vertexAI) {
-        // Use Vertex AI
-        const model = vertexAI.getGenerativeModel({ model: MODEL_ID });
-        const result = await model.generateContent({
-            contents: [{ role: 'user', parts: [{ text: prompt }] }],
-            generationConfig: {
-                temperature,
-                maxOutputTokens
-            }
-        });
-        const response = result.response;
-        return response.candidates?.[0]?.content?.parts?.[0]?.text || '';
-    } else if (genAI) {
-        // Use Google AI API
-        const response = await genAI.models.generateContent({
-            model: MODEL_ID,
-            contents: prompt,
-            config: {
-                temperature,
-                maxOutputTokens
-            }
-        });
-        return response.text || '';
-    } else {
-        throw new Error('No AI client available');
-    }
+    const response = await genAI.models.generateContent({
+        model: MODEL_ID,
+        contents: prompt,
+        config: {
+            temperature,
+            maxOutputTokens
+        }
+    });
+    return response.text || '';
 }
 
 // =============================================================================
-// ðŸŽ¬ CRAFT CATEGORIZATION
+// 🎬 CRAFT CATEGORIZATION
 // =============================================================================
 
 export interface CategorizationResult {
@@ -154,14 +137,14 @@ export async function categorizeCreator(
     
     const prompt = CATEGORIZATION_PROMPT + context;
     
-    console.log(`ðŸ¤– Categorizing with ${MODEL_ID}...`);
+    console.log(`🤖 Categorizing with ${MODEL_ID}...`);
     const startTime = Date.now();
     
     try {
         const text = await generateContent(prompt, { temperature: 0.3, maxOutputTokens: 1024 });
         
         const elapsed = Date.now() - startTime;
-        console.log(`â±ï¸ LLM response in ${elapsed}ms`);
+        console.log(`⏱️ LLM response in ${elapsed}ms`);
         
         // Parse JSON from response
         const jsonMatch = text.match(/\{[\s\S]*\}/);
@@ -184,13 +167,13 @@ export async function categorizeCreator(
         
         return result;
     } catch (error) {
-        console.error('âŒ LLM categorization failed:', error);
+        console.error('❌ LLM categorization failed:', error);
         throw error;
     }
 }
 
 // =============================================================================
-// ðŸŽ¨ STYLE SIGNATURE GENERATION
+// 🎨 STYLE SIGNATURE GENERATION
 // =============================================================================
 
 const STYLE_SIGNATURE_PROMPT = `You are an expert at describing creative professionals' unique visual and storytelling styles.
@@ -226,25 +209,25 @@ export async function generateStyleSignature(
         .replace('{bio}', bio)
         .replace('{tags}', technicalTags.join(', ') || 'none specified');
     
-    console.log(`ðŸŽ¨ Generating style signature for ${name}...`);
+    console.log(`🎨 Generating style signature for ${name}...`);
     const startTime = Date.now();
     
     try {
         const text = await generateContent(prompt, { temperature: 0.7, maxOutputTokens: 256 });
         
         const elapsed = Date.now() - startTime;
-        console.log(`â±ï¸ Style signature generated in ${elapsed}ms`);
+        console.log(`⏱️ Style signature generated in ${elapsed}ms`);
         
         const signature = text.trim();
         return signature || `${name} is a talented ${craft} with a distinctive creative vision.`;
     } catch (error) {
-        console.error('âŒ Style signature generation failed:', error);
+        console.error('❌ Style signature generation failed:', error);
         return `${name} is a talented ${craft} with a distinctive creative vision.`;
     }
 }
 
 // =============================================================================
-// ðŸ” BRIEF ANALYSIS
+// 📋 BRIEF ANALYSIS
 // =============================================================================
 
 const BRIEF_ANALYSIS_PROMPT = `You are an expert at analyzing creative project briefs for talent matching.
@@ -284,14 +267,14 @@ export interface BriefAnalysis {
 export async function analyzeBrief(brief: string): Promise<BriefAnalysis> {
     const prompt = BRIEF_ANALYSIS_PROMPT + brief;
     
-    console.log('ðŸ“‹ Analyzing brief with LLM...');
+    console.log('📋 Analyzing brief with LLM...');
     const startTime = Date.now();
     
     try {
         const text = await generateContent(prompt, { temperature: 0.2, maxOutputTokens: 512 });
         
         const elapsed = Date.now() - startTime;
-        console.log(`â±ï¸ Brief analysis in ${elapsed}ms`);
+        console.log(`⏱️ Brief analysis in ${elapsed}ms`);
         
         const jsonMatch = text.match(/\{[\s\S]*\}/);
         if (!jsonMatch) {
@@ -300,7 +283,7 @@ export async function analyzeBrief(brief: string): Promise<BriefAnalysis> {
         
         return JSON.parse(jsonMatch[0]) as BriefAnalysis;
     } catch (error) {
-        console.error('âŒ Brief analysis failed:', error);
+        console.error('❌ Brief analysis failed:', error);
         // Return a basic analysis on failure
         return {
             craftsNeeded: [],
@@ -316,7 +299,7 @@ export async function analyzeBrief(brief: string): Promise<BriefAnalysis> {
 }
 
 // =============================================================================
-// ðŸ”¢ EMBEDDINGS
+// 🔢 EMBEDDINGS
 // =============================================================================
 
 const EMBEDDING_MODEL = 'gemini-embedding-001';
@@ -403,49 +386,42 @@ export async function generateEmbedding(
     text: string,
     taskType: EmbeddingTaskType = 'RETRIEVAL_DOCUMENT'
 ): Promise<EmbeddingResult> {
-    // Initialize client if needed
-    if (!genAI && !vertexAI) {
+    if (!genAI) {
         initializeClient();
     }
     
-    console.log(`ðŸ”¢ Generating embedding (${EMBEDDING_DIMENSIONS}d, ${taskType})...`);
+    if (!genAI) {
+        throw new Error('No AI client available');
+    }
+    
+    console.log(`🔢 Generating embedding (${EMBEDDING_DIMENSIONS}d, ${taskType})...`);
     const startTime = Date.now();
     
     try {
-        if (genAI) {
-            // Use Google AI API
-            const response = await genAI.models.embedContent({
-                model: EMBEDDING_MODEL,
-                contents: text,
-                config: {
-                    taskType,
-                    outputDimensionality: EMBEDDING_DIMENSIONS
-                }
-            });
-            
-            const elapsed = Date.now() - startTime;
-            console.log(`â±ï¸ Embedding generated in ${elapsed}ms`);
-            
-            // Get the embedding from response
-            const embedding = response.embeddings?.[0];
-            if (!embedding?.values) {
-                throw new Error('No embedding values in response');
+        const response = await genAI.models.embedContent({
+            model: EMBEDDING_MODEL,
+            contents: text,
+            config: {
+                taskType,
+                outputDimensionality: EMBEDDING_DIMENSIONS
             }
-            
-            return {
-                values: embedding.values,
-                dimensions: embedding.values.length,
-                model: EMBEDDING_MODEL
-            };
-        } else if (vertexAI) {
-            // Vertex AI doesn't have native embeddings in the same SDK
-            // We need to use the prediction API or fall back to REST
-            throw new Error('Vertex AI embeddings require API key. Please set GEMINI_API_KEY.');
-        } else {
-            throw new Error('No AI client available');
+        });
+        
+        const elapsed = Date.now() - startTime;
+        console.log(`⏱️ Embedding generated in ${elapsed}ms`);
+        
+        const embedding = response.embeddings?.[0];
+        if (!embedding?.values) {
+            throw new Error('No embedding values in response');
         }
+        
+        return {
+            values: embedding.values,
+            dimensions: embedding.values.length,
+            model: EMBEDDING_MODEL
+        };
     } catch (error) {
-        console.error('âŒ Embedding generation failed:', error);
+        console.error('❌ Embedding generation failed:', error);
         throw error;
     }
 }
@@ -457,50 +433,46 @@ export async function generateEmbeddings(
     texts: string[],
     taskType: EmbeddingTaskType = 'RETRIEVAL_DOCUMENT'
 ): Promise<EmbeddingResult[]> {
-    // Initialize client if needed
-    if (!genAI && !vertexAI) {
+    if (!genAI) {
         initializeClient();
     }
     
-    console.log(`ðŸ”¢ Generating ${texts.length} embeddings (${EMBEDDING_DIMENSIONS}d, ${taskType})...`);
+    if (!genAI) {
+        throw new Error('No AI client available');
+    }
+    
+    console.log(`🔢 Generating ${texts.length} embeddings (${EMBEDDING_DIMENSIONS}d, ${taskType})...`);
     const startTime = Date.now();
     
     try {
-        if (genAI) {
-            // Use Google AI API batch endpoint
-            const response = await genAI.models.embedContent({
-                model: EMBEDDING_MODEL,
-                contents: texts,
-                config: {
-                    taskType,
-                    outputDimensionality: EMBEDDING_DIMENSIONS
-                }
-            });
-            
-            const elapsed = Date.now() - startTime;
-            console.log(`â±ï¸ ${texts.length} embeddings generated in ${elapsed}ms`);
-            
-            if (!response.embeddings?.length) {
-                throw new Error('No embeddings in response');
+        const response = await genAI.models.embedContent({
+            model: EMBEDDING_MODEL,
+            contents: texts,
+            config: {
+                taskType,
+                outputDimensionality: EMBEDDING_DIMENSIONS
             }
-            
-            return response.embeddings.map(emb => {
-                if (!emb.values) {
-                    throw new Error('Missing values in embedding response');
-                }
-                return {
-                    values: emb.values,
-                    dimensions: emb.values.length,
-                    model: EMBEDDING_MODEL
-                };
-            });
-        } else if (vertexAI) {
-            throw new Error('Vertex AI embeddings require API key. Please set GEMINI_API_KEY.');
-        } else {
-            throw new Error('No AI client available');
+        });
+        
+        const elapsed = Date.now() - startTime;
+        console.log(`⏱️ ${texts.length} embeddings generated in ${elapsed}ms`);
+        
+        if (!response.embeddings?.length) {
+            throw new Error('No embeddings in response');
         }
+        
+        return response.embeddings.map(emb => {
+            if (!emb.values) {
+                throw new Error('Missing values in embedding response');
+            }
+            return {
+                values: emb.values,
+                dimensions: emb.values.length,
+                model: EMBEDDING_MODEL
+            };
+        });
     } catch (error) {
-        console.error('âŒ Batch embedding generation failed:', error);
+        console.error('❌ Batch embedding generation failed:', error);
         throw error;
     }
 }
@@ -564,7 +536,7 @@ export function normalizeEmbedding(embedding: number[]): number[] {
 }
 
 // =============================================================================
-// ðŸŒŸ GOLDEN RECORD LOOKALIKE MODEL
+// 🌟 GOLDEN RECORD LOOKALIKE MODEL
 // =============================================================================
 
 export interface GoldenRecordModel {
@@ -700,7 +672,7 @@ export function buildCraftSpecificModels(
 }
 
 // =============================================================================
-// ðŸ§ª TEST FUNCTIONS
+// 🧪 TEST FUNCTIONS
 // =============================================================================
 
 /**
@@ -711,7 +683,7 @@ export async function testLLMConnection(): Promise<boolean> {
         const text = await generateContent('Reply with just the word "connected" if you can read this.');
         return text.toLowerCase().includes('connected');
     } catch (error) {
-        console.error('âŒ LLM connection test failed:', error);
+        console.error('❌ LLM connection test failed:', error);
         return false;
     }
 }
@@ -738,10 +710,10 @@ export async function testEmbeddings(): Promise<{ success: boolean; dimensions?:
  * Get the current client type being used
  */
 export function getClientType(): string {
-    if (!genAI && !vertexAI) {
+    if (!genAI) {
         initializeClient();
     }
-    return useVertexAI ? `Vertex AI (${GCP_PROJECT_ID})` : 'Google AI API';
+    return clientMode === 'vertex_ai' ? `Vertex AI (${GCP_PROJECT_ID})` : 'Google AI API';
 }
 
 /**

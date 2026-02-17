@@ -1,0 +1,33 @@
+---
+description: Consult LEARN.md for known fixes before debugging issues. Apply to all coding sessions.
+globs: ["**/*"]
+alwaysApply: true
+---
+
+# LEARN.md Consultation Rule
+
+At the START of every session and before debugging any issue:
+
+1. **Read `docs/LEARN.md`** for known fixes and lessons learned
+2. **Check if the current issue matches** a documented problem (L001-L007)
+3. **Apply the known solution** before investigating further
+4. **Add new entries** when discovering recurring problems
+
+## Quick Reference
+
+| ID | Issue | Key Symptom |
+|----|-------|-------------|
+| L001 | PowerShell syntax | `&&` or heredoc failures |
+| L002 | Missing dev artifacts | Module not found after clone |
+| L003 | Deprecated VertexAI SDK | Never re-add @google-cloud/vertexai |
+| L004 | Mojibake emoji | StrReplace fails on emoji text |
+| L005 | Express 5 changes | Route/middleware oddities |
+| L006 | package-lock.json | npm audit failures |
+| L007 | Legacy test files | tests/ has old gmaster scripts |
+| L008 | Three testing layers | Unit tests + stakeholder docs + browser UI |
+| L009 | PDF generation | Use jsPDF, never puppeteer/md-to-pdf |
+
+---
+
+Author: Charley Scholz, JLAI
+Co-authored: Claude Opus 4.6, Claude Code (coding assistant), Cursor (IDE)
