@@ -201,8 +201,12 @@ table(['Done', 'What'], [
     ['package-lock.json committed', 'Removed from .gitignore; reproducible builds now possible'],
     ['Automated test suite', '79 passing tests: schemas.test.ts (38) and scoring.test.ts (41) via vitest'],
     ['vitest.config.ts', 'Test runner config with v8 coverage targeting core modules'],
-    ['docs/LEARN.md', '8 documented lessons (L001-L008) from leo-participation-translator pattern'],
+    ['docs/LEARN.md', '9 documented lessons (L001-L009) from leo-participation-translator pattern'],
     ['Cursor rules', 'TDD agent and LEARN.md consultation rules for AI assistant continuity'],
+    ['Status report PDF', 'jsPDF-based generator at scripts/generate-status-pdf.mjs'],
+    ['TASKS.md updated', 'Marked 5.1/5.2 complete, added session work, fixed doc drift'],
+    ['TODO.md -> TASKS.md', 'Verified: TODO.md redirects to TASKS.md (single source of truth)'],
+    ['Session handoff', 'docs/SESSION_2026-02-17_v0.5.0.md committed'],
 ], [55, CW - 55]);
 
 heading('Accomplishments — Previous Sessions (Phases 0-3)', 2);
@@ -222,11 +226,12 @@ table(['Layer', 'What', 'Audience'], [
     ['3. Browser Testing UI', '/testing: match-by-brief + feedback', 'Dan, testers'],
 ], [42, CW - 72, 30]);
 
-heading('Uncommitted Changes', 2);
-table(['Type', 'Files'], [
-    ['Modified', '.gitignore, package.json, src/llm.ts'],
-    ['New', 'vitest.config.ts, tests/schemas.test.ts, tests/scoring.test.ts, docs/LEARN.md, .cursor/rules/*'],
-], [25, CW - 25]);
+heading('Git Status', 2);
+table(['Item', 'Status'], [
+    ['Working tree', 'Clean -- all changes committed and pushed'],
+    ['Remote sync', 'Local = origin/main (up to date)'],
+    ['Latest commit', 'docs: add session handoff for 2026-02-17 v0.5.0'],
+], [35, CW - 35]);
 
 // ============================================================================
 // NEXT STEPS
@@ -260,7 +265,7 @@ table(['Item', 'Status', 'Notes'], [
     ['Testing UI at /testing', B('Ready'), 'Match-by-brief and feedback'],
     ['Firestore has creators', B('Needs data', 'yellow'), 'Only Golden Records; needs real creators'],
     ['Feedback sheet configured', B('TBD', 'gray'), 'FEEDBACK_SHEET_ID not set'],
-    ['Cloud Run deploy current', B('Needs redeploy', 'yellow'), 'Local changes not yet pushed'],
+    ['Cloud Run deploy current', B('Needs redeploy', 'yellow'), 'Code pushed to GitHub; needs gcloud deploy'],
 ], [42, 26, CW - 68]);
 
 // ============================================================================
@@ -282,11 +287,11 @@ table(['ID', 'Enhancement', 'Priority'], [
     ['--', 'External/cultural live data layer', B('TBD', 'gray')],
 ], [10, CW - 32, 22]);
 
-heading('Issues and Documentation Drift', 2);
+heading('Remaining Documentation Drift', 2);
 table(['Issue', 'Severity', 'Details'], [
     ['PLAN.md is stale', B('Medium', 'yellow'), 'Tech stack + Phase 3 show pending but are done'],
     ['ACCOMPLISHMENTS doc stale', B('Medium', 'yellow'), 'Last updated 2026-02-11; security listed as next step'],
-    ['TASKS.md 5.1/5.2', B('Low', 'gray'), 'Rate limit + helmet shown as not started, both active'],
+    ['TASKS.md 5.1/5.2', B('Fixed', 'green'), 'Marked complete this session'],
     ['dotenv v17 available', B('Info', 'gray'), 'Drops CommonJS; staying on v16 is correct'],
     ['vitest v4 available', B('Info', 'gray'), 'v3 is stable and safe'],
 ], [38, 20, CW - 58]);
