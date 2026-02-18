@@ -11,6 +11,8 @@
     "test:watch": "vitest",
     "test:legacy": "node tests/test_vertex.js",
     "typecheck": "tsc --noEmit",
+    "smoke": "bash scripts/smoke-tests.sh --local",
+    "smoke:prod": "bash scripts/smoke-tests.sh --production",
     "deploy": "npm run build && gcloud run deploy cf-matching-engine --source . --region us-central1 --project catchfire-app-2026 --allow-unauthenticated",
     "match": "node src/index.js --match",
     "import": "node src/index.js --import"

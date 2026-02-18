@@ -64,7 +64,7 @@ All tasks completed 2026-01-28.
 | ID | Task | Status | Priority | Owner | Dependencies | Notes |
 |----|------|--------|----------|-------|--------------|-------|
 | 6.1 | Vitest unit test suite (schemas + scoring) | 🟢 completed | High | IT | — | 79 tests passing (Feb 17 session) |
-| 6.2 | Create smoke test suite | 🟡 in_progress | High | IT | — | API, Auth, Services, Database |
+| 6.2 | Create smoke test suite | 🟢 completed | High | IT | — | 31 tests, local + production, `npm run smoke` |
 | 6.3 | Build health check dashboard | 🔴 not_started | Medium | IT | 6.2 | Visual service status |
 | 6.4 | Add integration test workflow | 🔴 not_started | High | IT | 6.1-6.2 | Scraper → API → Firestore → Embeddings |
 | 6.5 | Create E2E test for semantic search | 🔴 not_started | Medium | IT | 6.1-6.2 | Brief → Match → Results validation |
@@ -78,13 +78,13 @@ All tasks completed 2026-01-28.
 - `tests/scoring.test.ts` — Scoring algorithm tests
 - Config: `vitest.config.ts`
 
-**Smoke Test Suite (Task 6.2):**
-- [ ] **API Endpoints**: Health, stats, search, CRUD operations
-- [ ] **Authentication**: GCP ADC, Gemini API key, Firestore credentials
-- [ ] **External Services**: Cloud Run, Firestore, Gemini AI, Embeddings API
-- [ ] **Database**: Connection, read/write operations, collection access
-- [ ] **Integration**: Matching Engine ↔ Creator Database sync
-- **Implementation:** `scripts/smoke-tests.sh`
+**Smoke Test Suite (Task 6.2) — 31 Tests:**
+- [x] **API Endpoints**: Health, stats, search, CRUD, match, LLM, embeddings, lookalikes
+- [x] **Authentication**: GCP ADC, Gemini API key, Firestore credentials
+- [x] **External Services**: Cloud Run, Firestore, Gemini AI, Embeddings API
+- [x] **Database**: Connection, read/write operations, Golden Records model
+- [x] **Integration**: Matching Engine ↔ Creator Database project check
+- **Implementation:** `scripts/smoke-tests.sh` | `npm run smoke` | `npm run smoke:prod`
 
 ---
 
