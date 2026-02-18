@@ -44,6 +44,12 @@
         .error { color: var(--red); padding: 12px; }
         .response-feedback { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
         .response-feedback label { margin-bottom: 8px; }
+        .comment-area { margin-top: 12px; }
+        .comment-area textarea { min-height: 60px; font-size: 13px; }
+        .feedback-btns button.active-up { background: rgba(16,185,129,0.15); border-color: var(--green); color: var(--green); }
+        .feedback-btns button.active-down { background: rgba(239,68,68,0.15); border-color: var(--red); color: var(--red); }
+        .feedback-sent { font-size: 0.8rem; color: var(--green); margin-left: 8px; opacity: 0; transition: opacity 0.3s; }
+        .feedback-sent.show { opacity: 1; }
         .links { margin-top: 24px; font-size: 0.9rem; }
         .links a { color: var(--gold); text-decoration: none; margin-right: 16px; }
         .links a:hover { text-decoration: underline; }
@@ -72,6 +78,11 @@
             <div class="feedback-btns">
                 <button type="button" class="up" id="responseUp" title="Thumbs up">👍</button>
                 <button type="button" class="down" id="responseDown" title="Thumbs down">👎</button>
+                <span class="feedback-sent" id="responseFeedbackSent">Recorded</span>
+            </div>
+            <div class="comment-area">
+                <label for="responseComment">Notes (optional)</label>
+                <textarea id="responseComment" placeholder="Any thoughts on these results? What would you expect instead?"></textarea>
             </div>
         </div>
     </div>
@@ -117,14 +128,19 @@
             resultsCard.style.display = 'none';
         }
 
-        async function sendFeedback(rating, creatorId, resultId) {
+        const responseComment = document.getElementById('responseComment');
+        const responseFeedbackSent = document.getElementById('responseFeedbackSent');
+
+        async function sendFeedback(rating, creatorId, resultId, btn) {
+            const comment = (!creatorId && responseComment) ? responseComment.value.trim() : '';
             const body = {
                 event: 'match',
                 briefOrQuery: lastMatchPayload ? lastMatchPayload.brief : briefEl.value.slice(0, 500),
                 sessionId,
                 rating,
                 resultId: resultId || '',
-                creatorId: creatorId || ''
+                creatorId: creatorId || '',
+                comment
             };
             try {
                 const r = await fetch(base + '/api/v1/feedback', {
@@ -133,7 +149,14 @@
                     body: JSON.stringify(body)
                 });
                 const data = await r.json();
-                if (data.success) return true;
+                if (data.success && btn) {
+                    btn.classList.add(rating === 'up' ? 'active-up' : 'active-down');
+                    if (!creatorId) {
+                        responseFeedbackSent.classList.add('show');
+                        setTimeout(() => responseFeedbackSent.classList.remove('show'), 2000);
+                    }
+                }
+                return data.success;
             } catch (e) {}
             return false;
         }
@@ -173,8 +196,10 @@
                 resultsList.querySelectorAll('.result').forEach(row => {
                     const creatorId = row.dataset.creatorId;
                     const resultId = row.dataset.resultId;
-                    row.querySelector('.up').addEventListener('click', () => { sendFeedback('up', creatorId, resultId); });
-                    row.querySelector('.down').addEventListener('click', () => { sendFeedback('down', creatorId, resultId); });
+                    const upBtn = row.querySelector('.up');
+                    const downBtn = row.querySelector('.down');
+                    upBtn.addEventListener('click', () => sendFeedback('up', creatorId, resultId, upBtn));
+                    downBtn.addEventListener('click', () => sendFeedback('down', creatorId, resultId, downBtn));
                 });
             } catch (e) {
                 showError(e.message || 'Match request failed');
@@ -183,8 +208,8 @@
             matchBtn.disabled = false;
         });
 
-        responseUp.addEventListener('click', () => { sendFeedback('up'); });
-        responseDown.addEventListener('click', () => { sendFeedback('down'); });
+        responseUp.addEventListener('click', () => sendFeedback('up', '', '', responseUp));
+        responseDown.addEventListener('click', () => sendFeedback('down', '', '', responseDown));
     </script>
 </body>
 </html>

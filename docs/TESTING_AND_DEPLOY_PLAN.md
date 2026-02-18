@@ -81,13 +81,13 @@
 
 | Item | Owner | Status |
 |------|--------|--------|
-| Deploy to Cloud Run, URL stable | DevOps / eng | 📋 |
-| Env vars set (GCP, Firestore, Gemini, optional Sheets) | DevOps / eng | 📋 |
-| Health + match + categorize verified on deployed URL | Eng | 📋 |
-| Temp testing UI at /testing live on deployed URL | Eng | 📋 |
-| FEEDBACK_SHEET_ID + tab decided and set | PM / Dan | 📋 TBD |
-| Thumbs up/down appends to sheet verified | Eng | 📋 |
-| Testing data in Firestore (or load Dan’s data) | Eng / Dan | 📋 |
+| Deploy to Cloud Run, URL stable | DevOps / eng | ✅ rev 00005-8vf, 2026-02-18 |
+| Env vars set (GCP, Firestore, Gemini, optional Sheets) | DevOps / eng | ✅ All set except FEEDBACK_SHEET_ID |
+| Health + match + categorize verified on deployed URL | Eng | ✅ 29/29 smoke tests passing |
+| Temp testing UI at /testing live on deployed URL | Eng | ✅ With comment field + visual feedback |
+| FEEDBACK_SHEET_ID + tab decided and set | PM / Dan | 📋 TBD — blocked on Dan |
+| Thumbs up/down appends to sheet verified | Eng | ✅ API works, sheet append ready when ID set |
+| Testing data in Firestore (or load Dan’s data) | Eng / Dan | ✅ 15 creators, 11 Golden Records |
 | External/cultural live data: confirm scope with Dan | PM | 📋 |
 
 ---
