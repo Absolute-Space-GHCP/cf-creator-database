@@ -382,17 +382,70 @@ async function generateEmbeddingForCreator(creator) {
 }
 
 /**
- * POST /api/v1/creators/batch - Bulk import creators
+ * Normalize a name for dedup matching: lowercase, strip punctuation, collapse whitespace.
+ */
+function normalizeName(name) {
+    return (name || '').toLowerCase().replace(/[^\w\s]/g, '').replace(/\s+/g, ' ').trim();
+}
+
+/**
+ * Merge incoming creator data into an existing record.
+ * Union tags/keywords, fill empty fields, keep higher qualityScore.
+ */
+function mergeCreatorData(existing, incoming) {
+    const merged = JSON.parse(JSON.stringify(existing));
+
+    const unionArrayFields = [
+        ['craft', 'secondary'], ['craft', 'technicalTags'],
+        ['matching', 'positiveKeywords'], ['matching', 'negativeKeywords'],
+    ];
+    for (const [parent, child] of unionArrayFields) {
+        const existArr = (existing[parent] || {})[child] || [];
+        const newArr = (incoming[parent] || {})[child] || [];
+        if (!merged[parent]) merged[parent] = {};
+        merged[parent][child] = [...new Set([...existArr, ...newArr])];
+    }
+
+    if (!existing.contact?.portfolio_url && incoming.contact?.portfolio_url) {
+        if (!merged.contact) merged.contact = {};
+        merged.contact.portfolio_url = incoming.contact.portfolio_url;
+    }
+    if (!existing.contact?.location && incoming.contact?.location) {
+        if (!merged.contact) merged.contact = {};
+        merged.contact.location = incoming.contact.location;
+    }
+    if (!existing.contact?.email && incoming.contact?.email) {
+        if (!merged.contact) merged.contact = {};
+        merged.contact.email = incoming.contact.email;
+    }
+
+    const existScore = (existing.matching || {}).qualityScore || 0;
+    const newScore = (incoming.matching || {}).qualityScore || 0;
+    if (newScore > existScore) {
+        if (!merged.matching) merged.matching = {};
+        merged.matching.qualityScore = newScore;
+    }
+
+    if (incoming.source?.url) {
+        merged.additionalSources = [...(existing.additionalSources || []), incoming.source];
+    }
+
+    merged.updatedAt = new Date().toISOString();
+    return merged;
+}
+
+/**
+ * POST /api/v1/creators/batch - Bulk import creators with deduplication
  */
 app.post('/api/v1/creators/batch', async (req, res) => {
-    console.log('ðŸ“¥ POST /api/v1/creators/batch');
+    console.log('\u{1F4E5} POST /api/v1/creators/batch');
     
     try {
         if (!firestore) {
             return res.status(503).json({ success: false, error: 'Firestore not available' });
         }
         
-        const { creators } = req.body;
+        const { creators, skipDedup } = req.body;
         
         if (!Array.isArray(creators) || creators.length === 0) {
             return res.status(400).json({ 
@@ -401,14 +454,26 @@ app.post('/api/v1/creators/batch', async (req, res) => {
             });
         }
         
-        console.log(`ðŸŽ¬ Batch importing ${creators.length} creators...`);
-        
+        console.log(`\u{1F3AC} Batch importing ${creators.length} creators...`);
+
+        let existingByName = {};
+        if (!skipDedup) {
+            const snapshot = await firestore.collection(CONFIG.creatorsCollection).get();
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                const norm = normalizeName(data.name);
+                if (norm) existingByName[norm] = { id: doc.id, data };
+            });
+            console.log(`\u{1F50D} Dedup: loaded ${Object.keys(existingByName).length} existing creators`);
+        }
+
         const batch = firestore.batch();
         const results = [];
         const timestamp = new Date().toISOString();
+        let newCount = 0;
+        let mergedCount = 0;
         
         for (const rawCreator of creators) {
-            // Validate each creator
             const validation = validateBatchCreator(rawCreator);
             if (!validation.success) {
                 results.push({ error: validation.error, name: rawCreator.name || 'unknown' });
@@ -416,27 +481,42 @@ app.post('/api/v1/creators/batch', async (req, res) => {
             }
             
             const creator = validation.data;
-            const docRef = firestore.collection(CONFIG.creatorsCollection).doc();
-            creator.createdAt = timestamp;
-            creator.updatedAt = timestamp;
-            batch.set(docRef, creator);
-            results.push({ id: docRef.id, name: creator.name });
+            const norm = normalizeName(creator.name);
+
+            if (!skipDedup && existingByName[norm]) {
+                const existing = existingByName[norm];
+                const merged = mergeCreatorData(existing.data, creator);
+                const docRef = firestore.collection(CONFIG.creatorsCollection).doc(existing.id);
+                batch.update(docRef, merged);
+                results.push({ id: existing.id, name: creator.name, action: 'merged' });
+                mergedCount++;
+            } else {
+                const docRef = firestore.collection(CONFIG.creatorsCollection).doc();
+                creator.createdAt = timestamp;
+                creator.updatedAt = timestamp;
+                batch.set(docRef, creator);
+                results.push({ id: docRef.id, name: creator.name, action: 'created' });
+                existingByName[norm] = { id: docRef.id, data: creator };
+                newCount++;
+            }
         }
         
         await batch.commit();
         clearCreatorCache();
         
         const successCount = results.filter(r => r.id).length;
-        console.log(`âœ… Batch import complete: ${successCount}/${creators.length} succeeded`);
+        console.log(`\u2705 Batch import: ${newCount} new, ${mergedCount} merged, ${results.length - successCount} failed`);
         
         res.status(201).json({
             success: true,
             imported: successCount,
             total: creators.length,
+            new: newCount,
+            merged: mergedCount,
             results
         });
     } catch (error) {
-        console.error('âŒ Error in batch import:', error.message);
+        console.error('\u274C Error in batch import:', error.message);
         res.status(500).json({ success: false, error: error.message });
     }
 });
