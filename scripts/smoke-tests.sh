@@ -104,9 +104,20 @@ check_http() {
     local name="$1"
     local url="$2"
     local expected_code="${3:-200}"
+    local method="${4:-GET}"
+    local body="$5"
     
     local response_code
-    response_code=$(curl -s -o /dev/null -w "%{http_code}" "$url" 2>/dev/null || echo "000")
+    local curl_args=("-s" "-o" "/dev/null" "-w" "%{http_code}" "--max-time" "15")
+    
+    if [ "$method" = "POST" ]; then
+        curl_args+=("-X" "POST" "-H" "Content-Type: application/json")
+        if [ -n "$body" ]; then
+            curl_args+=("-d" "$body")
+        fi
+    fi
+    
+    response_code=$(curl "${curl_args[@]}" "$url" 2>/dev/null || echo "000")
     
     if [ "$response_code" = "$expected_code" ]; then
         echo -e "${GREEN}✓${NC} $name (HTTP $response_code)"
@@ -126,7 +137,7 @@ check_json_field() {
     local expected="$4"
     
     local value
-    value=$(curl -s "$url" 2>/dev/null | jq -r "$field" 2>/dev/null)
+    value=$(curl -s --max-time 15 "$url" 2>/dev/null | jq -r "$field" 2>/dev/null)
     
     if [ "$value" = "$expected" ]; then
         echo -e "${GREEN}✓${NC} $name: $value"
@@ -208,7 +219,7 @@ check_http "GET /api/v1/stats" "$BASE_URL/api/v1/stats"
 check_http "GET /api/v1/creators" "$BASE_URL/api/v1/creators"
 
 # Search endpoints
-check_http "POST /api/v1/match (empty brief)" "$BASE_URL/api/v1/match" "400"
+check_http "POST /api/v1/match (empty POST)" "$BASE_URL/api/v1/match" "400" "POST"
 
 # LLM endpoints
 check_http "GET /api/v1/llm/test" "$BASE_URL/api/v1/llm/test"
@@ -227,22 +238,27 @@ echo ""
 echo "── API Response Validation ───────────────────────────────────────────────"
 
 # Check health endpoint returns expected structure
-check_json_field "Health status" "$BASE_URL/health" ".status" "healthy"
+check_json_field "Health status" "$BASE_URL/health" ".status" "ok"
 
 # Check stats endpoint
-STATS_RESPONSE=$(curl -s "$BASE_URL/api/v1/stats" 2>/dev/null)
+STATS_RESPONSE=$(curl -s --max-time 15 "$BASE_URL/api/v1/stats" 2>/dev/null)
 if echo "$STATS_RESPONSE" | jq -e '.success' > /dev/null 2>&1; then
-    TOTAL_CREATORS=$(echo "$STATS_RESPONSE" | jq -r '.data.totalCreators // 0')
-    GOLDEN_RECORDS=$(echo "$STATS_RESPONSE" | jq -r '.data.goldenRecords // 0')
+    TOTAL_CREATORS=$(echo "$STATS_RESPONSE" | jq -r '.stats.totalCreators // 0')
+    GOLDEN_RECORDS=$(echo "$STATS_RESPONSE" | jq -r '.stats.goldenRecords // 0')
     echo -e "${GREEN}✓${NC} Stats endpoint: ${CYAN}$TOTAL_CREATORS creators, $GOLDEN_RECORDS golden${NC}"
     PASS=$((PASS + 1))
+    
+    if [ "$TOTAL_CREATORS" = "0" ]; then
+        echo -e "  ${YELLOW}⚠${NC}  Database appears empty — may need data re-import"
+        WARN=$((WARN + 1))
+    fi
 else
     echo -e "${RED}✗${NC} Stats endpoint: invalid response"
     FAIL=$((FAIL + 1))
 fi
 
 # Check LLM test
-LLM_RESPONSE=$(curl -s "$BASE_URL/api/v1/llm/test" 2>/dev/null)
+LLM_RESPONSE=$(curl -s --max-time 30 "$BASE_URL/api/v1/llm/test" 2>/dev/null)
 if echo "$LLM_RESPONSE" | jq -e '.success == true' > /dev/null 2>&1; then
     MODEL=$(echo "$LLM_RESPONSE" | jq -r '.model // "unknown"')
     echo -e "${GREEN}✓${NC} LLM service: ${CYAN}$MODEL${NC}"
@@ -254,7 +270,7 @@ else
 fi
 
 # Check Embeddings test
-EMB_RESPONSE=$(curl -s "$BASE_URL/api/v1/embeddings/test" 2>/dev/null)
+EMB_RESPONSE=$(curl -s --max-time 30 "$BASE_URL/api/v1/embeddings/test" 2>/dev/null)
 if echo "$EMB_RESPONSE" | jq -e '.success == true' > /dev/null 2>&1; then
     DIMS=$(echo "$EMB_RESPONSE" | jq -r '.dimensions // "unknown"')
     echo -e "${GREEN}✓${NC} Embeddings service: ${CYAN}${DIMS}d vectors${NC}"
@@ -273,7 +289,7 @@ echo ""
 echo "── Database Operations ───────────────────────────────────────────────────"
 
 # Test read operation
-CREATORS_RESPONSE=$(curl -s "$BASE_URL/api/v1/creators?limit=1" 2>/dev/null)
+CREATORS_RESPONSE=$(curl -s --max-time 15 "$BASE_URL/api/v1/creators?limit=1" 2>/dev/null)
 if echo "$CREATORS_RESPONSE" | jq -e '.success == true' > /dev/null 2>&1; then
     echo -e "${GREEN}✓${NC} Firestore read operation"
     PASS=$((PASS + 1))
@@ -283,12 +299,17 @@ else
 fi
 
 # Check Golden Records model
-LOOKALIKE_RESPONSE=$(curl -s "$BASE_URL/api/v1/lookalikes/model" 2>/dev/null)
+LOOKALIKE_RESPONSE=$(curl -s --max-time 15 "$BASE_URL/api/v1/lookalikes/model" 2>/dev/null)
 if echo "$LOOKALIKE_RESPONSE" | jq -e '.success == true' > /dev/null 2>&1; then
-    GR_COUNT=$(echo "$LOOKALIKE_RESPONSE" | jq -r '.model.totalGoldenRecords // 0')
-    HAS_CENTROID=$(echo "$LOOKALIKE_RESPONSE" | jq -e '.model.centroid != null' > /dev/null 2>&1&& echo "yes" || echo "no")
-    echo -e "${GREEN}✓${NC} Golden Records model: ${CYAN}$GR_COUNT records, centroid=$HAS_CENTROID${NC}"
+    GR_COUNT=$(echo "$LOOKALIKE_RESPONSE" | jq -r '.model.goldenRecordCount // 0')
+    GR_DIMS=$(echo "$LOOKALIKE_RESPONSE" | jq -r '.model.dimensions // 0')
+    echo -e "${GREEN}✓${NC} Golden Records model: ${CYAN}$GR_COUNT records, ${GR_DIMS}d embeddings${NC}"
     PASS=$((PASS + 1))
+    
+    if [ "$GR_COUNT" = "0" ]; then
+        echo -e "  ${YELLOW}⚠${NC}  No Golden Records found — import golden-records.json"
+        WARN=$((WARN + 1))
+    fi
 else
     echo -e "${YELLOW}○${NC} Golden Records model: not built yet"
     WARN=$((WARN + 1))
@@ -302,7 +323,7 @@ echo ""
 echo "── Semantic Search Test ──────────────────────────────────────────────────"
 
 # Test semantic search with a real query
-SEARCH_RESPONSE=$(curl -s -X POST "$BASE_URL/api/v1/search/semantic" \
+SEARCH_RESPONSE=$(curl -s --max-time 30 -X POST "$BASE_URL/api/v1/search/semantic" \
     -H "Content-Type: application/json" \
     -d '{"query": "cinematographer with experience in documentary filmmaking"}' 2>/dev/null)
 
