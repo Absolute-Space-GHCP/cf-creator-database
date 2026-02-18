@@ -1,6 +1,6 @@
 # CatchFire Matching Engine -- TASKS
 
-**Version:** 1.3.0  
+**Version:** 1.4.0  
 **Last Updated:** 2026-02-18
 **Project:** cf-influencer-matching-engine
 
@@ -43,7 +43,7 @@ All tasks completed 2026-01-28.
 | 4.3 | Verify auto-embedding on batch import | completed | High | IT | 4.2 | Batch embedding endpoint generates 768d vectors |
 | 4.4 | Create "Golden Records Ask" one-pager for Creative team | completed | Medium | IT/Strategy | Dan's approval | Sent to Dan 2026-02-13 |
 | 4.5 | Add scraping cadence scheduler | not_started | Medium | IT | 4.1-4.3 | Festivals=annual, portfolios=quarterly |
-| 4.6 | Build deduplication logic | not_started | Medium | IT | 4.1-4.3 | Same person may appear across sources |
+| 4.6 | Build deduplication logic | completed | Medium | IT | 4.1-4.3 | Name-normalized matching, merge strategy for tags/keywords/scores |
 
 ---
 
@@ -53,7 +53,7 @@ All tasks completed 2026-01-28.
 |----|------|--------|----------|-------|--------------|-------|
 | 5.1 | Add rate limiting to public API endpoints | completed | High | IT | -- | express-rate-limit active in index.js |
 | 5.2 | Add Helmet security headers | completed | High | IT | -- | helmet active in index.js |
-| 5.3 | Set up Cloud Monitoring alerts | not_started | Medium | IT | -- | Error rate, latency, uptime |
+| 5.3 | Set up Cloud Monitoring alerts | completed | Medium | IT | -- | Error rate, latency p99, uptime check every 5min |
 | 5.4 | Create staging environment | not_started | Medium | IT | -- | Separate from production |
 | 5.5 | Build admin dashboard for scraper status | not_started | Low | IT | 4.1-4.3 | Show last run, success rate |
 
@@ -68,7 +68,7 @@ All tasks completed 2026-01-28.
 | 6.3 | Build health check dashboard | 🔴 not_started | Medium | IT | 6.2 | Visual service status |
 | 6.4 | Add integration test workflow | 🟢 completed | High | IT | 6.1-6.2 | 13 tests: batch import → embedding → search → feedback → lookalikes |
 | 6.5 | Create E2E test for semantic search | 🔴 not_started | Medium | IT | 6.1-6.2 | Brief → Match → Results validation |
-| 6.6 | Set up CI/CD pipeline | 🔴 not_started | Medium | IT | 6.1-6.5 | GitHub Actions with test gates |
+| 6.6 | Set up CI/CD pipeline | 🟢 completed | Medium | IT | 6.1-6.5 | GitHub Actions: unit tests + type check + build + smoke tests |
 | 6.7 | Create test data fixtures | 🔴 not_started | Low | IT | — | Mock creators for consistent testing |
 
 ### Test Coverage Details
@@ -171,9 +171,8 @@ All tasks completed 2026-01-28.
 ## Quick Reference
 
 ### Current Sprint Focus
-- Phase 4: Scraper Integration (Tasks 4.1-4.6)
-- Phase 6: Testing & QA (Task 6.1 - Smoke Tests)
-- Phase 7: Web Application (Task 7.1 - UI Design)
+- Phase 7: Web Application (Task 7.1-7.6 - full hosted web app)
+- Phase 8: Future Enhancements (Brief Templates, Image Analysis)
 
 ### Key URLs
 - **Production:** https://cf-matching-engine-34240596768.us-central1.run.app
