@@ -1,6 +1,6 @@
 # CatchFire Matching Engine -- TASKS
 
-**Version:** 1.2.0  
+**Version:** 1.3.0  
 **Last Updated:** 2026-02-18
 **Project:** cf-influencer-matching-engine
 
@@ -38,9 +38,9 @@ All tasks completed 2026-01-28.
 
 | ID | Task | Status | Priority | Owner | Dependencies | Notes |
 |----|------|--------|----------|-------|--------------|-------|
-| 4.1 | Run first batch scrape (Ciclope, The Rookies, Motionographer) | not_started | High | IT | Python scrapers in cf-creator-database | Start with 3 highest-priority sources |
-| 4.2 | Test Python scraper -> Matching Engine sync flow | not_started | High | IT | 4.1 | Verify matching-engine.ts integration service works |
-| 4.3 | Verify auto-embedding on batch import | not_started | High | IT | 4.2 | Embeddings should generate automatically |
+| 4.1 | Run first batch scrape (Ciclope, The Rookies, Motionographer) | completed | High | IT | Python scrapers in cf-creator-database | Ciclope: 8 records, Motionographer: 9 records. The Rookies: blocked (403) |
+| 4.2 | Test Python scraper -> Matching Engine sync flow | completed | High | IT | 4.1 | Sync script transforms 3-tier schema to batch API format |
+| 4.3 | Verify auto-embedding on batch import | completed | High | IT | 4.2 | Batch embedding endpoint generates 768d vectors |
 | 4.4 | Create "Golden Records Ask" one-pager for Creative team | completed | Medium | IT/Strategy | Dan's approval | Sent to Dan 2026-02-13 |
 | 4.5 | Add scraping cadence scheduler | not_started | Medium | IT | 4.1-4.3 | Festivals=annual, portfolios=quarterly |
 | 4.6 | Build deduplication logic | not_started | Medium | IT | 4.1-4.3 | Same person may appear across sources |
@@ -66,17 +66,21 @@ All tasks completed 2026-01-28.
 | 6.1 | Vitest unit test suite (schemas + scoring) | 🟢 completed | High | IT | — | 79 tests passing (Feb 17 session) |
 | 6.2 | Create smoke test suite | 🟢 completed | High | IT | — | 31 tests, local + production, `npm run smoke` |
 | 6.3 | Build health check dashboard | 🔴 not_started | Medium | IT | 6.2 | Visual service status |
-| 6.4 | Add integration test workflow | 🔴 not_started | High | IT | 6.1-6.2 | Scraper → API → Firestore → Embeddings |
+| 6.4 | Add integration test workflow | 🟢 completed | High | IT | 6.1-6.2 | 13 tests: batch import → embedding → search → feedback → lookalikes |
 | 6.5 | Create E2E test for semantic search | 🔴 not_started | Medium | IT | 6.1-6.2 | Brief → Match → Results validation |
 | 6.6 | Set up CI/CD pipeline | 🔴 not_started | Medium | IT | 6.1-6.5 | GitHub Actions with test gates |
 | 6.7 | Create test data fixtures | 🔴 not_started | Low | IT | — | Mock creators for consistent testing |
 
 ### Test Coverage Details
 
-**Vitest Suite (Task 6.1) — 79 Tests:**
-- `tests/schemas.test.ts` — Schema validation tests
-- `tests/scoring.test.ts` — Scoring algorithm tests
+**Vitest Suite (Task 6.1) — 79 Unit Tests:**
+- `tests/schemas.test.ts` — Schema validation tests (38)
+- `tests/scoring.test.ts` — Scoring algorithm tests (41)
 - Config: `vitest.config.ts`
+
+**Integration Suite (Task 6.4) — 13 Tests:**
+- `tests/integration.test.ts` — Full pipeline: health → batch import → embedding → semantic search → feedback → lookalikes
+- Requires running server at localhost:8090 (or `TEST_BASE_URL` env var)
 
 **Smoke Test Suite (Task 6.2) — 31 Tests:**
 - [x] **API Endpoints**: Health, stats, search, CRUD, match, LLM, embeddings, lookalikes

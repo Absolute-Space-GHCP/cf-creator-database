@@ -8,6 +8,8 @@
     "start": "npm run build && node src/index.js",
     "dev": "node src/index.js",
     "test": "vitest run",
+    "test:unit": "vitest run tests/schemas.test.ts tests/scoring.test.ts",
+    "test:integration": "vitest run tests/integration.test.ts",
     "test:watch": "vitest",
     "test:legacy": "node tests/test_vertex.js",
     "typecheck": "tsc --noEmit",
