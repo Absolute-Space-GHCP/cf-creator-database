@@ -1,0 +1,22 @@
+{
+  "displayName": "CatchFire: Health Check",
+  "monitoredResource": {
+    "type": "uptime_url",
+    "labels": {
+      "project_id": "catchfire-app-2026",
+      "host": "cf-matching-engine-34240596768.us-central1.run.app"
+    }
+  },
+  "httpCheck": {
+    "path": "/health",
+    "port": 443,
+    "useSsl": true,
+    "validateSsl": true,
+    "requestMethod": "GET",
+    "acceptedResponseStatusCodes": [
+      { "statusClass": "STATUS_CLASS_2XX" }
+    ]
+  },
+  "period": "300s",
+  "timeout": "10s"
+}
