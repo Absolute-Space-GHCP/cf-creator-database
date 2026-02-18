@@ -1,7 +1,7 @@
 # CatchFire Matching Engine -- TASKS
 
-**Version:** 1.1.0
-**Last Updated:** 2026-02-17
+**Version:** 1.2.0  
+**Last Updated:** 2026-02-18
 **Project:** cf-influencer-matching-engine
 
 ---
@@ -59,16 +59,74 @@ All tasks completed 2026-01-28.
 
 ---
 
-## Phase 6: Future Enhancements
+## Phase 6: Testing & QA
 
 | ID | Task | Status | Priority | Owner | Dependencies | Notes |
 |----|------|--------|----------|-------|--------------|-------|
-| 6.1 | Image Analysis (Gemini Vision) | not_started | High | IT | -- | Auto-tag visual style from portfolios |
-| 6.2 | Contact Enrichment (Clay.com/Hunter.io) | not_started | Medium | IT | Budget approval | $1,000 budget allocated |
-| 6.3 | Brief Templates | not_started | High | IT | -- | Pre-built search queries |
-| 6.4 | Slack Integration | not_started | Medium | IT | -- | /catchfire find slash command |
-| 6.5 | Auto-Categorize Improvements | not_started | Medium | IT | Review feedback | Fine-tune LLM prompts |
-| 6.6 | Multi-Model Support | not_started | Low | IT | -- | Gemini Pro for complex briefs |
+| 6.1 | Vitest unit test suite (schemas + scoring) | 🟢 completed | High | IT | — | 79 tests passing (Feb 17 session) |
+| 6.2 | Create smoke test suite | 🟡 in_progress | High | IT | — | API, Auth, Services, Database |
+| 6.3 | Build health check dashboard | 🔴 not_started | Medium | IT | 6.2 | Visual service status |
+| 6.4 | Add integration test workflow | 🔴 not_started | High | IT | 6.1-6.2 | Scraper → API → Firestore → Embeddings |
+| 6.5 | Create E2E test for semantic search | 🔴 not_started | Medium | IT | 6.1-6.2 | Brief → Match → Results validation |
+| 6.6 | Set up CI/CD pipeline | 🔴 not_started | Medium | IT | 6.1-6.5 | GitHub Actions with test gates |
+| 6.7 | Create test data fixtures | 🔴 not_started | Low | IT | — | Mock creators for consistent testing |
+
+### Test Coverage Details
+
+**Vitest Suite (Task 6.1) — 79 Tests:**
+- `tests/schemas.test.ts` — Schema validation tests
+- `tests/scoring.test.ts` — Scoring algorithm tests
+- Config: `vitest.config.ts`
+
+**Smoke Test Suite (Task 6.2):**
+- [ ] **API Endpoints**: Health, stats, search, CRUD operations
+- [ ] **Authentication**: GCP ADC, Gemini API key, Firestore credentials
+- [ ] **External Services**: Cloud Run, Firestore, Gemini AI, Embeddings API
+- [ ] **Database**: Connection, read/write operations, collection access
+- [ ] **Integration**: Matching Engine ↔ Creator Database sync
+- **Implementation:** `scripts/smoke-tests.sh`
+
+---
+
+## Phase 7: Web Application
+
+| ID | Task | Status | Priority | Owner | Dependencies | Notes |
+|----|------|--------|----------|-------|--------------|-------|
+| 7.1 | Design full web application UI | 🟡 in_progress | High | IT | frontend-design skill | Bright, cheery, professional |
+| 7.2 | Build creator search interface | 🔴 not_started | High | IT | 7.1 | Semantic search + filters |
+| 7.3 | Build creator profile cards | 🔴 not_started | High | IT | 7.1 | Golden Record badges, craft tags |
+| 7.4 | Build brief submission form | 🔴 not_started | High | IT | 7.1 | Client brief → match results |
+| 7.5 | Add admin panel for Golden Records | 🔴 not_started | Medium | IT | 7.1 | Mark/unmark benchmark creators |
+| 7.6 | Deploy to Cloud Run with custom domain | 🔴 not_started | Medium | IT | 7.1-7.5 | Free hosting on GCP |
+| 7.7 | Add user authentication | 🔴 not_started | Low | IT | 7.6 | JL employees only |
+
+### Web Application Requirements (Phase 7)
+
+**Design Direction:**
+- Bright, cheery, professional UI (not dark/cinematic)
+- Premium editorial aesthetic with creative touches
+- Mobile-responsive design
+- Fast, fluid interactions
+
+**Core Features:**
+- Semantic search with query suggestions
+- Creator cards with portfolio previews
+- Golden Record highlighting
+- Brief input → match results workflow
+- Craft distribution visualization
+
+---
+
+## Phase 8: Future Enhancements
+
+| ID | Task | Status | Priority | Owner | Dependencies | Notes |
+|----|------|--------|----------|-------|--------------|-------|
+| 8.1 | Image Analysis (Gemini Vision) | 🔴 not_started | High | IT | — | Auto-tag visual style from portfolios |
+| 8.2 | Contact Enrichment (Clay.com/Hunter.io) | 🔴 not_started | Medium | IT | Budget approval | $1,000 budget allocated |
+| 8.3 | Brief Templates | 🔴 not_started | High | IT | — | Pre-built search queries |
+| 8.4 | Slack Integration | 🔴 not_started | Medium | IT | — | `/catchfire find` slash command |
+| 8.5 | Auto-Categorize Improvements | 🔴 not_started | Medium | IT | Review feedback | Fine-tune LLM prompts |
+| 8.6 | Multi-Model Support | 🔴 not_started | Low | IT | — | Gemini Pro for complex briefs |
 
 ---
 
@@ -110,6 +168,8 @@ All tasks completed 2026-01-28.
 
 ### Current Sprint Focus
 - Phase 4: Scraper Integration (Tasks 4.1-4.6)
+- Phase 6: Testing & QA (Task 6.1 - Smoke Tests)
+- Phase 7: Web Application (Task 7.1 - UI Design)
 
 ### Key URLs
 - **Production:** https://cf-matching-engine-34240596768.us-central1.run.app
@@ -123,6 +183,6 @@ All tasks completed 2026-01-28.
 
 ---
 
-**Author:** Charley Scholz, JLAI
-**Co-authored:** Claude Opus 4.6, Claude Code (coding assistant), Cursor (IDE)
-**Last Updated:** 2026-02-17
+**Author:** Charley Scholz, JLAI  
+**Co-authored:** Claude Opus 4.5, Claude Code (coding assistant), Cursor (IDE)  
+**Last Updated:** 2026-02-18
