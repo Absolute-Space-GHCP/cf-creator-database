@@ -1,17 +1,17 @@
 # Testing the CatchFire Matching Engine — For Dan & Stakeholders
 
-**Purpose:** What’s done, how to run it, and how to test (including POST /match) so Dan (or others) can try the engine.
+**Purpose:** What's done, how to run it, and how to test (including POST /match) so Dan (or others) can try the engine.
 
 ---
 
-## What’s the interface?
+## What's the interface?
 
 - **REST API** — Primary interface. All capabilities (match, list creators, categorize, etc.) are HTTP endpoints.
 - **Beta Control Center** — Web UI at **`/`** (root): health, **Semantic Search** (description → similar creators), API links, service status. Uses `POST /api/v1/search/semantic`.
 - **Dashboard** — Monitoring UI at **`/dashboard`**: stats and service status.
 - **Catchfire MVP** (Next.js) — Not part of this repo. The deck describes it as the future client-facing app; this engine is the backend it would call.
 
-**Note:** The core “brief in → ranked creators out” flow is **POST /api/v1/match**. The Beta Control Center currently only wires **Semantic Search** (POST /api/v1/search/semantic). To test **match by brief** you can use curl/Postman (see below) or we can add a “Match by brief” section to the Control Center.
+**Note:** The core "brief in → ranked creators out" flow is **POST /api/v1/match**. The Beta Control Center currently only wires **Semantic Search** (POST /api/v1/search/semantic). To test **match by brief** you can use curl/Postman (see below) or we can add a "Match by brief" section to the Control Center.
 
 ---
 
@@ -36,14 +36,14 @@
    - **Health:** Open http://localhost:8090/health (JSON).
    - **UI:** Open http://localhost:8090 (Beta Control Center) and http://localhost:8090/dashboard.
    - **List creators:** GET http://localhost:8090/api/v1/creators (optional: `?craft=cinematographer&limit=5`).
-   - **Match by brief:** See “Testing POST /api/v1/match” below.
+   - **Match by brief:** See "Testing POST /api/v1/match" below.
    - **Semantic search (UI):** On the Control Center, type a description and click Search.
 
 ---
 
 ## Testing POST /api/v1/match (brief → ranked creators)
 
-This is the main “client brief in, ranked creators out” endpoint. No UI for it yet; use **curl** or **Postman**.
+This is the main "client brief in, ranked creators out" endpoint. No UI for it yet; use **curl** or **Postman**.
 
 **Request:**
 ```bash
@@ -73,10 +73,10 @@ curl -X POST http://localhost:8090/api/v1/match \
 | Firestore has creators | ⚠️ | Needs at least a few records (e.g. Golden Records) for match/semantic to be meaningful |
 | Health + UI (Control Center + Dashboard) | ✅ | Use for smoke test and semantic search |
 | POST /match testable without UI | ✅ | curl/Postman; see above |
-| “Match by brief” in Control Center | 📋 Optional | Would let Dan paste a brief and see ranked creators in the browser |
-| Deployed URL (e.g. Cloud Run) | 📋 Optional | If Dan can’t run locally; `npm run deploy` or CI/CD |
+| "Match by brief" in Control Center | 📋 Optional | Would let Dan paste a brief and see ranked creators in the browser |
+| Deployed URL (e.g. Cloud Run) | 📋 Optional | If Dan can't run locally; `npm run deploy` or CI/CD |
 
-**Recommendation:** Ensure Firestore has a small set of creators (e.g. run Golden Records import or add a few via POST /api/v1/creators). Then Dan can run `npm start`, open the Control Center, try Semantic Search, and use curl/Postman for POST /api/v1/match. Adding a “Match by brief” panel to the Control Center would make match testing easier without leaving the browser.
+**Recommendation:** Ensure Firestore has a small set of creators (e.g. run Golden Records import or add a few via POST /api/v1/creators). Then Dan can run `npm start`, open the Control Center, try Semantic Search, and use curl/Postman for POST /api/v1/match. Adding a "Match by brief" panel to the Control Center would make match testing easier without leaving the browser.
 
 ---
 

@@ -6,9 +6,9 @@
 
 ---
 
-## 1. This project’s place in CatchFire deliverables
+## 1. This project's place in CatchFire deliverables
 
-The deck’s **Database role** slide defines an end-to-end flow:
+The deck's **Database role** slide defines an end-to-end flow:
 
 **Database system** → **Client brief** → **Creator ID & outreach** → **Creator briefing** → **Creator execution**
 
@@ -26,13 +26,13 @@ Inside the **Database system**, the deck calls out:
 
 | Deck | Current build | Notes |
 |------|----------------|--------|
-| “Find creator / maker from a brief” | `POST /api/v1/match` + scoring | Same outcome: brief in → ranked creators out. |
-| Need to “understand / sort” creators | LLM categorization, style signature, positive/negative keywords | Analyzer role is in place. |
-| “Find / match” | `rankCreators`, keyword extraction, (planned) semantic search | Search/match is implemented; semantic layer is Phase 3. |
+| "Find creator / maker from a brief" | `POST /api/v1/match` + scoring | Same outcome: brief in → ranked creators out. |
+| Need to "understand / sort" creators | LLM categorization, style signature, positive/negative keywords | Analyzer role is in place. |
+| "Find / match" | `rankCreators`, keyword extraction, (planned) semantic search | Search/match is implemented; semantic layer is Phase 3. |
 | Ingest from external sources | Apify batch import, Firestore, planned scraping | Scraper/ingest path exists and is documented. |
 | Hard fields: name, location, contact | Creator schema: name, handle, platform, contact (email, portfolio_url, location, etc.) | Core identity and contact are covered. |
-| “Folksonomic” / tags describing oeuvre | `craft.styleSignature`, `craft.technicalTags`, `matching.positiveKeywords` | Tagging and style are present; taxonomy differs (see below). |
-| Quality / vetting | `matching.qualityScore`, `isGoldenRecord` | Aligns with “match to the need of the moment” and quality control. |
+| "Folksonomic" / tags describing oeuvre | `craft.styleSignature`, `craft.technicalTags`, `matching.positiveKeywords` | Tagging and style are present; taxonomy differs (see below). |
+| Quality / vetting | `matching.qualityScore`, `isGoldenRecord` | Aligns with "match to the need of the moment" and quality control. |
 
 ---
 
@@ -50,9 +50,9 @@ Inside the **Database system**, the deck calls out:
   - **Platform** = where they appear (vimeo, behance, artstation, instagram, youtube, …).  
   - **No subject-matter taxonomy** (no food, automotive, fashion, beauty, etc.).  
   - **No subcategories** (e.g. packaged-goods, luxury-automotive).  
-  - We have **styleSignature** and **technicalTags**; we do not have separate structured fields for “approach,” “tone,” or “platform fit.”
+  - We have **styleSignature** and **technicalTags**; we do not have separate structured fields for "approach," "tone," or "platform fit."
 
-**Gap:** Deck is **medium + subject + extractable dimensions**; we are **craft + platform + style/keywords**. To align with the deck we’d need to add (or map into) primary medium, subject matter tags (and optionally subcategories), and consider approach / tone / platform fit (in schema or LLM output).
+**Gap:** Deck is **medium + subject + extractable dimensions**; we are **craft + platform + style/keywords**. To align with the deck we'd need to add (or map into) primary medium, subject matter tags (and optionally subcategories), and consider approach / tone / platform fit (in schema or LLM output).
 
 ### 3.2 Hard fields
 
@@ -64,14 +64,14 @@ Inside the **Database system**, the deck calls out:
 ### 3.3 Use cases (wording and emphasis)
 
 - **Deck:**  
-  (A) Creators **adjacent to a more famous artist** (e.g. “paints like Picasso’s Blue Period”).  
-  (B) **Medium or platform** (e.g. “documentaries on YouTube”).  
-  (C) **Topic expertise, POV, or mood** (e.g. “authentic and attractive to Gen Z, particularly when it comes to cars”).
+  (A) Creators **adjacent to a more famous artist** (e.g. "paints like Picasso's Blue Period").  
+  (B) **Medium or platform** (e.g. "documentaries on YouTube").  
+  (C) **Topic expertise, POV, or mood** (e.g. "authentic and attractive to Gen Z, particularly when it comes to cars").
 
 - **Current build:**  
-  We match on **brief text** → keyword extraction + scoring on craft, keywords, location, etc. We don’t explicitly model “style-adjacent to artist” or “POV/mood” as first-class use cases; we don’t yet have subject-matter or subcategory filters.
+  We match on **brief text** → keyword extraction + scoring on craft, keywords, location, etc. We don't explicitly model "style-adjacent to artist" or "POV/mood" as first-class use cases; we don't yet have subject-matter or subcategory filters.
 
-**Gap:** Use cases (B) and (C) are partially supported by brief text + scoring; (A) “style-adjacent to X” would benefit from style/similarity (e.g. Phase 3 semantic/lookalike). Making (A)–(C) explicit in product/API (e.g. filters, query types) would align with the deck.
+**Gap:** Use cases (B) and (C) are partially supported by brief text + scoring; (A) "style-adjacent to X" would benefit from style/similarity (e.g. Phase 3 semantic/lookalike). Making (A)–(C) explicit in product/API (e.g. filters, query types) would align with the deck.
 
 ### 3.4 Downstream flow (Creator ID → briefing → execution)
 
@@ -84,15 +84,15 @@ Inside the **Database system**, the deck calls out:
 
 ## 4. Insights from the deck
 
-1. **Broader verticals:** The deck’s taxonomy is **ad-industry and vertical-friendly**: F&B (food, beverage, restaurant, packaged-goods), automotive (luxury/commercial/motorsport/lifestyle), fashion (high-fashion, commercial, streetwear, accessories), beauty, lifestyle, sports, travel, tech, medical, etc. Our current schema is **craft- and festival-oriented** (cinematography, Vimeo, Behance). Supporting the deck’s use cases (e.g. “Gen Z + cars”) will eventually require **subject matter and subcategories** (or a clear mapping from our keywords to their taxonomy).
+1. **Broader verticals:** The deck's taxonomy is **ad-industry and vertical-friendly**: F&B (food, beverage, restaurant, packaged-goods), automotive (luxury/commercial/motorsport/lifestyle), fashion (high-fashion, commercial, streetwear, accessories), beauty, lifestyle, sports, travel, tech, medical, etc. Our current schema is **craft- and festival-oriented** (cinematography, Vimeo, Behance). Supporting the deck's use cases (e.g. "Gen Z + cars") will eventually require **subject matter and subcategories** (or a clear mapping from our keywords to their taxonomy).
 
-2. **“Extractable” vs. “hard”:** The deck clearly separates **hard fields** (name, medium, budget tier, location, contact, last active) from **extractable tags** (subject matter, approach, visual style, tone, platform fit) from profiles/bios. We already do some of that via LLM (categorize, style signature); we could formalize “approach,” “tone,” and “platform fit” as explicit dimensions in schema and prompts.
+2. **"Extractable" vs. "hard":** The deck clearly separates **hard fields** (name, medium, budget tier, location, contact, last active) from **extractable tags** (subject matter, approach, visual style, tone, platform fit) from profiles/bios. We already do some of that via LLM (categorize, style signature); we could formalize "approach," "tone," and "platform fit" as explicit dimensions in schema and prompts.
 
-3. **Folksonomic ladder:** The deck’s “terms that ladder up” (e.g. [culinary, tabletop food, F&B, …] → **food**) is a good fit for **normalizing scraped/bio text** into a controlled taxonomy. We could adopt or map to that subject (and subcategory) dictionary for ingestion and matching.
+3. **Folksonomic ladder:** The deck's "terms that ladder up" (e.g. [culinary, tabletop food, F&B, …] → **food**) is a good fit for **normalizing scraped/bio text** into a controlled taxonomy. We could adopt or map to that subject (and subcategory) dictionary for ingestion and matching.
 
-4. **“A working prototype?”:** Slide 19 frames the current state as a **prototype**. That matches our status: Phases 0–2 done (API, match, categorize, style, batch import, Golden Records); Phase 3 (semantic search, embeddings, lookalike) and taxonomy expansion would move the engine toward the full vision in the deck.
+4. **"A working prototype?":** Slide 19 frames the current state as a **prototype**. That matches our status: Phases 0–2 done (API, match, categorize, style, batch import, Golden Records); Phase 3 (semantic search, embeddings, lookalike) and taxonomy expansion would move the engine toward the full vision in the deck.
 
-5. **Naming (“FKA Catchfire”):** “Project FKA Catchfire Creator Database” suggests the initiative may have been renamed or folded into a larger CatchFire program. Our repo name and docs can stay “CatchFire Matching Engine”; it’s useful to know the deck is the **Creator Database** view of that same initiative.
+5. **Naming ("FKA Catchfire"):** "Project FKA Catchfire Creator Database" suggests the initiative may have been renamed or folded into a larger CatchFire program. Our repo name and docs can stay "CatchFire Matching Engine"; it's useful to know the deck is the **Creator Database** view of that same initiative.
 
 ---
 

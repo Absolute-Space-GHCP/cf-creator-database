@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env node
+#!/usr/bin/env node
 /**
  * @file import-golden-records.js
  * @description Import Golden Records (benchmark creators) into Firestore
@@ -26,7 +26,7 @@ const firestore = new Firestore({ projectId: CONFIG.projectId });
  * Import Golden Records from JSON file
  */
 async function importGoldenRecords() {
-    console.log('ðŸ† Golden Records Import');
+    console.log('🏆 Golden Records Import');
     console.log('========================');
     console.log(`Project: ${CONFIG.projectId}`);
     console.log(`Collection: ${CONFIG.collection}`);
@@ -35,14 +35,14 @@ async function importGoldenRecords() {
     // Load golden records
     const dataPath = path.join(__dirname, '../data/golden-records.json');
     if (!fs.existsSync(dataPath)) {
-        console.error('âŒ Golden records file not found:', dataPath);
+        console.error('❌ Golden records file not found:', dataPath);
         process.exit(1);
     }
     
     const data = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
     const records = data.goldenRecords;
     
-    console.log(`ðŸ“¦ Found ${records.length} Golden Records to import`);
+    console.log(`📦 Found ${records.length} Golden Records to import`);
     console.log('');
     
     // Check for existing records to avoid duplicates
@@ -57,7 +57,7 @@ async function importGoldenRecords() {
         if (name) existingNames.add(name.toLowerCase());
     });
     
-    console.log(`ðŸ“Š Found ${existingNames.size} existing Golden Records`);
+    console.log(`📊 Found ${existingNames.size} existing Golden Records`);
     console.log('');
     
     // Import records
@@ -69,7 +69,7 @@ async function importGoldenRecords() {
     for (const record of records) {
         // Check if already exists
         if (existingNames.has(record.name.toLowerCase())) {
-            console.log(`â­ï¸  Skipping (exists): ${record.name}`);
+            console.log(`⏭️  Skipping (exists): ${record.name}`);
             skipCount++;
             continue;
         }
@@ -82,24 +82,24 @@ async function importGoldenRecords() {
             updatedAt: timestamp
         });
         
-        console.log(`âœ… Adding: ${record.name} (${record.craft.primary})`);
+        console.log(`✅ Adding: ${record.name} (${record.craft.primary})`);
         newCount++;
     }
     
     if (newCount > 0) {
         console.log('');
-        console.log('ðŸ’¾ Committing batch write...');
+        console.log('💾 Committing batch write...');
         await batch.commit();
     }
     
     // Summary
     console.log('');
     console.log('========================');
-    console.log('ðŸ“Š Import Summary');
+    console.log('📊 Import Summary');
     console.log('========================');
-    console.log(`âœ… Imported: ${newCount}`);
-    console.log(`â­ï¸  Skipped:  ${skipCount}`);
-    console.log(`ðŸ“¦ Total:    ${records.length}`);
+    console.log(`✅ Imported: ${newCount}`);
+    console.log(`⏭️  Skipped:  ${skipCount}`);
+    console.log(`📦 Total:    ${records.length}`);
     console.log('');
     
     // Verify
@@ -108,17 +108,17 @@ async function importGoldenRecords() {
         .where('matching.isGoldenRecord', '==', true)
         .get();
     
-    console.log(`ðŸ† Total Golden Records in database: ${verifySnapshot.size}`);
+    console.log(`🏆 Total Golden Records in database: ${verifySnapshot.size}`);
 }
 
 // Run
 importGoldenRecords()
     .then(() => {
         console.log('');
-        console.log('âœ¨ Import complete!');
+        console.log('✨ Import complete!');
         process.exit(0);
     })
     .catch(error => {
-        console.error('âŒ Import failed:', error.message);
+        console.error('❌ Import failed:', error.message);
         process.exit(1);
     });

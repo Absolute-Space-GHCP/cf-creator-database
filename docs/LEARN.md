@@ -19,6 +19,7 @@
 | [L007](#l007-legacy-test-files-from-golden-master-template) | Legacy Test Files from Golden Master Template | Low | `tests/` directory |
 | [L008](#l008-project-has-three-testing-layers--know-them-all) | Project Has Three Testing Layers -- Know Them All | Info | `tests/`, `docs/TESTING_*.md`, `public/testing.html` |
 | [L009](#l009-pdf-generation--use-jspdf-not-puppeteermd-to-pdf) | PDF Generation -- Use jsPDF, Not Puppeteer | Medium | `scripts/generate-status-pdf.mjs` |
+| [L010](#l010-garbled-emojispecial-characters-in-html-files) | Garbled Emoji/Special Characters in HTML Files | High | `public/index.html`, any HTML with emoji |
 
 ---
 
@@ -182,8 +183,8 @@ Emoji characters in TypeScript source files (section headers like `// 🔧 CONFI
 
 ### Symptoms
 
-- `ðŸ"§` instead of `🔧` in file reads
-- `âœ…` instead of `✅` in console output
+- Garbled multi-byte sequences (e.g. `\xc3\xb0\xc5\xb8...`) instead of emoji like 🔧 in file reads
+- Garbled characters instead of ✅ in console output
 - `StrReplace` tool fails to match strings containing emoji
 
 ### Root Cause
@@ -395,6 +396,99 @@ Applies to ALL projects on this Windows workstation. jsPDF is the fastest and mo
 
 ---
 
+## L010: Garbled Emoji/Special Characters in HTML Files
+
+**Severity:** High
+**First Observed:** 2026-01-28
+**Last Confirmed:** 2026-02-19
+**Status:** PERMANENT - Recurs when files pass through encoding boundaries
+
+### Problem
+
+Emoji characters in HTML files (card icons, section headers, footers) render as garbled mojibake in the browser. This is distinct from L004 (TypeScript source files) because the garbled text is **user-visible** on the live web UI.
+
+### Symptoms
+
+- Garbled sequences like `\xc3\xb0\xc5\xb8...` instead of 🔍 in the browser
+- Multi-byte garbage instead of 🔗, 📊, ⭐, ⚡
+- `\xc3\xa2\xe2\x82\xac...` instead of — (em-dash)
+- `\xc3\x82\xc2\xb7` instead of · (middot)
+- The `StrReplace` tool **cannot match** these garbled byte sequences
+
+### Root Cause
+
+UTF-8 emoji are multi-byte sequences (3-4 bytes each). When an HTML file passes through an encoding boundary (e.g., a tool reads UTF-8 bytes but writes them as Latin-1/Windows-1252, or vice versa), each byte gets individually re-encoded, producing 6-12 byte mojibake sequences. This is **double-encoding** or **triple-encoding** depending on how many times it happens. Common triggers:
+
+- File created/edited on a different OS or editor
+- Copy-paste from a tool that re-encodes
+- `StrReplace` tool writing back garbled matches
+
+### Solution
+
+**Best: Use the `ftfy` Python library** for bulk fixing. It automatically detects and reverses double/triple encoding across entire files. This is the fastest and most reliable approach.
+
+```bash
+# Install ftfy (one-time)
+pip3 install ftfy
+```
+
+```python
+import ftfy, pathlib, os
+
+# Fix a single file
+p = pathlib.Path('public/index.html')
+text = p.read_text('utf-8')
+fixed = ftfy.fix_text(text)
+if fixed != text:
+    p.write_text(fixed, encoding='utf-8')
+    print('Fixed!')
+```
+
+```python
+# Fix ALL files in the project at once
+extensions = ['.md', '.html', '.js', '.ts']
+skip_dirs = {'node_modules', '.git', 'dist'}
+
+for root, dirs, files in os.walk('.'):
+    dirs[:] = [d for d in dirs if d not in skip_dirs]
+    for f in files:
+        if not any(f.endswith(ext) for ext in extensions):
+            continue
+        p = pathlib.Path(os.path.join(root, f))
+        text = p.read_text('utf-8')
+        fixed = ftfy.fix_text(text)
+        if fixed != text:
+            p.write_text(fixed, encoding='utf-8')
+            print(f'Fixed: {p}')
+```
+
+**Alternative: Python byte-level replacement** for surgical fixes when `ftfy` is not available:
+
+```python
+import pathlib
+p = pathlib.Path('public/index.html')
+data = p.read_bytes()
+# Build replacement table by diagnosing garbled byte sequences first
+replacements = [
+    (b'\xc3\xb0\xc5\xb8...', 'EMOJI'.encode('utf-8')),
+    (b'\xc3\xa2\xe2\x82\xac...', 'DASH'.encode('utf-8')),
+]
+for old, new in replacements:
+    data = data.replace(old, new)
+p.write_bytes(data)
+```
+
+### Proactive Maintenance
+
+1. **First choice:** Use `ftfy` to fix all files at once — `pip3 install ftfy` then run the bulk script above
+2. **Fallback:** Use Python byte-level replacement (not `StrReplace`) for surgical fixes
+3. After fixing, verify by reading files back and checking byte sequences
+4. Prefer HTML entities or CSS/SVG icons over raw emoji in HTML to prevent recurrence
+5. If files will be edited by multiple tools/platforms, consider replacing emoji with text labels or icon fonts
+6. See also L004 for the TypeScript source file variant of this problem
+
+---
+
 ## Adding New Entries
 
 When you discover and fix a recurring problem:
@@ -426,6 +520,6 @@ Template:
 
 ---
 
-Author: Charley Scholz, JLAI
-Co-authored: Claude Opus 4.6, Claude Code (coding assistant), Cursor (IDE)
-Last Updated: 2026-02-17
+Author: Charley Scholz
+Co-authored: Claude Opus 4.6, Cursor (IDE)
+Last Updated: 2026-02-19

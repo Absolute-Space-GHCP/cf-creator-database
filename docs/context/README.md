@@ -1,4 +1,4 @@
-﻿# Context Files - Requestor-Provided Materials
+# Context Files - Requestor-Provided Materials
 
 > **Project:** CatchFire Influencer Matching Engine  
 > **Received:** 2026-01-28
@@ -22,7 +22,7 @@
 Build a proprietary database of craft storytellers (not influencers) based on **skill over audience size**.
 
 ### 3-Month Goal
-Feed a client brief â†’ Get ranked creator recommendations based on style, passion, location.
+Feed a client brief → Get ranked creator recommendations based on style, passion, location.
 
 ### Budget
 $5,000 total allocation.

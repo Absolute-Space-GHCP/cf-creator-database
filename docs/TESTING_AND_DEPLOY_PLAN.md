@@ -1,6 +1,6 @@
 # Testing & Deploy Plan — Deployed URL, Temp Testing UI, Feedback Loop
 
-**Goal:** Deployed URL with an interface that supports the testing strategy; all connections verified; temp web UI for what needs to be tested and tweaked; thumbs up/down feedback into a monitored sheet (location TBD); testing data confirmed before Dan tests (Dan may provide data). Clarify external/cultural “live” data layer and how we fit.
+**Goal:** Deployed URL with an interface that supports the testing strategy; all connections verified; temp web UI for what needs to be tested and tweaked; thumbs up/down feedback into a monitored sheet (location TBD); testing data confirmed before Dan tests (Dan may provide data). Clarify external/cultural "live" data layer and how we fit.
 
 ---
 
@@ -21,7 +21,7 @@
 
 - **Target:** Cloud Run (project catchfire-app-2026), region us-central1.
 - **Command:** `npm run deploy` (see package.json: `gcloud run deploy cf-matching-engine --source .`).
-- **Before first deploy:** Ensure you’re logged in and have access to the project:
+- **Before first deploy:** Ensure you're logged in and have access to the project:
   ```bash
   gcloud auth login
   gcloud auth application-default login
@@ -37,7 +37,7 @@
 
 - **URL:** `/testing` (serves `public/testing.html`).
 - **Features:**
-  - Text area for client brief + “Match” button → POST /api/v1/match → display ranked creators (name, craft, score, reasons).
+  - Text area for client brief + "Match" button → POST /api/v1/match → display ranked creators (name, craft, score, reasons).
   - For each result (or for the whole response): 👍 / 👎 buttons that call POST /api/v1/feedback with `rating: 'up'|'down'`, plus optional comment.
   - Optional: link to list creators and to semantic search for quick verification.
 - **Purpose:** Enough functionality to run the testing strategy, verify match quality, and collect feedback for iteration.
@@ -61,23 +61,23 @@
 
 ---
 
-## 6. External layer for cultural / “live” data — how we fit
+## 6. External layer for cultural / "live" data — how we fit
 
 - **What we have today:**  
-  - **Scraper / ingest** = our “external” layer: Apify, batch import, planned scraping from festivals, platforms, communities (PLAN §3). Data is ingested into Firestore; it is not real-time “live” in the sense of a streaming API.
+  - **Scraper / ingest** = our "external" layer: Apify, batch import, planned scraping from festivals, platforms, communities (PLAN §3). Data is ingested into Firestore; it is not real-time "live" in the sense of a streaming API.
   - **Analyzer** = LLM categorization and style/tags from bios and metadata (no separate cultural API).
 
-- **“Cultural” or “live” in deck/docs:**  
-  - Not explicitly named as a separate system in the deck digest or docx. Use case C (“topic expertise, POV, or mood” e.g. “authentic and attractive to Gen Z, particularly when it comes to cars”) is about **matching** to those needs, not about a dedicated cultural data feed.
-  - So today: **cultural/live** = whatever is already in creator records (subject matter, tone, platform fit, style) plus future tagging; we do not yet have a dedicated “cultural live data” API or real-time trend feed.
+- **"Cultural" or "live" in deck/docs:**  
+  - Not explicitly named as a separate system in the deck digest or docx. Use case C ("topic expertise, POV, or mood" e.g. "authentic and attractive to Gen Z, particularly when it comes to cars") is about **matching** to those needs, not about a dedicated cultural data feed.
+  - So today: **cultural/live** = whatever is already in creator records (subject matter, tone, platform fit, style) plus future tagging; we do not yet have a dedicated "cultural live data" API or real-time trend feed.
 
 - **How we fit in the plan:**  
-  - **Current:** External data enters via **Scraper/ingest** → Firestore → **Analyzer** (LLM) → **Search/match**. Any “cultural” or “live” signal would need to be either (a) part of scraped/imported creator content, or (b) a future integration (e.g. trend API, social listening, or curated “live” list) that feeds into ingest or into match filters.
-  - **Recommendation:** Call out in PLAN or TASKS: “External/cultural live data layer: TBD. Options: (1) Enrich creator records from trend/cultural sources during ingest; (2) Add a separate live/trend feed that influences match or filters. Current scope: Scraper + Analyzer + Search; cultural/live is future unless Dan specifies.”
+  - **Current:** External data enters via **Scraper/ingest** → Firestore → **Analyzer** (LLM) → **Search/match**. Any "cultural" or "live" signal would need to be either (a) part of scraped/imported creator content, or (b) a future integration (e.g. trend API, social listening, or curated "live" list) that feeds into ingest or into match filters.
+  - **Recommendation:** Call out in PLAN or TASKS: "External/cultural live data layer: TBD. Options: (1) Enrich creator records from trend/cultural sources during ingest; (2) Add a separate live/trend feed that influences match or filters. Current scope: Scraper + Analyzer + Search; cultural/live is future unless Dan specifies."
 
 ---
 
-## 7. Checklist before “Dan testing”
+## 7. Checklist before "Dan testing"
 
 | Item | Owner | Status |
 |------|--------|--------|
@@ -87,7 +87,7 @@
 | Temp testing UI at /testing live on deployed URL | Eng | ✅ With comment field + visual feedback |
 | FEEDBACK_SHEET_ID + tab decided and set | PM / Dan | 📋 TBD — blocked on Dan |
 | Thumbs up/down appends to sheet verified | Eng | ✅ API works, sheet append ready when ID set |
-| Testing data in Firestore (or load Dan’s data) | Eng / Dan | ✅ 15 creators, 11 Golden Records |
+| Testing data in Firestore (or load Dan's data) | Eng / Dan | ✅ 15 creators, 11 Golden Records |
 | External/cultural live data: confirm scope with Dan | PM | 📋 |
 
 ---

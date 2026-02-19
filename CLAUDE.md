@@ -87,7 +87,7 @@ When handing off to another session or AI assistant:
 
 ## Project Overview
 
-This is the **CatchFire Influencer Matching Engine** - an AI-powered system for discovering and matching creators based on craft storytelling skills (not audience size). Built for Johannes Leonardo's CatchFire initiative.
+This is the **CatchFire Influencer Matching Engine** - an AI-powered system for discovering and matching creators based on craft storytelling skills (not audience size). A CF - Influencer Matching Engine project.
 
 ### Mission
 

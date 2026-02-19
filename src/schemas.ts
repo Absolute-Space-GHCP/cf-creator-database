@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file schemas.ts
  * @description Zod schemas and TypeScript types for CatchFire Creator data
  * @author Charley Scholz, JLAI
@@ -10,7 +10,7 @@
 import { z } from 'zod';
 
 // =============================================================================
-// ðŸŽ¬ CRAFT CATEGORIES (as const for type inference)
+// 🎬 CRAFT CATEGORIES (as const for type inference)
 // =============================================================================
 
 export const CRAFT_TYPES = [
@@ -85,7 +85,7 @@ export const SUBJECT_SUBCATEGORY_TAGS = [
 ] as const;
 
 // =============================================================================
-// ðŸ“‹ TYPE DEFINITIONS (inferred from constants)
+// 📋 TYPE DEFINITIONS (inferred from constants)
 // =============================================================================
 
 export type CraftType = typeof CRAFT_TYPES[number];
@@ -99,7 +99,7 @@ export type SubjectSubcategoryTag = typeof SUBJECT_SUBCATEGORY_TAGS[number];
 export type ClassificationType = typeof CLASSIFICATION_TYPES[number];
 
 // =============================================================================
-// ðŸ“‹ SUB-SCHEMAS
+// 📋 SUB-SCHEMAS
 // =============================================================================
 
 export const SourceSchema = z.object({
@@ -144,7 +144,7 @@ export const ContactSchema = z.object({
 }).optional();
 
 // =============================================================================
-// ðŸŽ¯ MAIN SCHEMAS
+// 🎯 MAIN SCHEMAS
 // =============================================================================
 
 /**
@@ -214,7 +214,7 @@ export const CategorizeRequestSchema = z.object({
 });
 
 // =============================================================================
-// ðŸ”· TYPESCRIPT TYPES (inferred from Zod schemas)
+// 🔷 TYPESCRIPT TYPES (inferred from Zod schemas)
 // =============================================================================
 
 /** Type for creating a new creator (input) */
@@ -245,7 +245,7 @@ export type Matching = z.infer<typeof MatchingSchema>;
 export type Contact = z.infer<typeof ContactSchema>;
 
 // =============================================================================
-// ðŸŽ¯ SCORING RESULT TYPES
+// 🎯 SCORING RESULT TYPES
 // =============================================================================
 
 export interface ScoreBreakdown {
@@ -290,7 +290,7 @@ export interface ExtractedKeywords {
 }
 
 // =============================================================================
-// ðŸ”§ VALIDATION HELPERS
+// 🔧 VALIDATION HELPERS
 // =============================================================================
 
 export interface ValidationResult<T> {

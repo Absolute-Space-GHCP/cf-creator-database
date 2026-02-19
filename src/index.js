@@ -39,7 +39,7 @@ const {
 } = require('./llm');
 
 // =============================================================================
-// ðŸ”§ CONFIGURATION
+// 🔧 CONFIGURATION
 // =============================================================================
 const CONFIG = {
     // GCP Project
@@ -58,8 +58,8 @@ const CONFIG = {
     // App Identity
     appName: process.env.APP_NAME || 'CatchFire Matching Engine',
     appVersion: process.env.APP_VERSION || '0.1.0',
-    orgName: process.env.ORG_NAME || 'CatchFire / Johannes Leonardo',
-    supportEmail: process.env.SUPPORT_EMAIL || 'support@johannesleonardo.com',
+    orgName: process.env.ORG_NAME || 'CF - Influencer Matching Engine',
+    supportEmail: process.env.SUPPORT_EMAIL || '',
     baseUrl: process.env.BASE_URL || 'http://localhost:8090',
     
     // Analytics
@@ -67,19 +67,19 @@ const CONFIG = {
 };
 
 // =============================================================================
-// ðŸ”Œ CLIENTS
+// 🔌 CLIENTS
 // =============================================================================
 let firestore;
 try {
     firestore = new Firestore({ projectId: CONFIG.projectId });
-    console.log('âœ… Firestore client initialized');
+    console.log('✅ Firestore client initialized');
 } catch (error) {
-    console.error('âš ï¸ Firestore initialization deferred:', error.message);
+    console.error('⚠️ Firestore initialization deferred:', error.message);
     firestore = null;
 }
 
 // =============================================================================
-// ðŸ—„ï¸ CREATOR CACHE
+// 🗄️ CREATOR CACHE
 // =============================================================================
 let creatorCache = null;
 let creatorCacheTime = 0;
@@ -92,22 +92,22 @@ const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 async function getCreators() {
     const now = Date.now();
     if (creatorCache && (now - creatorCacheTime) < CACHE_TTL) {
-        console.log('ðŸ“¦ Using cached creator data');
+        console.log('📦 Using cached creator data');
         return creatorCache;
     }
     
     if (!firestore) {
-        console.log('âš ï¸ Firestore not available, returning empty array');
+        console.log('⚠️ Firestore not available, returning empty array');
         return [];
     }
     
-    console.log('ðŸ”„ Fetching creators from Firestore...');
+    console.log('🔄 Fetching creators from Firestore...');
     const startTime = Date.now();
     
     try {
         const snapshot = await firestore.collection(CONFIG.creatorsCollection).get();
         const fetchTime = Date.now() - startTime;
-        console.log(`â±ï¸ Firestore fetch took ${fetchTime}ms`);
+        console.log(`⏱️ Firestore fetch took ${fetchTime}ms`);
         
         creatorCache = [];
         snapshot.forEach(doc => {
@@ -115,10 +115,10 @@ async function getCreators() {
         });
         creatorCacheTime = now;
         
-        console.log(`ðŸ“Š Cached ${creatorCache.length} creators`);
+        console.log(`📊 Cached ${creatorCache.length} creators`);
         return creatorCache;
     } catch (error) {
-        console.error('âŒ Error fetching creators:', error.message);
+        console.error('❌ Error fetching creators:', error.message);
         return creatorCache || [];
     }
 }
@@ -129,16 +129,16 @@ async function getCreators() {
 function clearCreatorCache() {
     creatorCache = null;
     creatorCacheTime = 0;
-    console.log('ðŸ—‘ï¸ Creator cache cleared');
+    console.log('🗑️ Creator cache cleared');
 }
 
 // =============================================================================
-// ðŸš€ EXPRESS APP
+// 🚀 EXPRESS APP
 // =============================================================================
 const app = express();
 
 // -----------------------------------------------------------------------------
-// ðŸ”’ SECURITY MIDDLEWARE (helmet, cors, rate-limit)
+// 🔒 SECURITY MIDDLEWARE (helmet, cors, rate-limit)
 // -----------------------------------------------------------------------------
 app.use(helmet({
     contentSecurityPolicy: false, // allow inline scripts for dashboard; tighten for production if needed
@@ -179,7 +179,7 @@ if (fs.existsSync(webDistPath)) {
 }
 
 // =============================================================================
-// ðŸ“Š HEALTH CHECK
+// 📊 HEALTH CHECK
 // =============================================================================
 app.get('/health', (req, res) => {
     res.json({
@@ -199,7 +199,7 @@ app.get('/health', (req, res) => {
 // Legacy HTML pages served at root via express.static + explicit routes above
 
 // =============================================================================
-// ðŸŽ¬ CREATOR API (v1)
+// 🎬 CREATOR API (v1)
 // =============================================================================
 
 /**
@@ -207,7 +207,7 @@ app.get('/health', (req, res) => {
  * Query params: craft, location, tags, subjectMatter, subjectSubcategory, primaryMedium, budgetTier, limit
  */
 app.get('/api/v1/creators', async (req, res) => {
-    console.log('ðŸ“¥ GET /api/v1/creators', req.query);
+    console.log('📥 GET /api/v1/creators', req.query);
     
     try {
         let creators = await getCreators();
@@ -285,7 +285,7 @@ app.get('/api/v1/creators', async (req, res) => {
             creators
         });
     } catch (error) {
-        console.error('âŒ Error listing creators:', error.message);
+        console.error('❌ Error listing creators:', error.message);
         res.status(500).json({ success: false, error: error.message });
     }
 });
@@ -294,7 +294,7 @@ app.get('/api/v1/creators', async (req, res) => {
  * GET /api/v1/creators/:id - Get creator by ID
  */
 app.get('/api/v1/creators/:id', async (req, res) => {
-    console.log('ðŸ“¥ GET /api/v1/creators/:id', req.params.id);
+    console.log('📥 GET /api/v1/creators/:id', req.params.id);
     
     try {
         if (!firestore) {
@@ -312,7 +312,7 @@ app.get('/api/v1/creators/:id', async (req, res) => {
             creator: { id: doc.id, ...doc.data() }
         });
     } catch (error) {
-        console.error('âŒ Error getting creator:', error.message);
+        console.error('❌ Error getting creator:', error.message);
         res.status(500).json({ success: false, error: error.message });
     }
 });
@@ -368,7 +368,7 @@ app.patch('/api/v1/creators/:id', async (req, res) => {
  * POST /api/v1/creators - Add a single creator
  */
 app.post('/api/v1/creators', async (req, res) => {
-    console.log('ðŸ“¥ POST /api/v1/creators');
+    console.log('📥 POST /api/v1/creators');
     
     try {
         if (!firestore) {
@@ -393,12 +393,12 @@ app.post('/api/v1/creators', async (req, res) => {
         const docRef = await firestore.collection(CONFIG.creatorsCollection).add(creator);
         clearCreatorCache();
         
-        console.log('âœ… Creator added:', docRef.id);
+        console.log('✅ Creator added:', docRef.id);
         
         // Generate embedding asynchronously (non-blocking)
         const creatorWithId = { id: docRef.id, ...creator };
         generateEmbeddingForCreator(creatorWithId).catch(err => {
-            console.error(`âš ï¸ Failed to generate embedding for ${docRef.id}:`, err.message);
+            console.error(`⚠️ Failed to generate embedding for ${docRef.id}:`, err.message);
         });
         
         res.status(201).json({
@@ -408,7 +408,7 @@ app.post('/api/v1/creators', async (req, res) => {
             embeddingStatus: 'generating'
         });
     } catch (error) {
-        console.error('âŒ Error adding creator:', error.message);
+        console.error('❌ Error adding creator:', error.message);
         res.status(500).json({ success: false, error: error.message });
     }
 });
@@ -428,10 +428,10 @@ async function generateEmbeddingForCreator(creator) {
             embeddingGeneratedAt: new Date().toISOString()
         });
         
-        console.log(`âœ… Embedding generated for ${creator.name} (${creator.id})`);
+        console.log(`✅ Embedding generated for ${creator.name} (${creator.id})`);
         clearCreatorCache();
     } catch (error) {
-        console.error(`âŒ Embedding generation failed for ${creator.id}:`, error.message);
+        console.error(`❌ Embedding generation failed for ${creator.id}:`, error.message);
         throw error;
     }
 }
@@ -577,7 +577,7 @@ app.post('/api/v1/creators/batch', async (req, res) => {
 });
 
 // =============================================================================
-// ðŸ¤– APIFY SCRAPER IMPORT (Phase 2)
+// 🤖 APIFY SCRAPER IMPORT (Phase 2)
 // =============================================================================
 
 /**
@@ -656,7 +656,7 @@ function transformScraperData(raw) {
  * }
  */
 app.post('/api/v1/import/apify', async (req, res) => {
-    console.log('ðŸ“¥ POST /api/v1/import/apify');
+    console.log('📥 POST /api/v1/import/apify');
     
     try {
         if (!firestore) {
@@ -672,7 +672,7 @@ app.post('/api/v1/import/apify', async (req, res) => {
             });
         }
         
-        console.log(`ðŸ•·ï¸ Processing ${data.length} scraped records...`);
+        console.log(`🕷️ Processing ${data.length} scraped records...`);
         console.log(`   Auto-categorize: ${autoCategorize}`);
         console.log(`   Dry run: ${dryRun}`);
         
@@ -696,7 +696,7 @@ app.post('/api/v1/import/apify', async (req, res) => {
                 // Auto-categorize with LLM if bio available and enabled
                 if (autoCategorize && creator._rawBio) {
                     try {
-                        console.log(`   ðŸ¤– Categorizing: ${creator.name}...`);
+                        console.log(`   🤖 Categorizing: ${creator.name}...`);
                         const categorization = await categorizeCreator(creator._rawBio);
                         creator.craft.primary = categorization.craft.primary;
                         creator.craft.secondary = categorization.craft.secondary;
@@ -709,7 +709,7 @@ app.post('/api/v1/import/apify', async (req, res) => {
                         creator.matching.positiveKeywords = categorization.positiveKeywords;
                         creator.matching.negativeKeywords = categorization.negativeKeywords;
                     } catch (llmError) {
-                        console.log(`   âš ï¸ LLM categorization failed for ${creator.name}, using defaults`);
+                        console.log(`   ⚠️ LLM categorization failed for ${creator.name}, using defaults`);
                     }
                 }
                 
@@ -748,13 +748,13 @@ app.post('/api/v1/import/apify', async (req, res) => {
             
             // Progress logging for large batches
             if ((i + 1) % 10 === 0) {
-                console.log(`   ðŸ“Š Processed ${i + 1}/${data.length}`);
+                console.log(`   📊 Processed ${i + 1}/${data.length}`);
             }
         }
         
         // Commit batch if not dry run
         if (!dryRun && batch) {
-            console.log('ðŸ’¾ Committing batch write...');
+            console.log('💾 Committing batch write...');
             await batch.commit();
             clearCreatorCache();
         }
@@ -762,7 +762,7 @@ app.post('/api/v1/import/apify', async (req, res) => {
         const successCount = results.filter(r => r.status === 'imported' || r.status === 'dry_run').length;
         const failedCount = results.filter(r => r.status === 'failed').length;
         
-        console.log(`âœ… Import complete: ${successCount} succeeded, ${failedCount} failed`);
+        console.log(`✅ Import complete: ${successCount} succeeded, ${failedCount} failed`);
         
         res.status(dryRun ? 200 : 201).json({
             success: true,
@@ -774,13 +774,13 @@ app.post('/api/v1/import/apify', async (req, res) => {
             results
         });
     } catch (error) {
-        console.error('âŒ Error in Apify import:', error.message);
+        console.error('❌ Error in Apify import:', error.message);
         res.status(500).json({ success: false, error: error.message });
     }
 });
 
 // =============================================================================
-// ðŸŽ¯ MATCHING API
+// 🎯 MATCHING API
 // =============================================================================
 
 /**
@@ -788,7 +788,7 @@ app.post('/api/v1/import/apify', async (req, res) => {
  * Body: { brief: string, filters?: { craft?, location?, tags?, minQualityScore?, goldenRecordsOnly?, limit? } }
  */
 app.post('/api/v1/match', async (req, res) => {
-    console.log('ðŸ“¥ POST /api/v1/match');
+    console.log('📥 POST /api/v1/match');
     
     try {
         // Validate request
@@ -801,7 +801,7 @@ app.post('/api/v1/match', async (req, res) => {
         }
         
         const { brief, filters } = validation.data;
-        console.log(`ðŸŽ¯ Matching creators for brief: "${brief.substring(0, 100)}..."`);
+        console.log(`🎯 Matching creators for brief: "${brief.substring(0, 100)}..."`);
         
         // Get all creators
         let creators = await getCreators();
@@ -866,7 +866,7 @@ app.post('/api/v1/match', async (req, res) => {
             limit: filters.limit || 10
         });
         
-        console.log(`âœ… Found ${matches.length} matches`);
+        console.log(`✅ Found ${matches.length} matches`);
         
         // Extract keywords for response metadata
         const keywords = extractBriefKeywords(brief);
@@ -886,13 +886,13 @@ app.post('/api/v1/match', async (req, res) => {
             matches
         });
     } catch (error) {
-        console.error('âŒ Error matching creators:', error.message);
+        console.error('❌ Error matching creators:', error.message);
         res.status(500).json({ success: false, error: error.message });
     }
 });
 
 // =============================================================================
-// ðŸ“‹ FEEDBACK API (thumbs up/down â†’ monitored sheet, location TBD)
+// 📋 FEEDBACK API (thumbs up/down → monitored sheet, location TBD)
 // =============================================================================
 /**
  * POST /api/v1/feedback - Record thumbs up/down (or rating) for testing; appends to Google Sheet when FEEDBACK_SHEET_ID set.
@@ -915,13 +915,13 @@ app.post('/api/v1/feedback', async (req, res) => {
         });
         res.json({ success: true, recorded: true, sheetAppended: appended });
     } catch (error) {
-        console.error('âŒ Feedback recording failed:', error.message);
+        console.error('❌ Feedback recording failed:', error.message);
         res.status(500).json({ success: false, error: error.message });
     }
 });
 
 // =============================================================================
-// ðŸ¤– CATEGORIZATION API
+// 🤖 CATEGORIZATION API
 // =============================================================================
 
 /**
@@ -929,7 +929,7 @@ app.post('/api/v1/feedback', async (req, res) => {
  * Body: { bio: string, portfolio_url?: string, recentWork?: string[] }
  */
 app.post('/api/v1/categorize', async (req, res) => {
-    console.log('ðŸ“¥ POST /api/v1/categorize');
+    console.log('📥 POST /api/v1/categorize');
     
     try {
         // Validate request
@@ -942,12 +942,12 @@ app.post('/api/v1/categorize', async (req, res) => {
         }
         
         const { bio, portfolio_url, recentWork } = validation.data;
-        console.log(`ðŸ¤– Categorizing bio: "${bio.substring(0, 100)}..."`);
+        console.log(`🤖 Categorizing bio: "${bio.substring(0, 100)}..."`);
         
         // Use LLM-powered categorization
         const categorization = await categorizeCreator(bio, portfolio_url, recentWork);
         
-        console.log('âœ… LLM categorization complete');
+        console.log('✅ LLM categorization complete');
         
         res.json({
             success: true,
@@ -956,10 +956,10 @@ app.post('/api/v1/categorize', async (req, res) => {
             model: CONFIG.model
         });
     } catch (error) {
-        console.error('âŒ Error categorizing:', error.message);
+        console.error('❌ Error categorizing:', error.message);
         
         // Fallback to keyword extraction if LLM fails
-        console.log('âš ï¸ Falling back to keyword extraction...');
+        console.log('⚠️ Falling back to keyword extraction...');
         const inputBio = req.body.bio || '';
         const keywords = extractBriefKeywords(inputBio);
         const detectedCraft = keywords.crafts[0] || 'other';
@@ -990,7 +990,7 @@ app.post('/api/v1/categorize', async (req, res) => {
 });
 
 // =============================================================================
-// ðŸŽ¨ STYLE SIGNATURE API
+// 🎨 STYLE SIGNATURE API
 // =============================================================================
 
 /**
@@ -998,7 +998,7 @@ app.post('/api/v1/categorize', async (req, res) => {
  * Body: { name: string, craft: string, bio: string, technicalTags?: string[] }
  */
 app.post('/api/v1/style-signature', async (req, res) => {
-    console.log('ðŸ“¥ POST /api/v1/style-signature');
+    console.log('📥 POST /api/v1/style-signature');
     
     try {
         const { name, craft, bio, technicalTags } = req.body;
@@ -1012,7 +1012,7 @@ app.post('/api/v1/style-signature', async (req, res) => {
         
         const styleSignature = await generateStyleSignature(name, craft, bio, technicalTags || []);
         
-        console.log('âœ… Style signature generated');
+        console.log('✅ Style signature generated');
         
         res.json({
             success: true,
@@ -1022,7 +1022,7 @@ app.post('/api/v1/style-signature', async (req, res) => {
             model: CONFIG.model
         });
     } catch (error) {
-        console.error('âŒ Error generating style signature:', error.message);
+        console.error('❌ Error generating style signature:', error.message);
         res.status(500).json({ success: false, error: error.message });
     }
 });
@@ -1031,7 +1031,7 @@ app.post('/api/v1/style-signature', async (req, res) => {
  * GET /api/v1/llm/test - Test LLM connection
  */
 app.get('/api/v1/llm/test', async (req, res) => {
-    console.log('ðŸ“¥ GET /api/v1/llm/test');
+    console.log('📥 GET /api/v1/llm/test');
     
     try {
         const connected = await testLLMConnection();
@@ -1043,7 +1043,7 @@ app.get('/api/v1/llm/test', async (req, res) => {
             message: connected ? 'LLM connection successful' : 'LLM connection failed'
         });
     } catch (error) {
-        console.error('âŒ LLM test failed:', error.message);
+        console.error('❌ LLM test failed:', error.message);
         res.status(500).json({
             success: false,
             connected: false,
@@ -1053,14 +1053,14 @@ app.get('/api/v1/llm/test', async (req, res) => {
 });
 
 // =============================================================================
-// ðŸ”¢ EMBEDDINGS API (Phase 3)
+// 🔢 EMBEDDINGS API (Phase 3)
 // =============================================================================
 
 /**
  * GET /api/v1/embeddings/test - Test embedding generation
  */
 app.get('/api/v1/embeddings/test', async (req, res) => {
-    console.log('ðŸ“¥ GET /api/v1/embeddings/test');
+    console.log('📥 GET /api/v1/embeddings/test');
     
     try {
         const embeddingResult = await testEmbeddings();
@@ -1074,7 +1074,7 @@ app.get('/api/v1/embeddings/test', async (req, res) => {
             error: embeddingResult.error || null
         });
     } catch (error) {
-        console.error('âŒ Embedding test failed:', error.message);
+        console.error('❌ Embedding test failed:', error.message);
         res.status(500).json({
             success: false,
             error: error.message
@@ -1087,7 +1087,7 @@ app.get('/api/v1/embeddings/test', async (req, res) => {
  */
 app.post('/api/v1/embeddings/generate/:id', async (req, res) => {
     const { id } = req.params;
-    console.log(`ðŸ“¥ POST /api/v1/embeddings/generate/${id}`);
+    console.log(`📥 POST /api/v1/embeddings/generate/${id}`);
     
     try {
         // Get the creator
@@ -1100,7 +1100,7 @@ app.post('/api/v1/embeddings/generate/:id', async (req, res) => {
         
         // Build embedding text from creator data
         const embeddingText = buildCreatorEmbeddingText(creator);
-        console.log(`ðŸ“ Embedding text (${embeddingText.length} chars): ${embeddingText.substring(0, 100)}...`);
+        console.log(`📝 Embedding text (${embeddingText.length} chars): ${embeddingText.substring(0, 100)}...`);
         
         // Generate embedding
         const embedding = await generateEmbedding(embeddingText, 'RETRIEVAL_DOCUMENT');
@@ -1125,7 +1125,7 @@ app.post('/api/v1/embeddings/generate/:id', async (req, res) => {
             textLength: embeddingText.length
         });
     } catch (error) {
-        console.error('âŒ Embedding generation failed:', error.message);
+        console.error('❌ Embedding generation failed:', error.message);
         res.status(500).json({ success: false, error: error.message });
     }
 });
@@ -1134,7 +1134,7 @@ app.post('/api/v1/embeddings/generate/:id', async (req, res) => {
  * POST /api/v1/embeddings/batch - Generate embeddings for all creators (or subset)
  */
 app.post('/api/v1/embeddings/batch', async (req, res) => {
-    console.log('ðŸ“¥ POST /api/v1/embeddings/batch');
+    console.log('📥 POST /api/v1/embeddings/batch');
     
     const { 
         onlyMissing = true,  // Only generate for creators without embeddings
@@ -1162,7 +1162,7 @@ app.post('/api/v1/embeddings/batch', async (req, res) => {
             });
         }
         
-        console.log(`ðŸ”¢ Processing ${creators.length} creators...`);
+        console.log(`🔢 Processing ${creators.length} creators...`);
         
         // Build embedding texts
         const embeddingTexts = creators.map(c => buildCreatorEmbeddingText(c));
@@ -1210,7 +1210,7 @@ app.post('/api/v1/embeddings/batch', async (req, res) => {
         // Invalidate cache
         clearCreatorCache();
         
-        console.log(`âœ… Generated embeddings for ${results.length} creators`);
+        console.log(`✅ Generated embeddings for ${results.length} creators`);
         
         res.json({
             success: true,
@@ -1220,7 +1220,7 @@ app.post('/api/v1/embeddings/batch', async (req, res) => {
             creators: results
         });
     } catch (error) {
-        console.error('âŒ Batch embedding failed:', error.message);
+        console.error('❌ Batch embedding failed:', error.message);
         res.status(500).json({ success: false, error: error.message });
     }
 });
@@ -1232,7 +1232,7 @@ app.get('/api/v1/similar/:id', async (req, res) => {
     const { id } = req.params;
     const { limit = 5, minSimilarity = 0.5 } = req.query;
     
-    console.log(`ðŸ“¥ GET /api/v1/similar/${id}?limit=${limit}&minSimilarity=${minSimilarity}`);
+    console.log(`📥 GET /api/v1/similar/${id}?limit=${limit}&minSimilarity=${minSimilarity}`);
     
     try {
         // Get the target creator
@@ -1294,7 +1294,7 @@ app.get('/api/v1/similar/:id', async (req, res) => {
             searchedCreators: creatorsWithEmbeddings.length
         });
     } catch (error) {
-        console.error('âŒ Similar search failed:', error.message);
+        console.error('❌ Similar search failed:', error.message);
         res.status(500).json({ success: false, error: error.message });
     }
 });
@@ -1303,7 +1303,7 @@ app.get('/api/v1/similar/:id', async (req, res) => {
  * POST /api/v1/search/semantic - Semantic search with a text query
  */
 app.post('/api/v1/search/semantic', async (req, res) => {
-    console.log('ðŸ“¥ POST /api/v1/search/semantic');
+    console.log('📥 POST /api/v1/search/semantic');
     
     const { query, limit = 10, minSimilarity = 0.3 } = req.body;
     
@@ -1353,13 +1353,13 @@ app.post('/api/v1/search/semantic', async (req, res) => {
             embeddingModel: queryEmbedding.model
         });
     } catch (error) {
-        console.error('âŒ Semantic search failed:', error.message);
+        console.error('❌ Semantic search failed:', error.message);
         res.status(500).json({ success: false, error: error.message });
     }
 });
 
 // =============================================================================
-// ðŸŒŸ GOLDEN RECORD LOOKALIKE API (Phase 3.3)
+// 🌟 GOLDEN RECORD LOOKALIKE API (Phase 3.3)
 // =============================================================================
 
 // Cache for the Golden Record model
@@ -1388,7 +1388,7 @@ async function getGoldenRecordModel(forceRefresh = false) {
     goldenRecordModel = buildGoldenRecordModel(goldenRecords);
     goldenRecordModelTime = Date.now();
     
-    console.log(`ðŸŒŸ Golden Record model built from ${goldenRecords.length} creators`);
+    console.log(`🌟 Golden Record model built from ${goldenRecords.length} creators`);
     return goldenRecordModel;
 }
 
@@ -1396,7 +1396,7 @@ async function getGoldenRecordModel(forceRefresh = false) {
  * GET /api/v1/lookalikes/model - Get Golden Record model info
  */
 app.get('/api/v1/lookalikes/model', async (req, res) => {
-    console.log('ðŸ“¥ GET /api/v1/lookalikes/model');
+    console.log('📥 GET /api/v1/lookalikes/model');
     
     try {
         const model = await getGoldenRecordModel();
@@ -1427,7 +1427,7 @@ app.get('/api/v1/lookalikes/model', async (req, res) => {
             }
         });
     } catch (error) {
-        console.error('âŒ Golden Record model fetch failed:', error.message);
+        console.error('❌ Golden Record model fetch failed:', error.message);
         res.status(500).json({ success: false, error: error.message });
     }
 });
@@ -1437,7 +1437,7 @@ app.get('/api/v1/lookalikes/model', async (req, res) => {
  */
 app.get('/api/v1/lookalikes', async (req, res) => {
     const { limit = 10, minSimilarity = 0.5, includeGoldenRecords = false } = req.query;
-    console.log(`ðŸ“¥ GET /api/v1/lookalikes?limit=${limit}&minSimilarity=${minSimilarity}`);
+    console.log(`📥 GET /api/v1/lookalikes?limit=${limit}&minSimilarity=${minSimilarity}`);
     
     try {
         const model = await getGoldenRecordModel();
@@ -1483,7 +1483,7 @@ app.get('/api/v1/lookalikes', async (req, res) => {
             excludedGoldenRecords: includeGoldenRecords !== 'true'
         });
     } catch (error) {
-        console.error('âŒ Lookalike search failed:', error.message);
+        console.error('❌ Lookalike search failed:', error.message);
         res.status(500).json({ success: false, error: error.message });
     }
 });
@@ -1493,7 +1493,7 @@ app.get('/api/v1/lookalikes', async (req, res) => {
  */
 app.get('/api/v1/lookalikes/score/:id', async (req, res) => {
     const { id } = req.params;
-    console.log(`ðŸ“¥ GET /api/v1/lookalikes/score/${id}`);
+    console.log(`📥 GET /api/v1/lookalikes/score/${id}`);
     
     try {
         const model = await getGoldenRecordModel();
@@ -1548,7 +1548,7 @@ app.get('/api/v1/lookalikes/score/:id', async (req, res) => {
             individualScores: individualScores.slice(0, 5)  // Top 5 most similar Golden Records
         });
     } catch (error) {
-        console.error('âŒ Lookalike score failed:', error.message);
+        console.error('❌ Lookalike score failed:', error.message);
         res.status(500).json({ success: false, error: error.message });
     }
 });
@@ -1557,7 +1557,7 @@ app.get('/api/v1/lookalikes/score/:id', async (req, res) => {
  * POST /api/v1/lookalikes/refresh - Force refresh the Golden Record model
  */
 app.post('/api/v1/lookalikes/refresh', async (req, res) => {
-    console.log('ðŸ“¥ POST /api/v1/lookalikes/refresh');
+    console.log('📥 POST /api/v1/lookalikes/refresh');
     
     try {
         goldenRecordModel = null;
@@ -1579,20 +1579,20 @@ app.post('/api/v1/lookalikes/refresh', async (req, res) => {
             dimensions: model.dimensions
         });
     } catch (error) {
-        console.error('âŒ Model refresh failed:', error.message);
+        console.error('❌ Model refresh failed:', error.message);
         res.status(500).json({ success: false, error: error.message });
     }
 });
 
 // =============================================================================
-// ðŸ“Š STATS API
+// 📊 STATS API
 // =============================================================================
 
 /**
  * GET /api/v1/stats - Get database statistics
  */
 app.get('/api/v1/stats', async (req, res) => {
-    console.log('ðŸ“¥ GET /api/v1/stats');
+    console.log('📥 GET /api/v1/stats');
     
     try {
         const creators = await getCreators();
@@ -1625,13 +1625,13 @@ app.get('/api/v1/stats', async (req, res) => {
             }
         });
     } catch (error) {
-        console.error('âŒ Error getting stats:', error.message);
+        console.error('❌ Error getting stats:', error.message);
         res.status(500).json({ success: false, error: error.message });
     }
 });
 
 // =============================================================================
-// ðŸš€ START SERVER
+// 🚀 START SERVER
 // =============================================================================
 // =============================================================================
 // SPA FALLBACK (must be LAST route before server start)
@@ -1650,19 +1650,19 @@ if (fs.existsSync(webDistPath)) {
 app.listen(CONFIG.port, () => {
     console.log(`
 ============================================================
-ðŸŽ¬ ${CONFIG.appName} v${CONFIG.appVersion}
+🎬 ${CONFIG.appName} v${CONFIG.appVersion}
 ============================================================
 Server:     ${CONFIG.baseUrl}
 Project:    ${CONFIG.projectId}
 Region:     ${CONFIG.region}
 Model:      ${CONFIG.model}
 Collection: ${CONFIG.creatorsCollection}
-â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+────────────────────────────────────────────────────────────
 Endpoints:
   GET  /health                      - Health check
   GET  /dashboard                   - Monitoring dashboard
   GET  /testing                     - Temp testing UI (match + thumbs up/down feedback)
-  POST /api/v1/feedback             - Thumbs up/down â†’ monitored sheet (FEEDBACK_SHEET_ID)
+  POST /api/v1/feedback             - Thumbs up/down → monitored sheet (FEEDBACK_SHEET_ID)
   GET  /api/v1/creators             - List/search creators
   GET  /api/v1/creators/:id         - Get creator by ID
   POST /api/v1/creators             - Add creator

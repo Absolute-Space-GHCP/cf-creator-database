@@ -1,4 +1,4 @@
-﻿# CatchFire: Golden Records Request
+# CatchFire: Golden Records Request
 
 **For:** Creative Team Leads  
 **From:** IT / Dan (Strategy)  
@@ -9,13 +9,13 @@
 
 ## The One-Sentence Ask
 
-> **Name 10-15 creators you'd want to work with tomorrow** â€” across cinematography, motion design, VFX, animation, and color grading.
+> **Name 10-15 creators you'd want to work with tomorrow** — across cinematography, motion design, VFX, animation, and color grading.
 
 ---
 
 ## What Are Golden Records?
 
-Golden Records are **benchmark creators** that define what "great" looks like for CatchFire. They're the examples the AI uses to understand Johannes Leonardo's taste.
+Golden Records are **benchmark creators** that define what "great" looks like for CatchFire. They're the examples the AI uses to understand CatchFire's taste.
 
 Think of it like this: If you're training someone to spot talent, you'd show them examples of excellence first. Golden Records are those examples.
 
@@ -42,9 +42,9 @@ For each creator, provide:
 | **Name** | Bradford Young |
 | **Craft** | Cinematographer |
 | **Portfolio URL** | vimeo.com/bradfordyoung |
-| **Why they're great** | "Naturalistic lighting, texture, atmosphere â€” the Arrival look" |
+| **Why they're great** | "Naturalistic lighting, texture, atmosphere — the Arrival look" |
 
-That's it. No extensive research needed â€” just names that come to mind when you think "I wish we could work with them."
+That's it. No extensive research needed — just names that come to mind when you think "I wish we could work with them."
 
 ---
 
@@ -68,13 +68,13 @@ That's it. No extensive research needed â€” just names that come to mind wh
 
 We already have these benchmark creators loaded:
 
-- **Roger Deakins** â€” Cinematographer (1917, Blade Runner 2049)
-- **Bradford Young** â€” Cinematographer (Arrival, Selma)
-- **Autumn Durald** â€” Cinematographer (The Bling Ring, Palo Alto)
-- **Hiro Murai** â€” Director (Atlanta, This Is America)
-- **Ash Thorp** â€” Motion Designer (Ghost in the Shell titles)
-- **Andrew Kramer** â€” VFX Artist (Star Trek, Video Copilot)
-- **Ren Klyce** â€” Sound Designer (Fight Club, Gone Girl)
+- **Roger Deakins** — Cinematographer (1917, Blade Runner 2049)
+- **Bradford Young** — Cinematographer (Arrival, Selma)
+- **Autumn Durald** — Cinematographer (The Bling Ring, Palo Alto)
+- **Hiro Murai** — Director (Atlanta, This Is America)
+- **Ash Thorp** — Motion Designer (Ghost in the Shell titles)
+- **Andrew Kramer** — VFX Artist (Star Trek, Video Copilot)
+- **Ren Klyce** — Sound Designer (Fight Club, Gone Girl)
 
 ---
 
@@ -102,7 +102,7 @@ Contact Dan (Strategy) or Charley (IT).
 
 ---
 
-*CatchFire â€” Finding craft, not clout.*
+*CatchFire — Finding craft, not clout.*
 
 ---
 

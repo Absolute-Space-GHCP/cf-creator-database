@@ -60,7 +60,7 @@ Format inspired by other JL project session docs (e.g. jlai-ongoing-rsrcs-and-mn
 ### Successes
 
 - Temp testing UI at `/testing`: brief textarea → Match → ranked results with per-result and overall 👍/👎; feedback API appends to Sheet when configured.
-- Single plan doc for: deploy goal, testing UI, feedback sheet (TBD), testing data, and how we fit re. external/cultural “live” data (Scraper/ingest = our external layer; dedicated cultural/live feed TBD).
+- Single plan doc for: deploy goal, testing UI, feedback sheet (TBD), testing data, and how we fit re. external/cultural "live" data (Scraper/ingest = our external layer; dedicated cultural/live feed TBD).
 
 ### Files changed
 
@@ -147,7 +147,7 @@ Format inspired by other JL project session docs (e.g. jlai-ongoing-rsrcs-and-mn
 
 ### Failures / Notes
 
-- Deck “Build progress” slide content not fully captured in digest.
+- Deck "Build progress" slide content not fully captured in digest.
 - pptx slide text in `<a:t>`; docx required Python extraction for large document.xml.
 
 ---

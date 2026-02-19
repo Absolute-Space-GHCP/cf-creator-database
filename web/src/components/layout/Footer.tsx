@@ -19,7 +19,9 @@ export default function Footer() {
           <a href="/api/v1/stats" className="footer-link">API Stats</a>
         </div>
         <div className="footer-meta">
-          <span>Johannes Leonardo</span>
+          <span className="footer-author">Author: Charley Scholz</span>
+          <span className="footer-dot">&middot;</span>
+          <span>Co-authored by: Claude Opus 4.6, Cursor (IDE)</span>
           <span className="footer-dot">&middot;</span>
           <span>{new Date().getFullYear()}</span>
         </div>

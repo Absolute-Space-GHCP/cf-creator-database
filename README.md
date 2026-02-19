@@ -179,7 +179,7 @@ cf-influencer-matching-engine/
 
 ## License
 
-MIT License - CatchFire / Johannes Leonardo
+MIT License - CF - Influencer Matching Engine
 
 ---
 
