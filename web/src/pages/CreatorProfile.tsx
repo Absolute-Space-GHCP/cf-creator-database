@@ -1,6 +1,6 @@
 /**
  * @file CreatorProfile.tsx
- * @description Creator detail page – legacy Beta Control Center design system
+ * @description Creator detail page – Beta Control Center design system
  * @author Charley Scholz, JLIT
  * @coauthor Claude Opus 4.6, Claude Code (coding assistant), Cursor (IDE)
  * @updated 2026-02-19

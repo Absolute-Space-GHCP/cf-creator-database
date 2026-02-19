@@ -1,16 +1,16 @@
 /**
  * @file tokens.css
- * @description CatchFire design tokens – ported from Beta Control Center legacy design system
+ * @description CatchFire design tokens – Beta Control Center design system
  * @author Charley Scholz, JLIT
  * @coauthor Claude Opus 4.6, Claude Code (coding assistant), Cursor (IDE)
  * @updated 2026-01-28
  */
 
-@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nixie+One&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
 :root {
   /* ── Typography ─────────────────────────────────────────── */
-  --font-serif: 'Instrument Serif', Georgia, serif;
+  --font-serif: 'Nixie One', Georgia, serif;
   --font-sans: 'Instrument Sans', -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
   --font-heading: var(--font-serif);
@@ -114,7 +114,7 @@
   --space-24: 6rem;
   --space-32: 8rem;
 
-  /* ── Border radius (from legacy) ────────────────────────── */
+  /* ── Border radius  ────────────────────────── */
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
@@ -198,7 +198,7 @@ button {
   color: var(--bg-primary);
 }
 
-/* ── Ambient background (from legacy) ─────────────────────── */
+/* ── Ambient background  ─────────────────────── */
 
 body::before {
   content: '';
@@ -214,7 +214,7 @@ body::before {
   z-index: 0;
 }
 
-/* ── Scrollbar (from legacy) ──────────────────────────────── */
+/* ── Scrollbar  ──────────────────────────────── */
 
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: var(--bg-secondary); }

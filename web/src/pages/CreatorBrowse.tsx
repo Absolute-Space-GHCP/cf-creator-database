@@ -1,6 +1,6 @@
 /**
  * @file CreatorBrowse.tsx
- * @description Browse creators with craft/platform/location filters – legacy Beta Control Center design
+ * @description Browse creators with craft/platform/location filters – Beta Control Center design
  * @author Charley Scholz, JLIT
  * @coauthor Claude Opus 4.6, Claude Code (coding assistant), Cursor (IDE)
  * @updated 2026-02-19

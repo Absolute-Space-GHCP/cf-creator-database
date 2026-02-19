@@ -160,11 +160,11 @@ app.use(limiter);
 
 app.use(express.json({ limit: '10mb' }));
 
-// Legacy public/ assets at root (Beta Control Center, dashboard, testing pages)
+// Public assets at root (Beta Control Center, dashboard, testing pages)
 const fs = require('fs');
 app.use(express.static(path.join(__dirname, '../public')));
 
-// Explicit routes for legacy HTML pages (without .html extension)
+// Explicit routes for HTML pages (without .html extension)
 app.get('/dashboard', (req, res) => {
     res.sendFile(path.join(__dirname, '../public/dashboard.html'));
 });
@@ -196,7 +196,7 @@ app.get('/health', (req, res) => {
     });
 });
 
-// Legacy HTML pages served at root via express.static + explicit routes above
+// HTML pages served at root via express.static + explicit routes above
 
 // =============================================================================
 // 🎬 CREATOR API (v1)

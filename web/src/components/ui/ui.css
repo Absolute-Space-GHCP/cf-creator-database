@@ -1,6 +1,6 @@
 /**
  * @file ui.css
- * @description Core UI component styles – ported from Beta Control Center legacy design
+ * @description Core UI component styles – Beta Control Center design
  * @author Charley Scholz, JLIT
  * @coauthor Claude Opus 4.6, Claude Code (coding assistant), Cursor (IDE)
  * @updated 2026-01-28
@@ -62,7 +62,7 @@
 }
 .btn-danger:hover:not(:disabled) { opacity: 0.85; }
 
-/* ── Cards (matching legacy .card) ────────────────────── */
+/* ── Cards (matching Beta Control Center .card) ────────────────────── */
 
 .card {
   background: var(--bg-card);
@@ -109,7 +109,7 @@
   font-size: 1.25rem;
 }
 
-/* ── Badges (matching legacy badges) ──────────────────── */
+/* ── Badges (matching Beta Control Center badges) ──────────────────── */
 
 .badge {
   display: inline-flex;
@@ -135,7 +135,7 @@
 .badge-error { background: var(--color-error-dim); color: var(--color-error); }
 .badge-info { background: var(--color-info-dim); color: var(--color-info); }
 
-/* ── Method badges (from legacy API endpoints) ────────── */
+/* ── Method badges (from Beta Control Center API endpoints) ────────── */
 
 .method {
   padding: 2px 8px;
@@ -150,7 +150,7 @@
 .method-patch { background: rgba(245, 158, 11, 0.2); color: var(--accent-amber); }
 .method-delete { background: rgba(239, 68, 68, 0.2); color: var(--accent-red); }
 
-/* ── Tags / hint-chips (from legacy) ──────────────────── */
+/* ── Tags / hint-chips  ──────────────────── */
 
 .tag {
   display: inline-block;
@@ -169,7 +169,7 @@
   color: var(--accent-gold);
 }
 
-/* ── Golden tag (from legacy) ─────────────────────────── */
+/* ── Golden tag  ─────────────────────────── */
 
 .golden-tag {
   padding: 2px 8px;
@@ -183,7 +183,7 @@
   letter-spacing: 0.05em;
 }
 
-/* ── Status Dots (from legacy) ────────────────────────── */
+/* ── Status Dots  ────────────────────────── */
 
 .status-dot-wrapper { display: inline-flex; align-items: center; gap: var(--space-2); }
 
@@ -222,7 +222,7 @@
   100% { background-position: -200% 0; }
 }
 
-/* ── Score display (from legacy) ──────────────────────── */
+/* ── Score display  ──────────────────────── */
 
 .score-value {
   font-family: var(--font-mono);
@@ -237,7 +237,7 @@
   text-transform: uppercase;
 }
 
-/* ── Craft bars (from legacy) ─────────────────────────── */
+/* ── Craft bars  ─────────────────────────── */
 
 .craft-item {
   display: flex;
@@ -274,7 +274,7 @@
   text-align: right;
 }
 
-/* ── Search Bar (from legacy) ─────────────────────────── */
+/* ── Search Bar  ─────────────────────────── */
 
 .search-bar {
   display: flex;
@@ -331,7 +331,7 @@
 .search-submit:hover:not(:disabled) { background: var(--accent-gold-light); }
 .search-submit:disabled { opacity: 0.4; cursor: not-allowed; }
 
-/* ── Result items (from legacy) ───────────────────────── */
+/* ── Result items  ───────────────────────── */
 
 .result-item {
   display: flex;
@@ -380,7 +380,7 @@
   text-align: right;
 }
 
-/* ── Golden cards (from legacy) ───────────────────────── */
+/* ── Golden cards  ───────────────────────── */
 
 .golden-grid {
   display: grid;
@@ -414,7 +414,7 @@
   letter-spacing: 0.05em;
 }
 
-/* ── Service items (from legacy) ──────────────────────── */
+/* ── Service items  ──────────────────────── */
 
 .service-item {
   display: flex;
@@ -454,7 +454,7 @@
 .service-status-online { color: var(--accent-emerald); }
 .service-status-offline { color: var(--accent-red); }
 
-/* ── Loading spinner (from legacy) ────────────────────── */
+/* ── Loading spinner  ────────────────────── */
 
 .loading {
   display: flex;
@@ -478,7 +478,7 @@
   to { transform: rotate(360deg); }
 }
 
-/* ── Empty state (from legacy) ────────────────────────── */
+/* ── Empty state  ────────────────────────── */
 
 .empty-state {
   text-align: center;

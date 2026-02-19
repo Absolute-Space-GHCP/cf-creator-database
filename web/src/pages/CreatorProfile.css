@@ -1,6 +1,6 @@
 /**
  * @file CreatorProfile.css
- * @description Creator profile page styles – legacy Beta Control Center design
+ * @description Creator profile page styles – Beta Control Center design
  * @author Charley Scholz, JLIT
  * @coauthor Claude Opus 4.6, Claude Code (coding assistant), Cursor (IDE)
  * @updated 2026-02-19
@@ -26,7 +26,7 @@
   color: var(--accent-gold);
 }
 
-/* Profile card (matching legacy .card) */
+/* Profile card (matching Beta Control Center .card) */
 .profile-card {
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
