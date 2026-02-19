@@ -5,6 +5,7 @@ import CreatorBrowse from './pages/CreatorBrowse';
 import CreatorProfile from './pages/CreatorProfile';
 import Admin from './pages/Admin';
 import Status from './pages/Status';
+import HowItWorks from './pages/HowItWorks';
 
 export default function App() {
   return (
@@ -15,6 +16,7 @@ export default function App() {
           <Routes>
             <Route path="/creators" element={<CreatorBrowse />} />
             <Route path="/creators/:id" element={<CreatorProfile />} />
+            <Route path="/how-it-works" element={<HowItWorks />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/status" element={<Status />} />
             <Route path="*" element={<Navigate to="/" replace />} />

@@ -397,6 +397,36 @@
         }
 
         /* Results */
+        .results-toolbar {
+            display: none;
+            justify-content: flex-end;
+            gap: 8px;
+            padding: 8px 0;
+        }
+
+        .results-toolbar.visible {
+            display: flex;
+        }
+
+        .results-toolbar button {
+            padding: 6px 14px;
+            font-size: 0.75rem;
+            border-radius: 100px;
+            border: 1px solid var(--border-subtle);
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .results-toolbar button:hover {
+            border-color: var(--accent-gold);
+            color: var(--accent-gold);
+        }
+
         .results-area {
             min-height: 200px;
             max-height: 400px;
@@ -692,6 +722,7 @@
                 <nav class="nav-links">
                     <a href="/dashboard" class="nav-link">Dashboard</a>
                     <a href="/testing" class="nav-link">Match Test</a>
+                    <a href="/app/how-it-works" class="nav-link">How It Works</a>
                     <a href="/app/creators" class="nav-link">Browse Creators</a>
                     <a href="/app/admin" class="nav-link">Admin</a>
                     <a href="/app/status" class="nav-link">Status</a>
@@ -749,6 +780,10 @@
                             <span class="hint-chip" data-q="colorist for cinematic film grading">🎨 Colorist</span>
                             <span class="hint-chip" data-q="3D artist for product visualization">💎 3D Artist</span>
                         </div>
+                    </div>
+                    <div class="results-toolbar" id="resultsToolbar">
+                        <button id="downloadCsvBtn">📥 Download CSV</button>
+                        <button id="emailResultsBtn">✉️ Email List</button>
                     </div>
                     <div class="results-area" id="resultsArea">
                         <div class="empty-state">
@@ -1029,9 +1064,14 @@
         }
 
         // Semantic search
+        let lastSearchResults = [];
+        let lastSearchQuery = '';
+
         async function performSearch(query) {
             const container = document.getElementById('resultsArea');
+            const toolbar = document.getElementById('resultsToolbar');
             container.innerHTML = '<div class="loading"><div class="spinner"></div> Searching...</div>';
+            toolbar.classList.remove('visible');
 
             try {
                 const res = await fetch(`${API}/api/v1/search/semantic`, {
@@ -1042,6 +1082,8 @@
                 const data = await res.json();
 
                 if (data.success && data.results.length > 0) {
+                    lastSearchResults = data.results;
+                    lastSearchQuery = query;
                     container.innerHTML = data.results.map(r => `
                         <div class="result-item">
                             <div class="result-avatar">${getCraftIcon(r.craft)}</div>
@@ -1058,12 +1100,46 @@
                             </div>
                         </div>
                     `).join('');
+                    toolbar.classList.add('visible');
                 } else {
+                    lastSearchResults = [];
                     container.innerHTML = '<div class="empty-state">No matches found. Try a different query.</div>';
                 }
             } catch (e) {
+                lastSearchResults = [];
                 container.innerHTML = '<div class="empty-state" style="color: var(--accent-red);">Search failed. Please try again.</div>';
             }
+        }
+
+        function downloadResultsCSV() {
+            if (!lastSearchResults.length) return;
+            const headers = ['Name', 'Craft', 'Platform', 'Location', 'Match %', 'Golden Record'];
+            const rows = lastSearchResults.map(r => [
+                r.name,
+                r.craft || '',
+                r.platform || '',
+                r.location || '',
+                (r.similarity * 100).toFixed(1),
+                r.isGoldenRecord ? 'Yes' : 'No'
+            ]);
+            const csv = [headers, ...rows].map(row => row.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n');
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `catchfire-results-${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function emailResults() {
+            if (!lastSearchResults.length) return;
+            const body = lastSearchResults.map((r, i) =>
+                `${i + 1}. ${r.name} — ${r.craft || 'Creator'} (${(r.similarity * 100).toFixed(0)}% match)${r.isGoldenRecord ? ' ⭐' : ''}`
+            ).join('\n');
+            const subject = encodeURIComponent(`CatchFire Results: ${lastSearchQuery}`);
+            const mailBody = encodeURIComponent(`CatchFire Matching Engine Results\nQuery: "${lastSearchQuery}"\nDate: ${new Date().toLocaleDateString()}\n\n${body}\n\n---\nGenerated by CatchFire Matching Engine`);
+            window.open(`mailto:?subject=${subject}&body=${mailBody}`);
         }
 
         function getCraftIcon(craft) {
@@ -1074,6 +1150,10 @@
             };
             return icons[craft] || '🎬';
         }
+
+        // Export buttons
+        document.getElementById('downloadCsvBtn').addEventListener('click', downloadResultsCSV);
+        document.getElementById('emailResultsBtn').addEventListener('click', emailResults);
 
         // Event listeners
         document.getElementById('searchBtn').addEventListener('click', () => {

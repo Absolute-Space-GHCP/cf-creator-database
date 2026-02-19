@@ -5,6 +5,7 @@ export default function Header() {
   const location = useLocation();
 
   const reactLinks = [
+    { to: '/how-it-works', label: 'How It Works' },
     { to: '/creators', label: 'Browse Creators' },
     { to: '/admin', label: 'Admin' },
     { to: '/status', label: 'Status' },

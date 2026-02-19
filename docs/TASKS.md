@@ -140,6 +140,9 @@ All tasks completed 2026-01-28.
 | 8.4 | Slack Integration | 🔴 not_started | Medium | IT | — | `/catchfire find` slash command |
 | 8.5 | Auto-Categorize Improvements | 🔴 not_started | Medium | IT | Review feedback | Fine-tune LLM prompts |
 | 8.6 | Multi-Model Support | 🔴 not_started | Low | IT | — | Gemini Pro for complex briefs |
+| 8.7 | Multi-Chip Search (AND logic) | 🔴 not_started | Medium | IT | — | Click multiple hint chips to narrow search scope (e.g. "Moody DP" + "Colorist") |
+| 8.8 | Animated "How It Works" page | 🟢 completed | Medium | IT | — | /app/how-it-works — 6-step pipeline, expandable details, flow diagram |
+| 8.9 | Search Results Export (CSV + Email) | 🟢 completed | Medium | IT | — | Download CSV and email list buttons on Beta Control Center |
 
 ---
 
