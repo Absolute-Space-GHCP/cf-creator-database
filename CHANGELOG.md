@@ -1,4 +1,4 @@
-> **Version:** 0.1.0 | **Date:** 2026-01-28 | **Repo:** cf-influencer-matching-engine
+> **Version:** 0.7.0 | **Date:** 2026-02-19 | **Repo:** cf-influencer-matching-engine
 
 # Changelog
 
@@ -6,6 +6,66 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+---
+
+## [0.7.0] - 2026-02-19 - Visual Polish & Features
+
+### Added
+
+- Animated "How It Works" page at `/app/how-it-works` (6-step pipeline walkthrough)
+- Download CSV and Email List buttons for search results
+- Active/selected state for hint chips (gold fill on click)
+- Multi-chip AND-logic search logged as future enhancement (8.7)
+- "How It Works" link in navigation (both HTML and React)
+
+### Changed
+
+- Switched serif font from Instrument Serif/Playfair Display to Nixie One across all pages
+- Removed all "legacy" terminology from code and CSS comments
+- Updated branding: removed "Johannes Leonardo", replaced with "CF - Influencer Matching Engine"
+- Updated footer authorship to "Author: Charley Scholz · Co-authored by: Claude Opus 4.6, Cursor (IDE)"
+
+### Fixed
+
+- Repaired mojibake encoding across 26 files (emoji, box-drawing, em-dashes, smart quotes)
+- Fixed garbled card icons (🔍⚡🔗📊⭐) on Beta Control Center
+- Added L010 to LEARN.md documenting the ftfy-based encoding fix
+
+---
+
+## [0.6.0] - 2026-02-18 - Hybrid UI Rebuild
+
+### Added
+
+- React SPA served at `/app/*` (Browse Creators, Creator Profile, Admin, Status)
+- Beta Control Center at root `/` as primary dashboard
+- Platform filter on `GET /api/v1/creators`
+- 404 catch-all route
+
+### Changed
+
+- Restructured routing: HTML pages at root, React app at `/app/*`
+- Updated Vite config with `/app/` base path
+
+---
+
+## [0.5.0] - 2026-02-17 - Dependencies & Testing
+
+### Added
+
+- 79 unit tests (vitest: schemas + scoring)
+- 31 smoke tests (API, auth, services, database)
+- 13 integration tests (full pipeline)
+- GitHub Actions CI/CD
+- LEARN.md with 8 documented lessons
+- Status report and PDF generation
+
+### Changed
+
+- Upgraded Express 4 → 5, Firestore 7.1 → 8.3, @google/genai 1.38 → 1.41
+- Migrated fully from @google-cloud/vertexai to @google/genai
+- Committed package-lock.json for reproducible builds
 
 ---
 

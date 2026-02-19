@@ -1,8 +1,8 @@
 # CatchFire Matching Engine — Accomplishments, Next Steps & Future Enhancements
 
-**Repo:** cf-influencer-matching-engine  
-**As of:** 2026-02-11  
-**Current version:** v0.4.0 (Phase 3 in progress)
+**Repo:** cf-influencer-matching-engine
+**As of:** 2026-02-19
+**Current version:** v0.7.0 (Phase 7 Complete)
 
 ---
 
@@ -16,70 +16,120 @@
 - Requestor context organized in `docs/context/`
 - Comprehensive PLAN.md and CLAUDE.md
 - Dependencies installed; local server verified
-- Migrated to @google/genai SDK (alongside legacy Vertex AI)
+- Migrated to @google/genai SDK
 
 ### Phase 1: API Foundation (v0.2.0) — ✅ Complete
 
 - Firestore API enabled; creator collection in place
 - Creator schema with Zod validation (`src/schemas.ts`)
-- **GET** `/api/v1/creators` — list, search, filter
-- **POST** `/api/v1/creators` — add single creator with validation
-- **POST** `/api/v1/creators/batch` — bulk import with validation
-- **GET** `/api/v1/creators/:id` — get by ID
+- Full CRUD: GET/POST creators, batch import, get by ID
 - Scoring algorithm adapted for creators (`src/scoring.ts`)
-- **POST** `/api/v1/match` — keyword extraction + ranked creator recommendations
+- **POST** `/api/v1/match` — keyword extraction + ranked recommendations
 
 ### Phase 2: Intelligence Layer (v0.3.0) — ✅ Complete
 
-- **POST** `/api/v1/categorize` — LLM-powered categorization from bio/portfolio (Gemini 2.5 Flash)
-- Style signature generation (POST /api/v1/style-signature)
-- Positive/negative keyword scoring (influence noise detection + pro bonus)
-- Golden Records import (10 benchmark creators)
-- Batch processing pipeline with LLM (POST /api/v1/import/apify)
+- **POST** `/api/v1/categorize` — LLM-powered categorization (Gemini 2.5 Flash)
+- Style signature generation
+- Positive/negative keyword scoring (influencer noise detection)
+- Golden Records import (11 benchmark creators)
+- Batch processing pipeline with LLM
 
-### Documentation & Alignment
+### Phase 3: Search & Discovery (v0.4.0) — ✅ Complete
 
-- README and CHANGELOG roadmaps updated (Phase 1–2 / v0.2–v0.3 complete; Phase 3 / v0.4 current)
-- Deck and docx reference materials ingested (`docs/reference/`)
-- Deck vs. build comparison and docx analysis for validity/confidence/accuracy
-- TASKS.md as single source of truth; docs/TODO.md redirects
+- Embeddings generation (768 dimensions, gemini-embedding-001)
+- Semantic search endpoint (meaning-based, not keyword)
+- Lookalike model built from Golden Record embeddings
+- Beta Control Center dashboard deployed
+
+### Phase 4: Scraper Integration — ✅ Complete
+
+- Ciclope Festival (8 records) and Motionographer (9 records) scraped
+- Python scraper → Matching Engine sync flow verified
+- Batch embedding generation on import
+- Deduplication logic (name-normalized matching)
+
+### Phase 5: Production Hardening — 🟡 Partial
+
+- ✅ Rate limiting (express-rate-limit)
+- ✅ Helmet security headers
+- ⏳ Cloud Monitoring alerts (JSON configs created, not deployed to GCP)
+- ⏳ Staging environment
+
+### Phase 6: Testing & QA — 🟡 Partial
+
+- ✅ 79 unit tests (vitest: schemas + scoring)
+- ✅ 31 smoke tests (API, auth, services, database)
+- ✅ 13 integration tests (full pipeline: batch → embed → search → feedback)
+- ✅ GitHub Actions CI/CD
+- ⏳ E2E semantic search test
+- ⏳ Test data fixtures
+
+### Phase 7: Web Application — ✅ Complete
+
+- React 19 + Vite 7 + TypeScript SPA (6 pages)
+- Beta Control Center primary dashboard with semantic search
+- Animated "How It Works" pipeline walkthrough
+- Creator Browse, Creator Profile, Admin, Status pages
+- Search results export (CSV download + email list)
+- Active hint chip feedback
+- Nixie One serif font for clean editorial aesthetic
+- Multi-stage Dockerfile, single Cloud Run container
+- 4 deployments this session (revisions 00008–00011)
+
+### Documentation & Quality
+
+- LEARN.md with 10 documented lessons (L001–L010)
+- TASKS.md as single source of truth
+- Encoding repaired across 26 files (ftfy bulk fix)
+- Branding updated (removed outdated org references)
+- Authorship standardized across all files
 
 ---
 
 ## Next Steps
 
-### Immediate / High priority
+### High Priority
 
-1. **Security middleware** — Add helmet, cors, express-rate-limit; keep zod for validation. *(TASKS §5.1)*
-2. **Phase 3: Search & Discovery (v0.4.0)** — Embeddings generation, semantic search endpoint ("Find similar to X"), lookalike model on Golden Records, auto-scan (Cloud Scheduler), Catchfire MVP REST integration. *(TASKS §5.3; PLAN Phase 3)*
-3. **Subject matter + subcategory taxonomy** — Add subject matter and subcategory tags to schema; taxonomy config; scoring overlap; ingest/categorize population; API filters. *(TASKS §6.1)*
-4. **Primary medium + hard fields** — Add primary medium, classification, budget tier, last active date to schema; migration/backfill note. *(TASKS §6.2)*
+1. **React error handling** — 5 of 7 pages silently swallow API errors; users see blank screens on failure
+2. **Brief Templates** — Pre-built search queries for common use cases; biggest UX win for stakeholders
+3. **Scraping cadence scheduler** — Cloud Scheduler for festivals=annual, portfolios=quarterly
+4. **Deploy Cloud Monitoring alerts** — JSON configs exist in scripts/monitoring/ but not pushed to GCP
+5. **Create staging environment** — Separate from production for safe testing
 
-### Docx-derived (improve validity, confidence, accuracy)
+### Medium Priority
 
-5. **Synonym Normalization Map** — Canonical tag dictionary; normalize brief + creator text in match flow. *(TASKS §9.1)*
-6. **Luminaries Reference Library** — Store 100+ "X-like" profiles; expand luminary references in briefs to concrete attributes in scoring. *(TASKS §9.2)*
-7. **Query translation** — Natural-language briefs → structured tag combinations (using Search Query Translation Guide). *(TASKS §9.3)*
-8. **Confidence scoring** — Per-analysis confidence when Tier 3/image analysis exists; optional match-level confidence in API. *(TASKS §9.4)*
-
-### Other open work
-
-9. **Extractable dimensions** — Approach, tone, platform fit as explicit schema/LLM dimensions. *(TASKS §6.3)*
-10. **Three use-case query types** — Expose or document: (A) style-adjacent to X, (B) medium/platform, (C) topic/POV/mood. *(TASKS §6.4)*
-11. **Folksonomic "ladder" dictionary** — Normalize scraped/bio text to controlled subject and subcategory tags. *(TASKS §6.5)*
-12. **Template/capability verification** — Confirm scope for Google Drive/Sheets, notifications; document getting started and deploy commands. *(TASKS §1.2, §1.4, §1.5, §2, §3.1, §3.2)*
-13. **PLAN / HANDOFF open questions** — Apify actor selection, Golden Records criteria, Platform ToS, rate limiting, Catchfire MVP integration; embedding model and vector storage. *(TASKS §5.2, §5.4)*
+6. E2E test for semantic search (brief → match → validate)
+7. Test data fixtures for consistent testing
+8. CSS token cleanup (hardcoded values)
+9. User authentication (restrict to team members)
+10. Admin dashboard for scraper status
 
 ---
 
 ## Future Enhancements
 
-- **End-user option: links to work, refs, and sources** — Preference or prompt to show links to specific work (portfolio/reel), references (festivals, awards), and discovery sources; API params (e.g. `includeWorkLinks` / `includeSourceLinks`); schema fields for per-creator work and source URLs.
-- **Dive deeper (after-query)** — Optional "explore more?" for other subjects, styles, or sources; exact behavior needs clarification. *(TASKS §4.1)*
-- **Semantic search + lookalike + auto-scan** — Phase 3 deliverables as ongoing enhancements (embeddings, "Find similar to X", lookalike model, weekly auto-scan).
-- **Taxonomy and use-case alignment** — Full alignment with deck/docx: subject matter, subcategories, primary medium, hard fields, extractable dimensions, three query types. *(TASKS §6.1–6.5)*
-- **Tier 3 / Image analysis** — AI-derived attributes from portfolio images (color, composition, lighting, comparable_to); confidence thresholding for human review. *(Docx Section 6; TASKS §9.4)*
+| ID | Enhancement | Priority |
+|----|-------------|----------|
+| 8.1 | **Image Analysis** (Gemini Vision) — auto-tag visual style from portfolios | High |
+| 8.2 | **Contact Enrichment** (Clay.com/Hunter.io) — $1,000 budget | Medium |
+| 8.3 | **Brief Templates** — pre-built search queries | High |
+| 8.4 | **Slack Integration** — `/catchfire find` slash command | Medium |
+| 8.5 | **Auto-Categorize Improvements** — fine-tune prompts from feedback | Medium |
+| 8.6 | **Multi-Model Support** — Gemini Pro for complex briefs | Low |
+| 8.7 | **Multi-Chip Search** — AND-logic combining multiple hint chips | Medium |
+| — | **Synonym Normalization Map** — canonical tag dictionary | Medium |
+| — | **Luminaries Reference Library** — 100+ "X-like" profiles | Medium |
+| — | **Query Translation** — natural-language → structured tags | Medium |
+| — | **Confidence Scoring** — per-match confidence levels | Low |
+| — | **Tier 3 Image Analysis** — AI-derived visual attributes | Low |
+| — | **End-user work links** — links to portfolios, reels, festival awards | Medium |
 
 ---
 
-_Source: TASKS.md, PLAN.md, README, CHANGELOG, docs/reference. CatchFire — Finding craft, not clout._
+_CatchFire — Finding craft, not clout._
+
+---
+
+Author: Charley Scholz
+Co-authored: Claude Opus 4.6, Cursor (IDE)
+Last Updated: 2026-02-19

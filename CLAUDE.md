@@ -1,4 +1,4 @@
-> **Version:** 0.5.0 | **Date:** 2026-01-28 | **Repo:** cf-influencer-matching-engine
+> **Version:** 0.7.0 | **Date:** 2026-02-19 | **Repo:** cf-influencer-matching-engine
 
 # CLAUDE.md - CatchFire Influencer Matching Engine
 
@@ -405,6 +405,8 @@ Provides structured workflows for TDD, systematic debugging, and collaborative p
 
 | Version | Date       | Changes                                                                         |
 | ------- | ---------- | ------------------------------------------------------------------------------- |
+| 0.7.0   | 2026-02-19 | Nixie One font, How It Works page, export buttons, encoding repair, branding update |
+| 0.6.0   | 2026-02-18 | Hybrid UI rebuild, React SPA at /app/*, hint chip states                        |
 | 0.5.0   | 2026-01-28 | Converted schemas.js and scoring.js to TypeScript with full type safety         |
 | 0.4.0   | 2026-01-28 | Added Technical Glossary section with acronym definitions                       |
 | 0.3.0   | 2026-01-28 | Added AI Development Tooling section (claude-mem, code-simplifier, superpowers) |

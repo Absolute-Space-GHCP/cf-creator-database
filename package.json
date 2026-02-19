@@ -1,6 +1,6 @@
 {
   "name": "cf-influencer-matching-engine",
-  "version": "0.1.0",
+  "version": "0.7.0",
   "description": "CatchFire Creator Matching Engine - AI-powered influencer discovery and matching based on craft storytelling skills",
   "main": "src/index.js",
   "scripts": {

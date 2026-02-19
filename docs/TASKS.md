@@ -203,6 +203,6 @@ All tasks completed 2026-01-28.
 
 ---
 
-**Author:** Charley Scholz, JLAI  
-**Co-authored:** Claude Opus 4.5, Claude Code (coding assistant), Cursor (IDE)  
-**Last Updated:** 2026-02-18
+**Author:** Charley Scholz  
+**Co-authored:** Claude Opus 4.6, Cursor (IDE)  
+**Last Updated:** 2026-02-19

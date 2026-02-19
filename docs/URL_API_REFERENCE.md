@@ -1,8 +1,8 @@
-> **Version:** 0.1.0 | **Date:** 2026-01-28 | **Repo:** cf-influencer-matching-engine
+> **Version:** 0.7.0 | **Date:** 2026-02-19 | **Repo:** cf-influencer-matching-engine
 
 # CatchFire Influencer Matching Engine - URL & API Reference
 
-**Version:** v0.1.0  
+**Version:** v0.7.0  
 **Status:** Development  
 **Last Verified:** 2026-01-28
 
@@ -236,6 +236,6 @@ gcloud run services logs read cf-matching-engine \
 
 ---
 
-Author: Charley Scholz, JLAI  
-Co-authored: Claude Opus 4.5, Claude Code (coding assistant), Cursor (IDE)  
-Last Updated: 2026-01-28
+Author: Charley Scholz  
+Co-authored: Claude Opus 4.6, Cursor (IDE)  
+Last Updated: 2026-02-19
