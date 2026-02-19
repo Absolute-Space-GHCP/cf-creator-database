@@ -159,15 +159,24 @@ const limiter = rateLimit({
 app.use(limiter);
 
 app.use(express.json({ limit: '10mb' }));
-// Serve React SPA from web/dist/ (production build) when available
-const webDistPath = path.join(__dirname, '../web/dist');
-const fs = require('fs');
-if (fs.existsSync(webDistPath)) {
-    app.use(express.static(webDistPath));
-}
 
-// Legacy public/ assets (dashboard, testing pages)
-app.use('/legacy', express.static(path.join(__dirname, '../public')));
+// Legacy public/ assets at root (Beta Control Center, dashboard, testing pages)
+const fs = require('fs');
+app.use(express.static(path.join(__dirname, '../public')));
+
+// Explicit routes for legacy HTML pages (without .html extension)
+app.get('/dashboard', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public/dashboard.html'));
+});
+app.get('/testing', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public/testing.html'));
+});
+
+// Serve React SPA from web/dist/ under /app prefix
+const webDistPath = path.join(__dirname, '../web/dist');
+if (fs.existsSync(webDistPath)) {
+    app.use('/app', express.static(webDistPath));
+}
 
 // =============================================================================
 // ðŸ“Š HEALTH CHECK
@@ -187,17 +196,7 @@ app.get('/health', (req, res) => {
     });
 });
 
-// Legacy root route moved to /legacy/ static path
-
-// =============================================================================
-// ðŸ“ˆ DASHBOARD
-// =============================================================================
-// Legacy dashboard route moved to /legacy/ static path
-
-// =============================================================================
-// ðŸ§ª TEMP TESTING UI (testing strategy / Dan verification)
-// =============================================================================
-// Legacy testing route moved to /legacy/ static path
+// Legacy HTML pages served at root via express.static + explicit routes above
 
 // =============================================================================
 // ðŸŽ¬ CREATOR API (v1)
@@ -1640,11 +1639,10 @@ app.get('/api/v1/stats', async (req, res) => {
 // Any non-API route that doesn't match a static file falls through to index.html
 // so React Router can handle client-side routing.
 if (fs.existsSync(webDistPath)) {
-    app.get('{*path}', (req, res, next) => {
-        // Skip API routes and health check
-        if (req.path.startsWith('/api/') || req.path === '/health') {
-            return next();
-        }
+    app.get('/app', (req, res) => {
+        res.sendFile(path.join(webDistPath, 'index.html'));
+    });
+    app.get('/app/{*path}', (req, res) => {
         res.sendFile(path.join(webDistPath, 'index.html'));
     });
 }

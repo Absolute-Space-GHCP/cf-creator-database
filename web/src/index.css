@@ -1,45 +1,61 @@
 /**
  * @file index.css
- * @description Global layout and section styles for CatchFire
+ * @description Global layout styles for CatchFire React app
  * @author Charley Scholz, JLIT
- * @coauthor Claude Opus 4.5, Claude Code (coding assistant), Cursor (IDE)
- * @updated 2026-02-18
+ * @coauthor Claude Opus 4.6, Claude Code (coding assistant), Cursor (IDE)
+ * @updated 2026-01-28
  */
 
 .app-shell {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background: var(--color-bg);
 }
 
 .app-main {
   flex: 1;
 }
 
-/* ── Page containers ──────────────────────────────────────── */
+/* ── Page containers ──────────────────────────────────── */
 
 .page {
   max-width: var(--container-max);
   margin: 0 auto;
-  padding: var(--space-10) var(--space-6);
+  padding: 32px 48px;
 }
 
 .page-narrow {
   max-width: var(--container-narrow);
   margin: 0 auto;
-  padding: var(--space-10) var(--space-6);
+  padding: 32px 48px;
 }
 
-/* ── Section variants ─────────────────────────────────────── */
+/* ── 12-column grid (from legacy) ─────────────────────── */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 24px;
+  margin-bottom: 48px;
+}
+
+.col-4 { grid-column: span 4; }
+.col-6 { grid-column: span 6; }
+.col-8 { grid-column: span 8; }
+.col-12 { grid-column: span 12; }
+
+/* ── Section variants ─────────────────────────────────── */
 
 .section {
-  padding: var(--space-16) var(--space-6);
+  padding: var(--space-8) 0;
 }
 
 .section-elevated {
-  background: var(--color-bg-subtle);
-  padding: var(--space-16) var(--space-6);
+  background: var(--bg-secondary);
+  padding: var(--space-8) var(--space-6);
+  border-radius: var(--radius-lg);
 }
 
 .section-inner {
@@ -48,74 +64,99 @@
 }
 
 .section-heading {
-  font-size: var(--text-2xl);
-  font-weight: 500;
-  margin-bottom: var(--space-8);
-  color: var(--color-text);
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  font-weight: 400;
+  margin-bottom: var(--space-6);
 }
 
-/* ── Creator grid ─────────────────────────────────────────── */
+/* ── Creator grid ─────────────────────────────────────── */
 
 .creator-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: var(--space-5);
+  gap: 16px;
 }
 
-/* ── Stats grid ───────────────────────────────────────────── */
+/* ── Stats grid ───────────────────────────────────────── */
 
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: var(--space-4);
+  gap: 16px;
 }
 
-/* ── Score bar ────────────────────────────────────────────── */
+/* ── Hero stats (from legacy) ─────────────────────────── */
+
+.hero-stats {
+  display: flex;
+  justify-content: center;
+  gap: 48px;
+}
+
+.hero-stat {
+  text-align: center;
+}
+
+.hero-stat-value {
+  font-family: var(--font-serif);
+  font-size: 3rem;
+  font-weight: 400;
+  color: var(--text-primary);
+}
+
+.hero-stat-value.gold { color: var(--accent-gold); }
+
+.hero-stat-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* ── Score bar ────────────────────────────────────────── */
 
 .score-bar {
-  height: 4px;
-  background: var(--color-border);
-  border-radius: var(--radius-full);
+  height: 6px;
+  background: var(--bg-secondary);
+  border-radius: 3px;
   overflow: hidden;
 }
 
 .score-bar-fill {
   height: 100%;
-  border-radius: var(--radius-full);
-  transition: width 800ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--accent-gold), var(--accent-gold-dim));
+  transition: width 1s ease;
 }
 
-/* ── Empty state ──────────────────────────────────────────── */
-
-.empty-state {
-  text-align: center;
-  padding: var(--space-20) var(--space-6);
-  color: var(--color-text-muted);
-}
-
-.empty-state h3 {
-  font-size: var(--text-2xl);
-  margin-bottom: var(--space-3);
-  color: var(--color-text-secondary);
-}
-
-/* ── Divider ──────────────────────────────────────────────── */
+/* ── Divider ──────────────────────────────────────────── */
 
 .divider {
   height: 1px;
-  background: var(--color-border);
+  background: var(--border-subtle);
   border: none;
   margin: var(--space-8) 0;
 }
 
-/* ── Focus ring ───────────────────────────────────────────── */
+/* ── Focus ring ───────────────────────────────────────── */
 
 :focus-visible {
-  outline: 2px solid var(--color-gold);
+  outline: 2px solid var(--accent-gold);
   outline-offset: 2px;
 }
 
-/* ── Reduced motion ───────────────────────────────────────── */
+/* ── Responsive ───────────────────────────────────────── */
+
+@media (max-width: 1200px) {
+  .col-4, .col-6, .col-8 { grid-column: span 12; }
+}
+
+@media (max-width: 768px) {
+  .page { padding: 24px 16px; }
+  .page-narrow { padding: 24px 16px; }
+  .hero-stats { flex-direction: column; gap: 24px; }
+}
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
@@ -123,7 +164,6 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
-
   .stagger > *, .fade-in {
     opacity: 1 !important;
     transform: none !important;

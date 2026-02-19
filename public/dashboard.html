@@ -1,4 +1,4 @@
-﻿<!--
+<!--
   CatchFire Creator Matching Engine - Dashboard
   Author: Charley Scholz, JLAI
   Co-authored: Claude Opus 4.5, Claude Code (coding assistant), Cursor (IDE)
@@ -160,6 +160,24 @@
             background: var(--green-accent);
             border-radius: 50%;
             animation: pulse 2s ease-in-out infinite;
+        }
+
+        .header-nav {
+            display: flex;
+            align-items: center;
+            gap: var(--space-lg);
+        }
+
+        .header-nav a {
+            color: var(--gray-text);
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+
+        .header-nav a:hover {
+            color: var(--gold-primary);
         }
 
         /* Stats Row */
@@ -728,8 +746,14 @@
                 <h1 class="brand-name">Catch<span>Fire</span></h1>
                 <p class="brand-tagline">Creator Matching Engine</p>
             </div>
-            <div class="status-pill" id="statusPill">
-                <span id="statusText">Connecting...</span>
+            <div class="header-nav">
+                <a href="/">Home</a>
+                <a href="/app/creators">Browse Creators</a>
+                <a href="/app/admin">Admin</a>
+                <a href="/app/status">Status</a>
+                <div class="status-pill" id="statusPill">
+                    <span id="statusText">Connecting...</span>
+                </div>
             </div>
         </header>
 

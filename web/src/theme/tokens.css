@@ -1,17 +1,20 @@
 /**
  * @file tokens.css
- * @description CatchFire design tokens – dark editorial luxury aesthetic
+ * @description CatchFire design tokens – ported from Beta Control Center legacy design system
  * @author Charley Scholz, JLIT
- * @coauthor Claude Opus 4.5, Claude Code (coding assistant), Cursor (IDE)
- * @updated 2026-02-18
+ * @coauthor Claude Opus 4.6, Claude Code (coding assistant), Cursor (IDE)
+ * @updated 2026-01-28
  */
 
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Sora:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
 :root {
   /* ── Typography ─────────────────────────────────────────── */
-  --font-heading: 'Playfair Display', Georgia, 'Times New Roman', serif;
-  --font-body: 'Sora', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-serif: 'Instrument Serif', Georgia, serif;
+  --font-sans: 'Instrument Sans', -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-heading: var(--font-serif);
+  --font-body: var(--font-sans);
 
   --text-xs: 0.75rem;
   --text-sm: 0.8125rem;
@@ -21,49 +24,70 @@
   --text-2xl: 1.5rem;
   --text-3xl: 2rem;
   --text-4xl: 2.75rem;
-  --text-5xl: 3.75rem;
+  --text-5xl: 3.5rem;
 
-  --leading-tight: 1.15;
+  --leading-tight: 1.2;
   --leading-snug: 1.3;
-  --leading-normal: 1.55;
+  --leading-normal: 1.6;
   --leading-relaxed: 1.75;
 
   --tracking-tight: -0.02em;
   --tracking-normal: 0;
   --tracking-wide: 0.04em;
-  --tracking-wider: 0.08em;
+  --tracking-wider: 0.1em;
 
-  /* ── Dark palette (primary) ─────────────────────────────── */
-  --color-bg: #0d0d0d;
-  --color-bg-subtle: #141414;
-  --color-bg-elevated: #1a1a1a;
-  --color-bg-card: #1e1e1e;
-  --color-bg-card-hover: #242424;
-  --color-bg-input: #161616;
+  /* ── Dark palette (from Beta Control Center) ────────────── */
+  --bg-primary: #0c0c0c;
+  --bg-secondary: #141414;
+  --bg-card: #1a1a1a;
+  --bg-elevated: #222222;
 
-  --color-surface: #1a1a1a;
-  --color-surface-hover: #222222;
+  --color-bg: var(--bg-primary);
+  --color-bg-subtle: var(--bg-secondary);
+  --color-bg-elevated: var(--bg-card);
+  --color-bg-card: var(--bg-card);
+  --color-bg-card-hover: var(--bg-elevated);
+  --color-bg-input: var(--bg-secondary);
+
+  --color-surface: var(--bg-card);
+  --color-surface-hover: var(--bg-elevated);
   --color-surface-active: #2a2a2a;
 
-  --color-border: #2a2a2a;
-  --color-border-subtle: #1f1f1f;
-  --color-border-hover: #3a3a3a;
-  --color-border-focus: var(--color-gold);
+  /* ── Accent colors ──────────────────────────────────────── */
+  --accent-gold: #c9a227;
+  --accent-gold-light: #e8c547;
+  --accent-gold-dim: #8a6f1a;
+  --accent-emerald: #10b981;
+  --accent-blue: #3b82f6;
+  --accent-red: #ef4444;
+  --accent-amber: #f59e0b;
+
+  --color-gold: var(--accent-gold);
+  --color-gold-light: var(--accent-gold-light);
+  --color-gold-dark: #a68520;
+  --color-gold-dim: var(--accent-gold-dim);
+  --color-gold-glow: rgba(201, 162, 39, 0.12);
+  --color-gold-muted: rgba(201, 162, 39, 0.08);
 
   /* ── Text ───────────────────────────────────────────────── */
-  --color-text: #e8e4dd;
-  --color-text-secondary: #9a9590;
-  --color-text-muted: #5c5955;
+  --text-primary: #fafafa;
+  --text-secondary: #a1a1a1;
+  --text-muted: #666666;
+
+  --color-text: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
   --color-text-dim: #3e3c39;
   --color-text-bright: #ffffff;
 
-  /* ── Brand accent – warm gold ───────────────────────────── */
-  --color-gold: #c9a227;
-  --color-gold-light: #dbb94a;
-  --color-gold-dark: #a68520;
-  --color-gold-dim: #7a6218;
-  --color-gold-glow: rgba(201, 162, 39, 0.12);
-  --color-gold-muted: rgba(201, 162, 39, 0.08);
+  /* ── Borders ────────────────────────────────────────────── */
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --border-hover: rgba(255, 255, 255, 0.12);
+
+  --color-border: #2a2a2a;
+  --color-border-subtle: var(--border-subtle);
+  --color-border-hover: var(--border-hover);
+  --color-border-focus: var(--color-gold);
 
   /* ── Semantic colors ────────────────────────────────────── */
   --color-success: #34d07a;
@@ -90,12 +114,11 @@
   --space-24: 6rem;
   --space-32: 8rem;
 
-  /* ── Border radius ──────────────────────────────────────── */
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-xl: 16px;
-  --radius-2xl: 24px;
+  /* ── Border radius (from legacy) ────────────────────────── */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
   --radius-full: 9999px;
 
   /* ── Shadows ────────────────────────────────────────────── */
@@ -111,13 +134,11 @@
   --transition-fast: 150ms ease;
   --transition-normal: 250ms ease;
   --transition-slow: 400ms ease;
-  --transition-spring: 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
 
   /* ── Layout ─────────────────────────────────────────────── */
-  --container-max: 1200px;
+  --container-max: 1600px;
   --container-narrow: 800px;
   --header-height: 56px;
-  --sidebar-width: 260px;
 }
 
 /* ── Global resets ────────────────────────────────────────── */
@@ -138,18 +159,17 @@ html {
 }
 
 body {
-  font-family: var(--font-body);
+  font-family: var(--font-sans);
   font-weight: 400;
-  color: var(--color-text);
-  background: var(--color-bg);
+  color: var(--text-primary);
+  background: var(--bg-primary);
   line-height: var(--leading-normal);
-  letter-spacing: var(--tracking-normal);
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-heading);
+  font-family: var(--font-serif);
   line-height: var(--leading-tight);
-  color: var(--color-text);
+  font-weight: 400;
   letter-spacing: var(--tracking-tight);
 }
 
@@ -169,44 +189,34 @@ img {
 }
 
 button {
-  font-family: var(--font-body);
+  font-family: var(--font-sans);
   cursor: pointer;
 }
 
 ::selection {
   background: var(--color-gold);
-  color: var(--color-bg);
+  color: var(--bg-primary);
 }
 
-/* ── Scrollbar ────────────────────────────────────────────── */
-
-::-webkit-scrollbar {
-  width: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--color-bg);
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--color-border);
-  border-radius: var(--radius-full);
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--color-text-muted);
-}
-
-/* ── Noise overlay for depth ──────────────────────────────── */
+/* ── Ambient background (from legacy) ─────────────────────── */
 
 body::before {
   content: '';
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background:
+    radial-gradient(ellipse 80% 50% at 20% 0%, rgba(201, 162, 39, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(16, 185, 129, 0.05) 0%, transparent 50%);
   pointer-events: none;
-  z-index: 9999;
-  opacity: 0.03;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  background-repeat: repeat;
-  background-size: 256px;
+  z-index: 0;
 }
+
+/* ── Scrollbar (from legacy) ──────────────────────────────── */
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-secondary); }
+::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent-gold-dim); }

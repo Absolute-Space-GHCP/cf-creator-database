@@ -1,144 +1,128 @@
+/**
+ * @file CreatorBrowse.css
+ * @description Browse page styles – legacy Beta Control Center design system
+ * @author Charley Scholz, JLIT
+ * @coauthor Claude Opus 4.6, Claude Code (coding assistant), Cursor (IDE)
+ * @updated 2026-02-19
+ */
+
 .browse-page {
-  display: flex;
-  min-height: calc(100vh - var(--header-height));
-}
-
-.browse-sidebar {
-  width: var(--sidebar-width);
-  flex-shrink: 0;
-  padding: var(--space-6);
-  border-right: 1px solid var(--color-border-subtle);
-  background: var(--color-bg-subtle);
-  position: sticky;
-  top: var(--header-height);
-  height: calc(100vh - var(--header-height));
-  overflow-y: auto;
-}
-
-.sidebar-title {
-  font-size: var(--text-sm);
-  font-family: var(--font-body);
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: var(--tracking-wider);
-  color: var(--color-text-muted);
-  margin-bottom: var(--space-6);
-}
-
-.filter-label {
-  display: block;
-  font-size: var(--text-xs);
-  font-weight: 500;
-  color: var(--color-text-muted);
-  margin-bottom: var(--space-1);
-  margin-top: var(--space-4);
-  text-transform: uppercase;
-  letter-spacing: var(--tracking-wider);
-}
-
-.filter-select,
-.filter-input {
-  width: 100%;
-  padding: var(--space-2) var(--space-3);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-bg-input);
-  font-family: var(--font-body);
-  font-size: var(--text-xs);
-  color: var(--color-text);
-  outline: none;
-  transition: border-color var(--transition-fast);
-}
-
-.filter-select:focus,
-.filter-input:focus {
-  border-color: var(--color-gold);
-}
-
-.filter-clear {
-  margin-top: var(--space-6);
-  width: 100%;
-  padding: var(--space-2);
-  background: transparent;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  color: var(--color-text-muted);
-  font-size: var(--text-xs);
-  cursor: pointer;
-  transition: all var(--transition-fast);
-  font-family: var(--font-body);
-}
-
-.filter-clear:hover { border-color: var(--color-error); color: var(--color-error); }
-
-.browse-main {
-  flex: 1;
-  padding: var(--space-8) var(--space-6);
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 32px 48px;
 }
 
 .browse-header {
   display: flex;
-  align-items: baseline;
-  gap: var(--space-4);
-  margin-bottom: var(--space-8);
-}
-
-.browse-header h1 { font-size: var(--text-2xl); font-weight: 500; }
-
-.browse-count { font-size: var(--text-xs); color: var(--color-text-muted); }
-
-/* Creator card */
-.creator-card-link { text-decoration: none; color: inherit; }
-
-.creator-card {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-}
-
-.creator-card-header {
-  display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: var(--space-2);
+  margin-bottom: 24px;
 }
 
-.creator-card-name {
-  font-size: var(--text-base);
-  font-family: var(--font-heading);
-  font-weight: 500;
+.browse-header h1 {
+  font-family: var(--font-serif);
+  font-size: 2rem;
+  font-weight: 400;
 }
 
-.creator-card-handle { font-size: var(--text-xs); color: var(--color-text-muted); }
-
-.creator-card-meta {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  flex-wrap: wrap;
-}
-
-.creator-card-location { font-size: 10px; color: var(--color-text-muted); }
-
-.creator-card-tags { display: flex; flex-wrap: wrap; gap: 3px; }
-
-.creator-card-score { display: flex; align-items: center; gap: var(--space-2); }
-.creator-card-score .score-bar { flex: 1; }
-
-.score-value {
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--color-text-secondary);
-  min-width: 20px;
-  text-align: right;
-}
-
-.creator-card-portfolio {
+.browse-count {
   font-size: var(--text-xs);
-  color: var(--color-gold);
-  font-weight: 500;
+}
+
+.browse-filters {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 24px;
+  align-items: center;
+}
+
+.filter-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-right: 4px;
+}
+
+.filter-chip {
+  padding: 6px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 100px;
+  font-size: 0.75rem;
+  font-family: var(--font-sans);
+  color: var(--text-secondary);
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filter-chip:hover {
+  border-color: var(--accent-gold);
+  color: var(--accent-gold);
+}
+
+.filter-chip.active {
+  border-color: var(--accent-gold);
+  color: var(--accent-gold);
+}
+
+.filter-input {
+  padding: 10px 16px;
+  background: var(--bg-secondary);
+  border: 2px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  min-width: 200px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.filter-input::placeholder {
+  color: var(--text-muted);
+}
+
+.filter-input:focus {
+  outline: none;
+  border-color: var(--accent-gold);
+  box-shadow: 0 0 0 4px rgba(201, 162, 39, 0.1);
+}
+
+.creator-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 12px;
+}
+
+.creator-card-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.creator-card-link .creator-card {
+  margin-bottom: 0;
+}
+
+.creator-card-link:hover .creator-card {
+  background: #222222;
+  transform: translateX(4px);
 }
 
 @media (max-width: 768px) {
-  .browse-page { flex-direction: column; }
-  .browse-sidebar { width: 100%; height: auto; position: static; border-right: none; border-bottom: 1px solid var(--color-border-subtle); }
+  .browse-page {
+    padding: 24px 16px;
+  }
+
+  .browse-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .creator-grid {
+    grid-template-columns: 1fr;
+  }
 }
