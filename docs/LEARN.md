@@ -18,7 +18,7 @@
 | [L006](#l006-package-lockjson-must-be-committed) | package-lock.json Must Be Committed | Medium | `.gitignore`, `package-lock.json` |
 | [L007](#l007-legacy-test-files-from-golden-master-template) | Legacy Test Files from Golden Master Template | Low | `tests/` directory |
 | [L008](#l008-project-has-three-testing-layers--know-them-all) | Project Has Three Testing Layers -- Know Them All | Info | `tests/`, `docs/TESTING_*.md`, `public/testing.html` |
-| [L009](#l009-pdf-generation--use-jspdf-not-puppeteermd-to-pdf) | PDF Generation -- Use jsPDF, Not Puppeteer | Medium | `scripts/generate-status-pdf.mjs` |
+| [L009](#l009-pdf-generation--use-puppeteer-via-md-to-pdfjs) | PDF Generation -- Use Puppeteer via md-to-pdf.js | Medium | `scripts/md-to-pdf.js` |
 | [L010](#l010-garbled-emojispecial-characters-in-html-files) | Garbled Emoji/Special Characters in HTML Files | High | `public/index.html`, any HTML with emoji |
 
 ---
@@ -346,53 +346,59 @@ The three-layer pattern (automated tests + stakeholder QA docs + browser test UI
 
 ---
 
-## L009: PDF Generation -- Use jsPDF, Not Puppeteer/md-to-pdf
+## L009: PDF Generation -- Use Puppeteer via md-to-pdf.js
 
 **Severity:** Medium
 **First Observed:** 2026-02-17
-**Last Confirmed:** 2026-02-17
-**Status:** PERMANENT - Verified fastest method
+**Last Confirmed:** 2026-02-19
+**Status:** PERMANENT - Verified method for all projects
 
 ### Problem
 
-Generating PDFs from markdown or HTML is needed for status reports and deliverables. Tools like `md-to-pdf` and `puppeteer` require downloading a full Chromium binary (~300MB), take minutes to install, and often hang on Windows.
+Generating PDFs from markdown is needed for status reports and deliverables. Multiple approaches were tried before landing on a reliable, repeatable process.
 
-### Symptoms
+### Failed Approaches (Do NOT Retry)
 
-- `npx md-to-pdf` hangs for 2+ minutes downloading puppeteer/chromium
-- `puppeteer` install fails or takes excessively long
-- Browser `window.print()` via MCP tools is blocked by security restrictions
-- `file://` URLs cannot be opened in browser automation tools
-
-### Root Cause
-
-`md-to-pdf`, `puppeteer`, and similar tools need a headless browser. On Windows/PowerShell this is slow to install and unreliable. The browser MCP tools block `file://` URLs and `window.print()`.
+| Method | Problem |
+|--------|---------|
+| `npx md-to-pdf` (npm package) | Hangs indefinitely (60s+ with no output), unreliable |
+| `pandoc` | Not installed, requires separate binary |
+| Browser `window.print()` via MCP | Blocked by security restrictions |
+| `file://` URLs in browser automation | Blocked by browser tools |
+| `jsPDF` (pure JS) | Works but limited: no markdown parsing, manual layout, poor table rendering |
 
 ### Solution
 
-Use **jsPDF** (pure JavaScript, no browser needed). Generates PDFs in under 2 seconds.
+Use the project's **`scripts/md-to-pdf.js`** script. It uses Puppeteer (already installed as a dependency) to render styled HTML and export to PDF in ~5 seconds.
 
 ```bash
-# Install (one-time, as devDependency)
-npm install --save-dev jspdf
+# Generate PDF from any markdown file
+node scripts/md-to-pdf.js docs/STATUS_REPORT_2026-02-19.md
 
-# Generate PDF
-node scripts/generate-status-pdf.mjs
-# Output: docs/STATUS_REPORT_2026-02-17.pdf (60 KB, <2 seconds)
+# Output: docs/STATUS_REPORT_2026-02-19.pdf (same directory, same name)
+
+# Or specify a custom output path
+node scripts/md-to-pdf.js docs/ANY_FILE.md docs/custom-output.pdf
 ```
 
-Pattern from leo-participation-translator: `app/src/lib/generate-pdf.ts` uses the same approach.
+### How It Works
+
+1. Reads the `.md` file
+2. Converts markdown to HTML (headings, tables, lists, bold, code)
+3. Wraps in a styled HTML template (Inter font, dark table headers, gold h2 accents)
+4. Launches headless Puppeteer, renders the HTML, exports as Letter-size PDF
+5. ~5 seconds, ~340 KB output
 
 ### Proactive Maintenance
 
-1. NEVER use `md-to-pdf` or `puppeteer` for PDF generation on this workstation
-2. Use `jsPDF` with `.mjs` extension (ESM) for `import { jsPDF } from 'jspdf'`
-3. Write PDF buffer with `Buffer.from(doc.output('arraybuffer'))` then `writeFileSync`
-4. Keep the generate script in `scripts/` for reuse
+1. When asked to create a PDF, use `node scripts/md-to-pdf.js <input.md>` — do NOT try other methods
+2. The script lives at `scripts/md-to-pdf.js` and should be copied to new projects that need PDF generation
+3. Requires `puppeteer` as a dependency (`npm install --save-dev puppeteer`)
+4. If the script doesn't exist in a project, copy it from `cf-influencer-matching-engine/scripts/md-to-pdf.js`
 
 ### Cross-Project Applicability
 
-Applies to ALL projects on this Windows workstation. jsPDF is the fastest and most reliable PDF generation method.
+Applies to ALL projects. This is the standard PDF generation method. See also: global Cursor rule `pdf-generation.mdc`.
 
 ---
 
