@@ -1,0 +1,248 @@
+/**
+ * @file client.ts
+ * @description Typed API client for CatchFire Matching Engine
+ * @author Charley Scholz, JLIT
+ * @coauthor Claude Opus 4.5, Claude Code (coding assistant), Cursor (IDE)
+ * @created 2026-01-28
+ * @updated 2026-01-28
+ */
+
+const BASE = import.meta.env.VITE_API_BASE ?? '';
+
+async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const res = await fetch(`${BASE}${path}`, {
+    headers: { 'Content-Type': 'application/json', ...init?.headers },
+    ...init,
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({ error: res.statusText }));
+    throw new Error(body.error ?? `Request failed: ${res.status}`);
+  }
+  return res.json();
+}
+
+/* ── Shared types ──────────────────────────────────────── */
+
+export interface Creator {
+  id: string;
+  name: string;
+  handle?: string;
+  platform: string;
+  source?: { type?: string; name?: string; url?: string; discoveredAt?: string };
+  craft?: {
+    primary?: string;
+    secondary?: string[];
+    styleSignature?: string;
+    technicalTags?: string[];
+    subjectMatterTags?: string[];
+    subjectSubcategoryTags?: string[];
+    primaryMedium?: string;
+    classification?: string;
+  };
+  matching?: {
+    positiveKeywords?: string[];
+    negativeKeywords?: string[];
+    qualityScore?: number;
+    isGoldenRecord?: boolean;
+    lastVerified?: string;
+  };
+  contact?: {
+    email?: string;
+    portfolio_url?: string;
+    location?: string;
+    locationConstraints?: string;
+    rateRange?: string;
+    budgetTier?: string;
+    isHireable?: boolean;
+  };
+  embedding?: number[];
+  embeddingModel?: string;
+  embeddingGeneratedAt?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface HealthResponse {
+  status: string;
+  app: string;
+  version: string;
+  timestamp: string;
+  config: { projectId: string; region: string; model: string; collection: string };
+}
+
+export interface StatsResponse {
+  success: boolean;
+  stats: {
+    totalCreators: number;
+    goldenRecords: number;
+    byCraft: Record<string, number>;
+    byPlatform: Record<string, number>;
+    cacheAge: string;
+  };
+}
+
+export interface CreatorsListResponse {
+  success: boolean;
+  count: number;
+  creators: Creator[];
+}
+
+export interface CreatorResponse {
+  success: boolean;
+  creator: Creator;
+}
+
+export interface MatchResult {
+  creator?: Creator;
+  id?: string;
+  name?: string;
+  handle?: string;
+  craft?: string;
+  platform?: string;
+  matchScore: number;
+  matchBreakdown: Record<string, number>;
+  matchReasons: string[];
+  isGoldenRecord?: boolean;
+  location?: string;
+  styleSignature?: string;
+}
+
+export interface MatchResponse {
+  success: boolean;
+  brief: string;
+  extractedKeywords: {
+    crafts: string[];
+    technical: string[];
+    locations: string[];
+    styles: string[];
+    subjects: string[];
+    primaryMediumHint: string | null;
+  };
+  matchCount: number;
+  matches: MatchResult[];
+}
+
+export interface SemanticSearchResult {
+  id: string;
+  name: string;
+  handle?: string;
+  craft?: string;
+  platform?: string;
+  location?: string;
+  similarity: number;
+  styleSignature?: string;
+  isGoldenRecord?: boolean;
+}
+
+export interface SemanticSearchResponse {
+  success: boolean;
+  query: string;
+  results: SemanticSearchResult[];
+  totalSearched: number;
+  embeddingModel: string;
+}
+
+export interface LookalikeModelResponse {
+  success: boolean;
+  model: {
+    goldenRecordCount: number;
+    dimensions: number;
+    goldenRecords: { id: string; name: string; craft?: string }[];
+    createdAt: string;
+    cacheAge: string | null;
+  } | null;
+  message?: string;
+}
+
+export interface LookalikeScoreResponse {
+  success: boolean;
+  creator: { id: string; name: string; craft?: string; isGoldenRecord: boolean };
+  goldenRecordSimilarity: number;
+  comparedAgainst: number;
+  individualScores: { id: string; name: string; craft?: string; similarity: number }[];
+}
+
+export interface LLMTestResponse {
+  success: boolean;
+  connected: boolean;
+  model: string;
+  message: string;
+}
+
+export interface EmbeddingTestResponse {
+  success: boolean;
+  model: string;
+  dimensions: number;
+  clientType: string;
+  error?: string | null;
+}
+
+export interface FeedbackPayload {
+  event: 'match' | 'semantic';
+  briefOrQuery: string;
+  sessionId?: string;
+  resultId?: string;
+  creatorId?: string;
+  rating: 'up' | 'down';
+  comment?: string;
+}
+
+/* ── API functions ─────────────────────────────────────── */
+
+export const api = {
+  getHealth: () => request<HealthResponse>('/health'),
+
+  getStats: () => request<StatsResponse>('/api/v1/stats'),
+
+  getCreators: (params?: Record<string, string>) => {
+    const qs = params ? '?' + new URLSearchParams(params).toString() : '';
+    return request<CreatorsListResponse>(`/api/v1/creators${qs}`);
+  },
+
+  getCreator: (id: string) =>
+    request<CreatorResponse>(`/api/v1/creators/${id}`),
+
+  patchCreator: (id: string, data: Partial<Creator>) =>
+    request<{ success: boolean }>(`/api/v1/creators/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    }),
+
+  searchSemantic: (query: string, limit = 10) =>
+    request<SemanticSearchResponse>('/api/v1/search/semantic', {
+      method: 'POST',
+      body: JSON.stringify({ query, limit }),
+    }),
+
+  matchBrief: (brief: string, filters?: Record<string, unknown>) =>
+    request<MatchResponse>('/api/v1/match', {
+      method: 'POST',
+      body: JSON.stringify({ brief, filters }),
+    }),
+
+  submitFeedback: (data: FeedbackPayload) =>
+    request<{ success: boolean }>('/api/v1/feedback', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  getLookalikeModel: () =>
+    request<LookalikeModelResponse>('/api/v1/lookalikes/model'),
+
+  scoreLookalike: (id: string) =>
+    request<LookalikeScoreResponse>(`/api/v1/lookalikes/score/${id}`),
+
+  refreshLookalikeModel: () =>
+    request<{ success: boolean; goldenRecordCount?: number }>('/api/v1/lookalikes/refresh', {
+      method: 'POST',
+    }),
+
+  testLLM: () => request<LLMTestResponse>('/api/v1/llm/test'),
+
+  testEmbeddings: () => request<EmbeddingTestResponse>('/api/v1/embeddings/test'),
+
+  getSimilar: (id: string, limit = 5) =>
+    request<{ success: boolean; target: { id: string; name: string }; similar: SemanticSearchResult[] }>(
+      `/api/v1/similar/${id}?limit=${limit}`
+    ),
+};

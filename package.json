@@ -15,7 +15,11 @@
     "typecheck": "tsc --noEmit",
     "smoke": "bash scripts/smoke-tests.sh --local",
     "smoke:prod": "bash scripts/smoke-tests.sh --production",
-    "deploy": "npm run build && gcloud run deploy cf-matching-engine --source . --region us-central1 --project catchfire-app-2026 --allow-unauthenticated",
+    "web:dev": "cd web && npm run dev",
+    "web:build": "cd web && npm run build",
+    "web:preview": "cd web && npm run preview",
+    "build:all": "npm run build && npm run web:build",
+    "deploy": "npm run build:all && gcloud run deploy cf-matching-engine --source . --region us-central1 --project catchfire-app-2026 --allow-unauthenticated",
     "match": "node src/index.js --match",
     "import": "node src/index.js --import"
   },
@@ -43,10 +47,12 @@
   "license": "MIT",
   "private": true,
   "devDependencies": {
+    "@playwright/test": "^1.58.2",
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.6",
     "@types/node": "^25.1.0",
     "jspdf": "^4.1.0",
+    "playwright": "^1.58.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3",
     "vitest": "^3.0.0"

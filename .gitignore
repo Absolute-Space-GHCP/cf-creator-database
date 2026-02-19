@@ -7,9 +7,11 @@ node_modules/
 !.env.example
 *.json
 !package.json
+!package-lock.json
 !data/golden-records.json
 !config/subject-taxonomy.json
 !tsconfig.json
+!tsconfig.*.json
 gcp-service-account-key.json
 
 # Config files (contain deployment-specific settings)

@@ -1,0 +1,212 @@
+/**
+ * @file tokens.css
+ * @description CatchFire design tokens – dark editorial luxury aesthetic
+ * @author Charley Scholz, JLIT
+ * @coauthor Claude Opus 4.5, Claude Code (coding assistant), Cursor (IDE)
+ * @updated 2026-02-18
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Sora:wght@300;400;500;600;700&display=swap');
+
+:root {
+  /* ── Typography ─────────────────────────────────────────── */
+  --font-heading: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  --font-body: 'Sora', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.8125rem;
+  --text-base: 0.9375rem;
+  --text-lg: 1.0625rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 2rem;
+  --text-4xl: 2.75rem;
+  --text-5xl: 3.75rem;
+
+  --leading-tight: 1.15;
+  --leading-snug: 1.3;
+  --leading-normal: 1.55;
+  --leading-relaxed: 1.75;
+
+  --tracking-tight: -0.02em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.04em;
+  --tracking-wider: 0.08em;
+
+  /* ── Dark palette (primary) ─────────────────────────────── */
+  --color-bg: #0d0d0d;
+  --color-bg-subtle: #141414;
+  --color-bg-elevated: #1a1a1a;
+  --color-bg-card: #1e1e1e;
+  --color-bg-card-hover: #242424;
+  --color-bg-input: #161616;
+
+  --color-surface: #1a1a1a;
+  --color-surface-hover: #222222;
+  --color-surface-active: #2a2a2a;
+
+  --color-border: #2a2a2a;
+  --color-border-subtle: #1f1f1f;
+  --color-border-hover: #3a3a3a;
+  --color-border-focus: var(--color-gold);
+
+  /* ── Text ───────────────────────────────────────────────── */
+  --color-text: #e8e4dd;
+  --color-text-secondary: #9a9590;
+  --color-text-muted: #5c5955;
+  --color-text-dim: #3e3c39;
+  --color-text-bright: #ffffff;
+
+  /* ── Brand accent – warm gold ───────────────────────────── */
+  --color-gold: #c9a227;
+  --color-gold-light: #dbb94a;
+  --color-gold-dark: #a68520;
+  --color-gold-dim: #7a6218;
+  --color-gold-glow: rgba(201, 162, 39, 0.12);
+  --color-gold-muted: rgba(201, 162, 39, 0.08);
+
+  /* ── Semantic colors ────────────────────────────────────── */
+  --color-success: #34d07a;
+  --color-success-dim: rgba(52, 208, 122, 0.12);
+  --color-warning: #e0a820;
+  --color-warning-dim: rgba(224, 168, 32, 0.12);
+  --color-error: #e04848;
+  --color-error-dim: rgba(224, 72, 72, 0.12);
+  --color-info: #4a90d0;
+  --color-info-dim: rgba(74, 144, 208, 0.12);
+
+  /* ── Spacing ────────────────────────────────────────────── */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+  --space-24: 6rem;
+  --space-32: 8rem;
+
+  /* ── Border radius ──────────────────────────────────────── */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 24px;
+  --radius-full: 9999px;
+
+  /* ── Shadows ────────────────────────────────────────────── */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.6);
+  --shadow-glow: 0 0 20px rgba(201, 162, 39, 0.15);
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.3), 0 0 1px rgba(255, 255, 255, 0.05) inset;
+  --shadow-card-hover: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 1px rgba(201, 162, 39, 0.2) inset;
+
+  /* ── Transitions ────────────────────────────────────────── */
+  --transition-fast: 150ms ease;
+  --transition-normal: 250ms ease;
+  --transition-slow: 400ms ease;
+  --transition-spring: 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* ── Layout ─────────────────────────────────────────────── */
+  --container-max: 1200px;
+  --container-narrow: 800px;
+  --header-height: 56px;
+  --sidebar-width: 260px;
+}
+
+/* ── Global resets ────────────────────────────────────────── */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  font-weight: 400;
+  color: var(--color-text);
+  background: var(--color-bg);
+  line-height: var(--leading-normal);
+  letter-spacing: var(--tracking-normal);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  line-height: var(--leading-tight);
+  color: var(--color-text);
+  letter-spacing: var(--tracking-tight);
+}
+
+a {
+  color: var(--color-gold);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+a:hover {
+  color: var(--color-gold-light);
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+button {
+  font-family: var(--font-body);
+  cursor: pointer;
+}
+
+::selection {
+  background: var(--color-gold);
+  color: var(--color-bg);
+}
+
+/* ── Scrollbar ────────────────────────────────────────────── */
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-muted);
+}
+
+/* ── Noise overlay for depth ──────────────────────────────── */
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px;
+}

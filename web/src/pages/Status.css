@@ -1,0 +1,33 @@
+.status-page h1 { font-size: var(--text-2xl); font-weight: 500; margin-bottom: var(--space-2); }
+
+.status-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: var(--space-8); }
+
+/* Overall status */
+.overall-status-card {
+  display: flex; align-items: center; gap: var(--space-3);
+  padding: var(--space-4) var(--space-5); margin-bottom: var(--space-8);
+  background: var(--color-bg-elevated); border-color: var(--color-border);
+}
+.overall-status-text { font-size: var(--text-sm); font-weight: 600; }
+
+/* Service grid */
+.service-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--space-4); margin-bottom: var(--space-12);
+}
+.service-card { display: flex; flex-direction: column; gap: var(--space-3); }
+
+.service-header { display: flex; align-items: center; gap: var(--space-2); }
+.service-header h3 { flex: 1; font-size: var(--text-sm); font-family: var(--font-body); font-weight: 600; }
+
+.service-message { font-size: var(--text-xs); color: var(--color-text-secondary); }
+
+.service-details {
+  display: flex; flex-direction: column; gap: 2px;
+  padding-top: var(--space-3); border-top: 1px solid var(--color-border-subtle);
+}
+.service-detail-row { display: flex; justify-content: space-between; font-size: 10px; }
+.detail-key { color: var(--color-text-muted); }
+.detail-val { color: var(--color-text-secondary); font-weight: 500; }
+
+.status-stats-section h2 { font-size: var(--text-xl); font-weight: 500; margin-bottom: var(--space-6); }

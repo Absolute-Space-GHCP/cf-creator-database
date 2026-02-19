@@ -1,0 +1,65 @@
+# Security Guidance
+
+**IMPORTANT:** Apply security best practices when editing code, especially in these areas:
+
+## Security Checklist
+
+### Input Validation
+
+- [ ] Validate all user inputs (query params, body, headers)
+- [ ] Use Zod schemas for API request validation
+- [ ] Sanitize data before database operations
+- [ ] Never trust client-side data
+
+### Authentication & Authorization
+
+- [ ] Protect sensitive endpoints with auth middleware
+- [ ] Use environment variables for secrets (never hardcode)
+- [ ] Implement rate limiting on public endpoints
+- [ ] Validate API keys and tokens
+
+### Data Protection
+
+- [ ] Never log sensitive data (API keys, passwords, PII)
+- [ ] Use HTTPS for all external communications
+- [ ] Encrypt sensitive data at rest
+- [ ] Implement proper error messages (don't leak internal details)
+
+### Code Injection Prevention
+
+- [ ] Avoid `eval()` and similar dynamic code execution
+- [ ] Parameterize database queries (prevent SQL injection)
+- [ ] Escape HTML output (prevent XSS)
+- [ ] Validate file paths (prevent path traversal)
+
+### Dependencies
+
+- [ ] Keep dependencies updated (`npm audit`)
+- [ ] Review new dependencies before adding
+- [ ] Pin dependency versions
+
+## Security Headers (Express)
+
+```javascript
+const helmet = require("helmet");
+app.use(helmet());
+```
+
+## Rate Limiting
+
+```javascript
+const rateLimit = require("express-rate-limit");
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+});
+app.use("/api/", limiter);
+```
+
+## Environment Variables
+
+Never commit `.env` files. Use `.env.example` as a template.
+
+---
+
+_This rule applies to all code changes in this project._

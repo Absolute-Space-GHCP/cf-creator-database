@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file index.js
  * @description CatchFire Influencer Matching Engine - Main Express Server
  * @author Charley Scholz, JLAI
@@ -159,7 +159,15 @@ const limiter = rateLimit({
 app.use(limiter);
 
 app.use(express.json({ limit: '10mb' }));
-app.use(express.static(path.join(__dirname, '../public')));
+// Serve React SPA from web/dist/ (production build) when available
+const webDistPath = path.join(__dirname, '../web/dist');
+const fs = require('fs');
+if (fs.existsSync(webDistPath)) {
+    app.use(express.static(webDistPath));
+}
+
+// Legacy public/ assets (dashboard, testing pages)
+app.use('/legacy', express.static(path.join(__dirname, '../public')));
 
 // =============================================================================
 // ðŸ“Š HEALTH CHECK
@@ -179,24 +187,17 @@ app.get('/health', (req, res) => {
     });
 });
 
-// Serve Beta Control Center at root
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../public/index.html'));
-});
+// Legacy root route moved to /legacy/ static path
 
 // =============================================================================
 // ðŸ“ˆ DASHBOARD
 // =============================================================================
-app.get('/dashboard', (req, res) => {
-    res.sendFile(path.join(__dirname, '../public/dashboard.html'));
-});
+// Legacy dashboard route moved to /legacy/ static path
 
 // =============================================================================
 // ðŸ§ª TEMP TESTING UI (testing strategy / Dan verification)
 // =============================================================================
-app.get('/testing', (req, res) => {
-    res.sendFile(path.join(__dirname, '../public/testing.html'));
-});
+// Legacy testing route moved to /legacy/ static path
 
 // =============================================================================
 // ðŸŽ¬ CREATOR API (v1)
@@ -221,6 +222,14 @@ app.get('/api/v1/creators', async (req, res) => {
             );
         }
         
+        // Filter by platform
+        if (req.query.platform) {
+            const platform = req.query.platform.toLowerCase();
+            creators = creators.filter(c =>
+                c.platform?.toLowerCase() === platform
+            );
+        }
+
         // Filter by location
         if (req.query.location) {
             const location = req.query.location.toLowerCase();
@@ -305,6 +314,53 @@ app.get('/api/v1/creators/:id', async (req, res) => {
         });
     } catch (error) {
         console.error('âŒ Error getting creator:', error.message);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+/**
+ * PATCH /api/v1/creators/:id - Partial update a creator (admin)
+ */
+app.patch('/api/v1/creators/:id', async (req, res) => {
+    console.log('PATCH /api/v1/creators/' + req.params.id);
+    
+    try {
+        if (!firestore) {
+            return res.status(503).json({ success: false, error: 'Firestore not available' });
+        }
+        
+        const docRef = firestore.collection(CONFIG.creatorsCollection).doc(req.params.id);
+        const doc = await docRef.get();
+        
+        if (!doc.exists) {
+            return res.status(404).json({ success: false, error: 'Creator not found' });
+        }
+        
+        const updates = req.body;
+        if (!updates || Object.keys(updates).length === 0) {
+            return res.status(400).json({ success: false, error: 'No update fields provided' });
+        }
+        
+        // Flatten nested objects for Firestore partial update
+        const flatUpdates = {};
+        for (const [key, value] of Object.entries(updates)) {
+            if (value !== null && typeof value === 'object' && !Array.isArray(value)) {
+                for (const [subKey, subValue] of Object.entries(value)) {
+                    flatUpdates[`${key}.${subKey}`] = subValue;
+                }
+            } else {
+                flatUpdates[key] = value;
+            }
+        }
+        flatUpdates['updatedAt'] = new Date().toISOString();
+        
+        await docRef.update(flatUpdates);
+        clearCreatorCache();
+        
+        const updated = await docRef.get();
+        res.json({ success: true, creator: { id: updated.id, ...updated.data() } });
+    } catch (error) {
+        console.error('Error updating creator:', error.message);
         res.status(500).json({ success: false, error: error.message });
     }
 });
@@ -1578,6 +1634,21 @@ app.get('/api/v1/stats', async (req, res) => {
 // =============================================================================
 // ðŸš€ START SERVER
 // =============================================================================
+// =============================================================================
+// SPA FALLBACK (must be LAST route before server start)
+// =============================================================================
+// Any non-API route that doesn't match a static file falls through to index.html
+// so React Router can handle client-side routing.
+if (fs.existsSync(webDistPath)) {
+    app.get('{*path}', (req, res, next) => {
+        // Skip API routes and health check
+        if (req.path.startsWith('/api/') || req.path === '/health') {
+            return next();
+        }
+        res.sendFile(path.join(webDistPath, 'index.html'));
+    });
+}
+
 app.listen(CONFIG.port, () => {
     console.log(`
 ============================================================

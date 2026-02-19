@@ -1,7 +1,7 @@
 # CatchFire Matching Engine -- TASKS
 
-**Version:** 1.4.0  
-**Last Updated:** 2026-02-18
+**Version:** 1.5.0  
+**Last Updated:** 2026-02-19
 **Project:** cf-influencer-matching-engine
 
 ---
@@ -53,7 +53,7 @@ All tasks completed 2026-01-28.
 |----|------|--------|----------|-------|--------------|-------|
 | 5.1 | Add rate limiting to public API endpoints | completed | High | IT | -- | express-rate-limit active in index.js |
 | 5.2 | Add Helmet security headers | completed | High | IT | -- | helmet active in index.js |
-| 5.3 | Set up Cloud Monitoring alerts | completed | Medium | IT | -- | Error rate, latency p99, uptime check every 5min |
+| 5.3 | Set up Cloud Monitoring alerts | in_progress | Medium | IT | -- | JSON configs exist in scripts/monitoring/ but deployment to GCP unverified |
 | 5.4 | Create staging environment | not_started | Medium | IT | -- | Separate from production |
 | 5.5 | Build admin dashboard for scraper status | not_started | Low | IT | 4.1-4.3 | Show last run, success rate |
 
@@ -96,28 +96,37 @@ All tasks completed 2026-01-28.
 
 | ID | Task | Status | Priority | Owner | Dependencies | Notes |
 |----|------|--------|----------|-------|--------------|-------|
-| 7.1 | Design full web application UI | 🟡 in_progress | High | IT | frontend-design skill | Bright, cheery, professional |
-| 7.2 | Build creator search interface | 🔴 not_started | High | IT | 7.1 | Semantic search + filters |
-| 7.3 | Build creator profile cards | 🔴 not_started | High | IT | 7.1 | Golden Record badges, craft tags |
-| 7.4 | Build brief submission form | 🔴 not_started | High | IT | 7.1 | Client brief → match results |
-| 7.5 | Add admin panel for Golden Records | 🔴 not_started | Medium | IT | 7.1 | Mark/unmark benchmark creators |
-| 7.6 | Deploy to Cloud Run with custom domain | 🔴 not_started | Medium | IT | 7.1-7.5 | Free hosting on GCP |
+| 7.1 | Design full web application UI | 🟢 completed | High | IT | frontend-design skill | Dark editorial luxury aesthetic (Playfair Display + Sora, gold on black) |
+| 7.2 | Build creator search interface | 🟢 completed | High | IT | 7.1 | Semantic search with suggestions, creator browse with filters (craft, platform, location) |
+| 7.3 | Build creator profile cards | 🟢 completed | High | IT | 7.1 | Golden Record badges, craft tags, quality score bars, style signatures |
+| 7.4 | Build brief submission form | 🟢 completed | High | IT | 7.1 | Client brief → ranked match results with per-creator feedback (thumbs up/down) |
+| 7.5 | Add admin panel for Golden Records | 🟢 completed | Medium | IT | 7.1 | Toggle Golden Record status, refresh lookalike model, sortable table |
+| 7.6 | Deploy to Cloud Run with custom domain | 🟢 completed | Medium | IT | 7.1-7.5 | Live at production URL, multi-stage Dockerfile, single container |
 | 7.7 | Add user authentication | 🔴 not_started | Low | IT | 7.6 | JL employees only |
 
-### Web Application Requirements (Phase 7)
+### Web Application Details (Phase 7)
 
-**Design Direction:**
-- Bright, cheery, professional UI (not dark/cinematic)
-- Premium editorial aesthetic with creative touches
-- Mobile-responsive design
-- Fast, fluid interactions
+**Stack:** React 19 + Vite 7 + TypeScript, served from Express backend in single Cloud Run container.
 
-**Core Features:**
-- Semantic search with query suggestions
-- Creator cards with portfolio previews
-- Golden Record highlighting
-- Brief input → match results workflow
-- Craft distribution visualization
+**Design:**
+- Dark editorial luxury aesthetic (full dark mode)
+- Playfair Display (headings) + Sora (body) typography
+- Warm gold accent (#c9a227) on deep black (#0d0d0d)
+- Glass-morphism header, noise texture overlay, stagger animations
+
+**Pages (7):**
+- Home: hero search, live stats, quick actions, craft distribution
+- Creator Browse: sidebar filters (craft, platform, location), card grid
+- Creator Profile: details, style signature, quality score, similar creators
+- Brief Match: textarea brief input, ranked results, thumbs feedback
+- Semantic Search: AI-powered meaning-based search results
+- Admin: Golden Records table, toggle switches, lookalike model management
+- Status: service health checks, database statistics
+
+**Known Remaining Work:**
+- Error state handling (5/7 pages silently swallow API errors)
+- User authentication (7.7)
+- CSS token cleanup (hardcoded 10px sizes, 5 raw RGBA values)
 
 ---
 
@@ -149,6 +158,11 @@ All tasks completed 2026-01-28.
 
 | ID | Task | Completed | Notes |
 |----|------|-----------|-------|
+| 7.1-7.6 | Full React web application (7 pages, dark mode, deployed) | 2026-02-18 | React 19 + Vite 7, multi-stage Docker, live on Cloud Run |
+| -- | Platform filter added to GET /api/v1/creators | 2026-02-19 | Backend now supports ?platform= query param |
+| -- | 404 catch-all route added | 2026-02-19 | NotFound page for unknown URLs |
+| -- | Dark mode UI redesign (fixed index.css import bug) | 2026-02-18 | Root cause: index.css never imported in build chain |
+| -- | WEBUI_LOGS.md created | 2026-02-18 | Tracks web UI errors and design decisions |
 | -- | Dependency upgrades (Express 5, Firestore 8, genai 1.41) | 2026-02-17 | All deps current, 0 vulnerabilities |
 | -- | Migrate from @google-cloud/vertexai to @google/genai | 2026-02-17 | Unified SDK for API key and Vertex AI |
 | -- | Automated test suite (vitest, 79 tests) | 2026-02-17 | schemas.test.ts (38) + scoring.test.ts (41) |
@@ -171,7 +185,7 @@ All tasks completed 2026-01-28.
 ## Quick Reference
 
 ### Current Sprint Focus
-- Phase 7: Web Application (Task 7.1-7.6 - full hosted web app)
+- Phase 7: Web Application polish (error handling, auth, CSS cleanup)
 - Phase 8: Future Enhancements (Brief Templates, Image Analysis)
 
 ### Key URLs

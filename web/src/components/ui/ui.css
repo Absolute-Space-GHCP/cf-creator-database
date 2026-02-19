@@ -1,0 +1,243 @@
+/**
+ * @file ui.css
+ * @description Core UI component styles – dark editorial aesthetic
+ * @author Charley Scholz, JLIT
+ * @coauthor Claude Opus 4.5, Claude Code (coding assistant), Cursor (IDE)
+ * @updated 2026-02-18
+ */
+
+/* ── Buttons ──────────────────────────────────────────── */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  font-family: var(--font-body);
+  font-weight: 600;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+  letter-spacing: var(--tracking-wide);
+}
+
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.btn-sm { padding: 5px var(--space-3); font-size: var(--text-xs); }
+.btn-md { padding: var(--space-2) var(--space-5); font-size: var(--text-sm); }
+.btn-lg { padding: var(--space-3) var(--space-8); font-size: var(--text-base); }
+
+.btn-primary {
+  background: var(--color-gold);
+  color: var(--color-bg);
+}
+.btn-primary:hover:not(:disabled) {
+  background: var(--color-gold-light);
+  box-shadow: var(--shadow-glow);
+}
+
+.btn-secondary {
+  background: var(--color-surface);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+}
+.btn-secondary:hover:not(:disabled) {
+  border-color: var(--color-border-hover);
+  background: var(--color-surface-hover);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--color-text-secondary);
+}
+.btn-ghost:hover:not(:disabled) {
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.btn-danger {
+  background: var(--color-error);
+  color: #fff;
+}
+.btn-danger:hover:not(:disabled) { opacity: 0.85; }
+
+/* ── Cards ────────────────────────────────────────────── */
+
+.card {
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border-subtle);
+  box-shadow: var(--shadow-card);
+  transition: all var(--transition-normal);
+}
+
+.card-light { background: var(--color-bg-card); }
+.card-dark { background: var(--color-bg-elevated); border-color: var(--color-border); }
+
+.card-hoverable:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-card-hover);
+  border-color: var(--color-border-hover);
+}
+
+/* ── Badges ───────────────────────────────────────────── */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px var(--space-2);
+  font-size: 10px;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wider);
+}
+
+.badge-default { background: var(--color-surface); color: var(--color-text-secondary); }
+.badge-gold { background: var(--color-gold-glow); color: var(--color-gold); }
+.badge-success { background: var(--color-success-dim); color: var(--color-success); }
+.badge-warning { background: var(--color-warning-dim); color: var(--color-warning); }
+.badge-error { background: var(--color-error-dim); color: var(--color-error); }
+.badge-info { background: var(--color-info-dim); color: var(--color-info); }
+
+/* ── Tags ─────────────────────────────────────────────── */
+
+.tag {
+  display: inline-block;
+  padding: 2px var(--space-2);
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  background: var(--color-surface);
+  border-radius: var(--radius-sm);
+  letter-spacing: var(--tracking-wide);
+}
+
+/* ── Skeleton ─────────────────────────────────────────── */
+
+.skeleton {
+  background: linear-gradient(90deg, var(--color-surface) 25%, var(--color-bg-elevated) 50%, var(--color-surface) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--radius-md);
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ── Status Dots ──────────────────────────────────────── */
+
+.status-dot-wrapper { display: inline-flex; align-items: center; gap: var(--space-2); }
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.status-online { background: var(--color-success); box-shadow: 0 0 8px rgba(52, 208, 122, 0.4); }
+.status-offline { background: var(--color-error); box-shadow: 0 0 8px rgba(224, 72, 72, 0.4); }
+.status-warning { background: var(--color-warning); box-shadow: 0 0 8px rgba(224, 168, 32, 0.4); }
+
+.status-label { font-size: var(--text-xs); color: var(--color-text-secondary); }
+
+/* ── Search Bar ───────────────────────────────────────── */
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  background: var(--color-bg-input);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.search-bar:focus-within {
+  border-color: var(--color-gold);
+  box-shadow: 0 0 0 3px var(--color-gold-glow);
+}
+
+.search-bar-md { height: 44px; }
+.search-bar-lg { height: 52px; font-size: var(--text-base); }
+
+.search-icon {
+  width: 18px; height: 18px;
+  margin-left: var(--space-4);
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+}
+
+.search-bar-lg .search-icon { width: 20px; height: 20px; margin-left: var(--space-5); }
+
+.search-input {
+  flex: 1;
+  height: 100%;
+  border: none;
+  background: transparent;
+  padding: 0 var(--space-3);
+  font-family: var(--font-body);
+  font-size: inherit;
+  color: var(--color-text);
+  outline: none;
+}
+
+.search-input::placeholder { color: var(--color-text-muted); }
+
+.search-submit {
+  height: 100%;
+  padding: 0 var(--space-5);
+  background: var(--color-gold);
+  color: var(--color-bg);
+  border: none;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.search-submit:hover:not(:disabled) { background: var(--color-gold-light); }
+.search-submit:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ── Utility ──────────────────────────────────────────── */
+
+.text-muted { color: var(--color-text-muted); }
+.text-secondary { color: var(--color-text-secondary); }
+.text-gold { color: var(--color-gold); }
+.font-heading { font-family: var(--font-heading); }
+.mt-2 { margin-top: var(--space-2); }
+
+/* ── Fade-in animation ────────────────────────────────── */
+
+.fade-in {
+  animation: fadeIn var(--transition-slow) ease both;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.stagger > * {
+  opacity: 0;
+  animation: fadeIn var(--transition-slow) ease both;
+}
+
+.stagger > *:nth-child(1) { animation-delay: 0ms; }
+.stagger > *:nth-child(2) { animation-delay: 50ms; }
+.stagger > *:nth-child(3) { animation-delay: 100ms; }
+.stagger > *:nth-child(4) { animation-delay: 150ms; }
+.stagger > *:nth-child(5) { animation-delay: 200ms; }
+.stagger > *:nth-child(6) { animation-delay: 250ms; }
+.stagger > *:nth-child(7) { animation-delay: 300ms; }
+.stagger > *:nth-child(8) { animation-delay: 350ms; }
+.stagger > *:nth-child(n+9) { animation-delay: 400ms; }

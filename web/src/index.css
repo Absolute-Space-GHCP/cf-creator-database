@@ -1,0 +1,131 @@
+/**
+ * @file index.css
+ * @description Global layout and section styles for CatchFire
+ * @author Charley Scholz, JLIT
+ * @coauthor Claude Opus 4.5, Claude Code (coding assistant), Cursor (IDE)
+ * @updated 2026-02-18
+ */
+
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--color-bg);
+}
+
+.app-main {
+  flex: 1;
+}
+
+/* ── Page containers ──────────────────────────────────────── */
+
+.page {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: var(--space-10) var(--space-6);
+}
+
+.page-narrow {
+  max-width: var(--container-narrow);
+  margin: 0 auto;
+  padding: var(--space-10) var(--space-6);
+}
+
+/* ── Section variants ─────────────────────────────────────── */
+
+.section {
+  padding: var(--space-16) var(--space-6);
+}
+
+.section-elevated {
+  background: var(--color-bg-subtle);
+  padding: var(--space-16) var(--space-6);
+}
+
+.section-inner {
+  max-width: var(--container-max);
+  margin: 0 auto;
+}
+
+.section-heading {
+  font-size: var(--text-2xl);
+  font-weight: 500;
+  margin-bottom: var(--space-8);
+  color: var(--color-text);
+}
+
+/* ── Creator grid ─────────────────────────────────────────── */
+
+.creator-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--space-5);
+}
+
+/* ── Stats grid ───────────────────────────────────────────── */
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--space-4);
+}
+
+/* ── Score bar ────────────────────────────────────────────── */
+
+.score-bar {
+  height: 4px;
+  background: var(--color-border);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.score-bar-fill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  transition: width 800ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ── Empty state ──────────────────────────────────────────── */
+
+.empty-state {
+  text-align: center;
+  padding: var(--space-20) var(--space-6);
+  color: var(--color-text-muted);
+}
+
+.empty-state h3 {
+  font-size: var(--text-2xl);
+  margin-bottom: var(--space-3);
+  color: var(--color-text-secondary);
+}
+
+/* ── Divider ──────────────────────────────────────────────── */
+
+.divider {
+  height: 1px;
+  background: var(--color-border);
+  border: none;
+  margin: var(--space-8) 0;
+}
+
+/* ── Focus ring ───────────────────────────────────────────── */
+
+:focus-visible {
+  outline: 2px solid var(--color-gold);
+  outline-offset: 2px;
+}
+
+/* ── Reduced motion ───────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .stagger > *, .fade-in {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
