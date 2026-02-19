@@ -388,6 +388,14 @@
             color: var(--accent-gold);
         }
 
+        .hint-chip.active {
+            background: var(--accent-gold);
+            border-color: var(--accent-gold);
+            color: #0d0d0d;
+            font-weight: 600;
+            transform: scale(0.96);
+        }
+
         /* Results */
         .results-area {
             min-height: 200px;
@@ -1073,6 +1081,10 @@
             if (q) performSearch(q);
         });
 
+        document.getElementById('searchInput').addEventListener('input', () => {
+            document.querySelectorAll('.hint-chip').forEach(c => c.classList.remove('active'));
+        });
+
         document.getElementById('searchInput').addEventListener('keypress', e => {
             if (e.key === 'Enter') {
                 const q = e.target.value.trim();
@@ -1082,6 +1094,8 @@
 
         document.querySelectorAll('.hint-chip').forEach(chip => {
             chip.addEventListener('click', () => {
+                document.querySelectorAll('.hint-chip').forEach(c => c.classList.remove('active'));
+                chip.classList.add('active');
                 const q = chip.dataset.q;
                 document.getElementById('searchInput').value = q;
                 performSearch(q);
