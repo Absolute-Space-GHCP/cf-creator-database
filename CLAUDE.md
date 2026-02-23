@@ -255,6 +255,11 @@ GET  /dashboard             - Monitoring dashboard
 
 - `src/index.js` - Main Express server with API endpoints
 
+### Task Management
+
+- `tasks/todo.md` - Task tracker (phases, sprints, blocked items)
+- `tasks/lessons.md` - Known fixes and lessons learned (L001-L016)
+
 ### Configuration
 
 - `docs/context/03_SOURCE_LIST.json` - Festival/platform scraping sources

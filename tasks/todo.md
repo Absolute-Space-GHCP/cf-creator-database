@@ -1,8 +1,10 @@
 # CatchFire Matching Engine -- TASKS
 
 **Version:** 1.5.0  
-**Last Updated:** 2026-02-19
+**Last Updated:** 2026-02-23
 **Project:** cf-influencer-matching-engine
+
+> **Migrated from:** `docs/TASKS.md` on 2026-02-23. This is now the canonical location per the `task-management.mdc` global rule.
 
 ---
 
@@ -63,31 +65,31 @@ All tasks completed 2026-01-28.
 
 | ID | Task | Status | Priority | Owner | Dependencies | Notes |
 |----|------|--------|----------|-------|--------------|-------|
-| 6.1 | Vitest unit test suite (schemas + scoring) | 🟢 completed | High | IT | — | 79 tests passing (Feb 17 session) |
-| 6.2 | Create smoke test suite | 🟢 completed | High | IT | — | 31 tests, local + production, `npm run smoke` |
-| 6.3 | Build health check dashboard | 🔴 not_started | Medium | IT | 6.2 | Visual service status |
-| 6.4 | Add integration test workflow | 🟢 completed | High | IT | 6.1-6.2 | 13 tests: batch import → embedding → search → feedback → lookalikes |
-| 6.5 | Create E2E test for semantic search | 🔴 not_started | Medium | IT | 6.1-6.2 | Brief → Match → Results validation |
-| 6.6 | Set up CI/CD pipeline | 🟢 completed | Medium | IT | 6.1-6.5 | GitHub Actions: unit tests + type check + build + smoke tests |
-| 6.7 | Create test data fixtures | 🔴 not_started | Low | IT | — | Mock creators for consistent testing |
+| 6.1 | Vitest unit test suite (schemas + scoring) | completed | High | IT | -- | 79 tests passing (Feb 17 session) |
+| 6.2 | Create smoke test suite | completed | High | IT | -- | 31 tests, local + production, `npm run smoke` |
+| 6.3 | Build health check dashboard | not_started | Medium | IT | 6.2 | Visual service status |
+| 6.4 | Add integration test workflow | completed | High | IT | 6.1-6.2 | 13 tests: batch import -> embedding -> search -> feedback -> lookalikes |
+| 6.5 | Create E2E test for semantic search | not_started | Medium | IT | 6.1-6.2 | Brief -> Match -> Results validation |
+| 6.6 | Set up CI/CD pipeline | completed | Medium | IT | 6.1-6.5 | GitHub Actions: unit tests + type check + build + smoke tests |
+| 6.7 | Create test data fixtures | not_started | Low | IT | -- | Mock creators for consistent testing |
 
 ### Test Coverage Details
 
-**Vitest Suite (Task 6.1) — 79 Unit Tests:**
-- `tests/schemas.test.ts` — Schema validation tests (38)
-- `tests/scoring.test.ts` — Scoring algorithm tests (41)
+**Vitest Suite (Task 6.1) -- 79 Unit Tests:**
+- `tests/schemas.test.ts` -- Schema validation tests (38)
+- `tests/scoring.test.ts` -- Scoring algorithm tests (41)
 - Config: `vitest.config.ts`
 
-**Integration Suite (Task 6.4) — 13 Tests:**
-- `tests/integration.test.ts` — Full pipeline: health → batch import → embedding → semantic search → feedback → lookalikes
+**Integration Suite (Task 6.4) -- 13 Tests:**
+- `tests/integration.test.ts` -- Full pipeline: health -> batch import -> embedding -> semantic search -> feedback -> lookalikes
 - Requires running server at localhost:8090 (or `TEST_BASE_URL` env var)
 
-**Smoke Test Suite (Task 6.2) — 31 Tests:**
+**Smoke Test Suite (Task 6.2) -- 31 Tests:**
 - [x] **API Endpoints**: Health, stats, search, CRUD, match, LLM, embeddings, lookalikes
 - [x] **Authentication**: GCP ADC, Gemini API key, Firestore credentials
 - [x] **External Services**: Cloud Run, Firestore, Gemini AI, Embeddings API
 - [x] **Database**: Connection, read/write operations, Golden Records model
-- [x] **Integration**: Matching Engine ↔ Creator Database project check
+- [x] **Integration**: Matching Engine <-> Creator Database project check
 - **Implementation:** `scripts/smoke-tests.sh` | `npm run smoke` | `npm run smoke:prod`
 
 ---
@@ -96,13 +98,13 @@ All tasks completed 2026-01-28.
 
 | ID | Task | Status | Priority | Owner | Dependencies | Notes |
 |----|------|--------|----------|-------|--------------|-------|
-| 7.1 | Design full web application UI | 🟢 completed | High | IT | frontend-design skill | Dark editorial luxury aesthetic (Playfair Display + Sora, gold on black) |
-| 7.2 | Build creator search interface | 🟢 completed | High | IT | 7.1 | Semantic search with suggestions, creator browse with filters (craft, platform, location) |
-| 7.3 | Build creator profile cards | 🟢 completed | High | IT | 7.1 | Golden Record badges, craft tags, quality score bars, style signatures |
-| 7.4 | Build brief submission form | 🟢 completed | High | IT | 7.1 | Client brief → ranked match results with per-creator feedback (thumbs up/down) |
-| 7.5 | Add admin panel for Golden Records | 🟢 completed | Medium | IT | 7.1 | Toggle Golden Record status, refresh lookalike model, sortable table |
-| 7.6 | Deploy to Cloud Run with custom domain | 🟢 completed | Medium | IT | 7.1-7.5 | Live at production URL, multi-stage Dockerfile, single container |
-| 7.7 | Add user authentication | 🔴 not_started | Low | IT | 7.6 | JL employees only |
+| 7.1 | Design full web application UI | completed | High | IT | frontend-design skill | Dark editorial luxury aesthetic (Playfair Display + Sora, gold on black) |
+| 7.2 | Build creator search interface | completed | High | IT | 7.1 | Semantic search with suggestions, creator browse with filters (craft, platform, location) |
+| 7.3 | Build creator profile cards | completed | High | IT | 7.1 | Golden Record badges, craft tags, quality score bars, style signatures |
+| 7.4 | Build brief submission form | completed | High | IT | 7.1 | Client brief -> ranked match results with per-creator feedback (thumbs up/down) |
+| 7.5 | Add admin panel for Golden Records | completed | Medium | IT | 7.1 | Toggle Golden Record status, refresh lookalike model, sortable table |
+| 7.6 | Deploy to Cloud Run with custom domain | completed | Medium | IT | 7.1-7.5 | Live at production URL, multi-stage Dockerfile, single container |
+| 7.7 | Add user authentication | not_started | Low | IT | 7.6 | JL employees only |
 
 ### Web Application Details (Phase 7)
 
@@ -134,15 +136,15 @@ All tasks completed 2026-01-28.
 
 | ID | Task | Status | Priority | Owner | Dependencies | Notes |
 |----|------|--------|----------|-------|--------------|-------|
-| 8.1 | Image Analysis (Gemini Vision) | 🔴 not_started | High | IT | — | Auto-tag visual style from portfolios |
-| 8.2 | Contact Enrichment (Clay.com/Hunter.io) | 🔴 not_started | Medium | IT | Budget approval | $1,000 budget allocated |
-| 8.3 | Brief Templates | 🔴 not_started | High | IT | — | Pre-built search queries |
-| 8.4 | Slack Integration | 🔴 not_started | Medium | IT | — | `/catchfire find` slash command |
-| 8.5 | Auto-Categorize Improvements | 🔴 not_started | Medium | IT | Review feedback | Fine-tune LLM prompts |
-| 8.6 | Multi-Model Support | 🔴 not_started | Low | IT | — | Gemini Pro for complex briefs |
-| 8.7 | Multi-Chip Search (AND logic) | 🔴 not_started | Medium | IT | — | Click multiple hint chips to narrow search scope (e.g. "Moody DP" + "Colorist") |
-| 8.8 | Animated "How It Works" page | 🟢 completed | Medium | IT | — | /app/how-it-works — 6-step pipeline, expandable details, flow diagram |
-| 8.9 | Search Results Export (CSV + Email) | 🟢 completed | Medium | IT | — | Download CSV and email list buttons on Beta Control Center |
+| 8.1 | Image Analysis (Gemini Vision) | not_started | High | IT | -- | Auto-tag visual style from portfolios |
+| 8.2 | Contact Enrichment (Clay.com/Hunter.io) | not_started | Medium | IT | Budget approval | $1,000 budget allocated |
+| 8.3 | Brief Templates | not_started | High | IT | -- | Pre-built search queries |
+| 8.4 | Slack Integration | not_started | Medium | IT | -- | `/catchfire find` slash command |
+| 8.5 | Auto-Categorize Improvements | not_started | Medium | IT | Review feedback | Fine-tune LLM prompts |
+| 8.6 | Multi-Model Support | not_started | Low | IT | -- | Gemini Pro for complex briefs |
+| 8.7 | Multi-Chip Search (AND logic) | not_started | Medium | IT | -- | Click multiple hint chips to narrow search scope (e.g. "Moody DP" + "Colorist") |
+| 8.8 | Animated "How It Works" page | completed | Medium | IT | -- | /app/how-it-works -- 6-step pipeline, expandable details, flow diagram |
+| 8.9 | Search Results Export (CSV + Email) | completed | Medium | IT | -- | Download CSV and email list buttons on Beta Control Center |
 
 ---
 
@@ -205,4 +207,4 @@ All tasks completed 2026-01-28.
 
 **Author:** Charley Scholz  
 **Co-authored:** Claude Opus 4.6, Cursor (IDE)  
-**Last Updated:** 2026-02-19
+**Last Updated:** 2026-02-23

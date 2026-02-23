@@ -4,6 +4,8 @@
 
 **How to use:** Each entry has a Problem, Root Cause, Solution, and file references. When touching the listed files, verify the fix is still in place. When encountering the listed symptoms, apply the known solution before investigating further.
 
+> **Migrated from:** `docs/LEARN.md` on 2026-02-23. This is now the canonical location per the `task-management.mdc` global rule.
+
 > **Cross-Project Lessons:** For issues that apply across ALL projects (PowerShell syntax, Cloud Run deploys, mojibake, npx limitations, etc.), see the global file: `C:\Users\cmsch\Projects\tools\LEARN-GLOBAL.md`. This file contains only project-specific entries.
 
 ---
@@ -187,12 +189,12 @@ genAI = new GoogleGenAI({
 
 ### Problem
 
-Emoji characters in TypeScript source files (section headers like `// 🔧 CONFIGURATION`) display as mojibake sequences when read by certain tools.
+Emoji characters in TypeScript source files (section headers like `// CONFIGURATION`) display as mojibake sequences when read by certain tools.
 
 ### Symptoms
 
-- Garbled multi-byte sequences (e.g. `\xc3\xb0\xc5\xb8...`) instead of emoji like 🔧 in file reads
-- Garbled characters instead of ✅ in console output
+- Garbled multi-byte sequences (e.g. `\xc3\xb0\xc5\xb8...`) instead of emoji in file reads
+- Garbled characters instead of checkmarks in console output
 - `StrReplace` tool fails to match strings containing emoji
 
 ### Root Cause
@@ -399,7 +401,7 @@ node scripts/md-to-pdf.js docs/ANY_FILE.md docs/custom-output.pdf
 
 ### Proactive Maintenance
 
-1. When asked to create a PDF, use `node scripts/md-to-pdf.js <input.md>` — do NOT try other methods
+1. When asked to create a PDF, use `node scripts/md-to-pdf.js <input.md>` -- do NOT try other methods
 2. The script lives at `scripts/md-to-pdf.js` and should be copied to new projects that need PDF generation
 3. Requires `puppeteer` as a dependency (`npm install --save-dev puppeteer`)
 4. If the script doesn't exist in a project, copy it from `cf-influencer-matching-engine/scripts/md-to-pdf.js`
@@ -423,10 +425,10 @@ Emoji characters in HTML files (card icons, section headers, footers) render as 
 
 ### Symptoms
 
-- Garbled sequences like `\xc3\xb0\xc5\xb8...` instead of 🔍 in the browser
-- Multi-byte garbage instead of 🔗, 📊, ⭐, ⚡
-- `\xc3\xa2\xe2\x82\xac...` instead of — (em-dash)
-- `\xc3\x82\xc2\xb7` instead of · (middot)
+- Garbled sequences like `\xc3\xb0\xc5\xb8...` instead of magnifying glass emoji in the browser
+- Multi-byte garbage instead of link, chart, star, lightning emoji
+- `\xc3\xa2\xe2\x82\xac...` instead of em-dash
+- `\xc3\x82\xc2\xb7` instead of middot
 - The `StrReplace` tool **cannot match** these garbled byte sequences
 
 ### Root Cause
@@ -439,7 +441,7 @@ UTF-8 emoji are multi-byte sequences (3-4 bytes each). When an HTML file passes 
 
 ### Solution
 
-**Best: Use the `ftfy` Python library** for bulk fixing. It automatically detects and reverses double/triple encoding across entire files. This is the fastest and most reliable approach.
+**Best: Use the `ftfy` Python library** for bulk fixing. It automatically detects and reverses double/triple encoding across entire files.
 
 ```bash
 # Install ftfy (one-time)
@@ -494,7 +496,7 @@ p.write_bytes(data)
 
 ### Proactive Maintenance
 
-1. **First choice:** Use `ftfy` to fix all files at once — `pip3 install ftfy` then run the bulk script above
+1. **First choice:** Use `ftfy` to fix all files at once -- `pip3 install ftfy` then run the bulk script above
 2. **Fallback:** Use Python byte-level replacement (not `StrReplace`) for surgical fixes
 3. After fixing, verify by reading files back and checking byte sequences
 4. Prefer HTML entities or CSS/SVG icons over raw emoji in HTML to prevent recurrence
@@ -563,9 +565,9 @@ Copy-Item worker-service.cjs worker-service.cjs.bak
 ### Proactive Maintenance
 
 1. After any claude-mem marketplace update, the patch will be **overwritten**. Re-apply the patch from `worker-service.cjs.bak` diff.
-2. Verify with: `curl.exe -s http://127.0.0.1:37777/api/readiness` — should return `{"status":"ready","mcpReady":true}`
-3. Do NOT use PowerShell `Invoke-WebRequest` to test localhost — it hangs (see L012)
-4. A `.cmd` shim in npm global bin does NOT work — `npx` doesn't resolve it
+2. Verify with: `curl.exe -s http://127.0.0.1:37777/api/readiness` -- should return `{"status":"ready","mcpReady":true}`
+3. Do NOT use PowerShell `Invoke-WebRequest` to test localhost -- it hangs (see L012)
+4. A `.cmd` shim in npm global bin does NOT work -- `npx` doesn't resolve it
 
 ### Cross-Project Applicability
 
@@ -622,7 +624,7 @@ $client.GetStringAsync("http://127.0.0.1:37777/api/readiness").Result
 1. ALWAYS use `curl.exe` (not `curl` alias) for localhost HTTP requests in PowerShell
 2. If you must use `Invoke-WebRequest`, add `-NoProxy` parameter (PowerShell 7+)
 3. This applies to any local service: claude-mem, Express dev server, Vite, etc.
-4. Note: `curl` in PowerShell is an alias for `Invoke-WebRequest` — use `curl.exe` explicitly
+4. Note: `curl` in PowerShell is an alias for `Invoke-WebRequest` -- use `curl.exe` explicitly
 
 ### Cross-Project Applicability
 
@@ -643,7 +645,7 @@ $client.GetStringAsync("http://127.0.0.1:37777/api/readiness").Result
 
 ### Symptoms
 
-- `npx chroma run` → `npm error could not determine executable to run`
+- `npx chroma run` -> `npm error could not determine executable to run`
 - The command works fine when called directly: `chroma run` (if on PATH)
 - Creating a `.cmd` shim in npm global bin (`%APPDATA%\npm\`) does NOT fix it
 - The error occurs even when the executable is on system PATH
@@ -680,7 +682,7 @@ chroma run --path ./data
 ### Proactive Maintenance
 
 1. When you see "could not determine executable to run", check if the target is an npm package
-2. If it's a Python/system tool, call it directly — don't use `npx`
+2. If it's a Python/system tool, call it directly -- don't use `npx`
 3. This affects ANY tool that uses `npx` to invoke non-npm executables
 4. See L011 for the specific claude-mem/Chroma instance of this problem
 
@@ -709,7 +711,7 @@ TypeScript classes with parameter properties in constructors (`public`, `private
 
 ### Root Cause
 
-The `tsconfig.app.json` (or equivalent) has `"erasableSyntaxOnly": true` (or inherits it). This TypeScript 5.8+ option restricts syntax to only "erasable" constructs — annotations that can be removed without changing runtime behavior. Parameter properties generate JavaScript code (they assign `this.name = name`), so they're not purely erasable.
+The `tsconfig.app.json` (or equivalent) has `"erasableSyntaxOnly": true` (or inherits it). This TypeScript 5.8+ option restricts syntax to only "erasable" constructs -- annotations that can be removed without changing runtime behavior. Parameter properties generate JavaScript code (they assign `this.name = name`), so they're not purely erasable.
 
 ### Solution
 
@@ -743,7 +745,7 @@ class ApiError extends Error {
 ### Proactive Maintenance
 
 1. Check `tsconfig.app.json` for `erasableSyntaxOnly` before using parameter properties
-2. Also avoid `enum` declarations (they're also non-erasable) — use `const` objects instead
+2. Also avoid `enum` declarations (they're also non-erasable) -- use `const` objects instead
 3. This setting is common in modern Vite + React projects (Vite's default template enables it)
 4. When scaffolding new classes, always use explicit property declarations to be safe
 
@@ -773,8 +775,8 @@ The React SPA in `web/` has its own `package.json` and `node_modules/` separate 
 ### Root Cause
 
 The project has a dual dependency structure:
-- Root `package.json` — Express server, vitest, build tools
-- `web/package.json` — React, Vite, TypeScript (separate workspace)
+- Root `package.json` -- Express server, vitest, build tools
+- `web/package.json` -- React, Vite, TypeScript (separate workspace)
 
 Running `npm install` at the root does NOT install web dependencies.
 
@@ -795,37 +797,6 @@ npm run web:build
 1. After fresh clone, always run `npm install` in BOTH root and `web/` directories
 2. If `web:build` fails with JSX/module errors, check `web/node_modules/` first
 3. See also L002 for the root-level variant of this issue
-
----
-
-## Adding New Entries
-
-When you discover and fix a recurring problem:
-
-1. Add a new section following the template above
-2. Assign the next sequential ID (L011, L012, etc.)
-3. Update the Table of Contents
-4. Reference the specific files and line numbers (approximate is fine)
-5. Include the proactive maintenance steps
-6. Note cross-project applicability if relevant
-
-Template:
-
-```markdown
-## LXXX: Title
-
-**Severity:** Critical/High/Medium/Low
-**First Observed:** YYYY-MM-DD
-**Last Confirmed:** YYYY-MM-DD
-**Status:** FIXED/OPEN/MONITORING/PERMANENT
-
-### Problem
-### Symptoms
-### Root Cause
-### Solution
-### Proactive Maintenance
-### Cross-Project Applicability
-```
 
 ---
 
@@ -866,6 +837,37 @@ Integration tests make real HTTP requests to `http://localhost:8090`. They are t
 ### Cross-Project Applicability
 
 Applies to any project with live integration tests that depend on a running server. Always document which tests are standalone vs. which require infrastructure.
+
+---
+
+## Adding New Entries
+
+When you discover and fix a recurring problem:
+
+1. Add a new section following the template above
+2. Assign the next sequential ID (L017, L018, etc.)
+3. Update the Table of Contents
+4. Reference the specific files and line numbers (approximate is fine)
+5. Include the proactive maintenance steps
+6. Note cross-project applicability if relevant
+
+Template:
+
+```markdown
+## LXXX: Title
+
+**Severity:** Critical/High/Medium/Low
+**First Observed:** YYYY-MM-DD
+**Last Confirmed:** YYYY-MM-DD
+**Status:** FIXED/OPEN/MONITORING/PERMANENT
+
+### Problem
+### Symptoms
+### Root Cause
+### Solution
+### Proactive Maintenance
+### Cross-Project Applicability
+```
 
 ---
 
