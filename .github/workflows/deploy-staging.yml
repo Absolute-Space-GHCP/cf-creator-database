@@ -1,0 +1,67 @@
+# CatchFire Matching Engine - Staging Deployment
+# Author: Charley Scholz, JLAI
+# Co-authored: Claude Opus 4.6, Claude Code (coding assistant), Cursor (IDE)
+# Last Updated: 2026-02-23
+#
+# Triggers on push to staging branch. Builds from source and deploys to
+# cf-matching-staging Cloud Run service in us-east1.
+#
+# Auth: Use GCP_SA_KEY (service account JSON) or Workload Identity Federation.
+# See docs/STAGING_ENVIRONMENT.md for setup.
+
+name: Deploy Staging
+
+on:
+  push:
+    branches: [staging]
+
+jobs:
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      id-token: write  # Required for Workload Identity Federation
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          # Option A: Service account key (simplest - add GCP_SA_KEY to repo secrets)
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+          # Option B: Workload Identity Federation (uncomment and remove credentials_json)
+          # workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+          # service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: catchfire-app-2026
+
+      - name: Deploy to Cloud Run Staging
+        run: |
+          gcloud run deploy cf-matching-staging \
+            --source . \
+            --region us-east1 \
+            --project catchfire-app-2026 \
+            --memory 512Mi \
+            --cpu 1 \
+            --allow-unauthenticated \
+            --set-env-vars "NODE_ENV=staging,GCP_PROJECT_ID=catchfire-app-2026,GOOGLE_CLOUD_PROJECT=catchfire-app-2026,FIRESTORE_COLLECTION=creators-staging"
+
+      - name: Get service URL
+        id: url
+        run: |
+          URL=$(gcloud run services describe cf-matching-staging \
+            --region us-east1 \
+            --project catchfire-app-2026 \
+            --format='value(status.url)')
+          echo "url=$URL" >> $GITHUB_OUTPUT
+          echo "Staging URL: $URL"
+          echo "Health: $URL/health"
+          echo "Testing: $URL/testing"
