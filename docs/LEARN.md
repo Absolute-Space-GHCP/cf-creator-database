@@ -27,6 +27,7 @@
 | [L013](#l013-npx-cannot-resolve-non-npm-executables-on-windows-npm-v9) | npx Cannot Resolve Non-npm Executables (npm v9+) | High | Any `npx` calls to Python/system tools |
 | [L014](#l014-typescript-erasablesyntaxonly-blocks-parameter-properties) | TypeScript erasableSyntaxOnly Blocks Parameter Properties | Medium | `web/src/**/*.ts`, `tsconfig.app.json` |
 | [L015](#l015-web-dependencies-missing-after-clone-webnodemodules) | Web Dependencies Missing After Clone | Medium | `web/package.json`, `web/node_modules/` |
+| [L016](#l016-integration-tests-require-running-local-server) | Integration Tests Require Running Local Server | Medium | `tests/integration/`, status reports |
 
 ---
 
@@ -825,6 +826,46 @@ Template:
 ### Proactive Maintenance
 ### Cross-Project Applicability
 ```
+
+---
+
+## L016: Integration Tests Require Running Local Server
+
+**Severity:** Medium
+**First Observed:** 2026-02-23
+**Last Confirmed:** 2026-02-23
+**Status:** PERMANENT - By design, these are live integration tests
+
+### Problem
+
+The 13 integration tests in the vitest suite consistently fail with `ECONNREFUSED` on port 8090 when no local Express server is running. The 02-19 status report listed them as "all passing" but they only pass during active dev sessions when the server is started manually.
+
+### Symptoms
+
+- `TypeError: fetch failed` / `ECONNREFUSED 127.0.0.1:8090` on all 13 integration tests
+- Tests pass locally when `npm start` (or equivalent) is running in another terminal
+- Status reports may incorrectly list them as "all passing" if tested during dev sessions
+
+### Root Cause
+
+Integration tests make real HTTP requests to `http://localhost:8090`. They are true integration tests, not mocked. When the server is not running (e.g., CI environment, cold session start), they all fail.
+
+### Solution
+
+1. **For local testing:** Start the server first: `npm start` in a separate terminal, then run `npm test`
+2. **For CI:** These tests should either be excluded from CI or CI should start the server before running them
+3. **For status reports:** Report integration tests separately with a note: "requires running server"
+
+### Proactive Maintenance
+
+1. When reporting test counts, always distinguish unit tests (always pass) from integration tests (require server)
+2. Do not report integration tests as "all passing" unless they were verified with a running server in that session
+3. Consider adding a vitest config that auto-starts the server for integration tests, or use a `beforeAll` that spawns the process
+4. See also L008 for the three-layer testing architecture
+
+### Cross-Project Applicability
+
+Applies to any project with live integration tests that depend on a running server. Always document which tests are standalone vs. which require infrastructure.
 
 ---
 
