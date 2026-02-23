@@ -2,9 +2,9 @@
  * @file index.js
  * @description CatchFire Influencer Matching Engine - Main Express Server
  * @author Charley Scholz, JLAI
- * @coauthor Claude Opus 4.5, Claude Code (coding assistant), Cursor (IDE)
+ * @coauthor Claude Opus 4.6, Claude Code (coding assistant), Cursor (IDE)
  * @created 2026-01-28
- * @updated 2026-01-28
+ * @updated 2026-02-23
  */
 
 require('dotenv').config();
@@ -15,7 +15,12 @@ const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 const { Firestore } = require('@google-cloud/firestore');
 
+// Auth middleware
+const { requireAuth } = require('./middleware/auth');
+const { optionalAuth } = require('./middleware/optionalAuth');
+
 // Local modules
+const scraperTriggerRouter = require('./routes/scraperTrigger');
 const { validateCreator, validateBatchCreator, validateMatchRequest, validateCategorizeRequest, PLATFORMS, CRAFT_TYPES } = require('./schemas');
 const { rankCreators, extractBriefKeywords } = require('./scoring');
 const { appendFeedbackRow } = require('./feedback-sheet');
@@ -147,7 +152,7 @@ app.use(helmet({
 app.use(cors({
     origin: process.env.CORS_ORIGIN || true, // true = reflect request origin; set to comma-separated origins in production
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-CloudScheduler-JobName']
 }));
 const limiter = rateLimit({
     windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS, 10) || 15 * 60 * 1000, // 15 min
@@ -206,7 +211,7 @@ app.get('/health', (req, res) => {
  * GET /api/v1/creators - List/search creators
  * Query params: craft, location, tags, subjectMatter, subjectSubcategory, primaryMedium, budgetTier, limit
  */
-app.get('/api/v1/creators', async (req, res) => {
+app.get('/api/v1/creators', optionalAuth, async (req, res) => {
     console.log('📥 GET /api/v1/creators', req.query);
     
     try {
@@ -293,7 +298,7 @@ app.get('/api/v1/creators', async (req, res) => {
 /**
  * GET /api/v1/creators/:id - Get creator by ID
  */
-app.get('/api/v1/creators/:id', async (req, res) => {
+app.get('/api/v1/creators/:id', optionalAuth, async (req, res) => {
     console.log('📥 GET /api/v1/creators/:id', req.params.id);
     
     try {
@@ -320,7 +325,7 @@ app.get('/api/v1/creators/:id', async (req, res) => {
 /**
  * PATCH /api/v1/creators/:id - Partial update a creator (admin)
  */
-app.patch('/api/v1/creators/:id', async (req, res) => {
+app.patch('/api/v1/creators/:id', requireAuth, async (req, res) => {
     console.log('PATCH /api/v1/creators/' + req.params.id);
     
     try {
@@ -367,7 +372,7 @@ app.patch('/api/v1/creators/:id', async (req, res) => {
 /**
  * POST /api/v1/creators - Add a single creator
  */
-app.post('/api/v1/creators', async (req, res) => {
+app.post('/api/v1/creators', requireAuth, async (req, res) => {
     console.log('📥 POST /api/v1/creators');
     
     try {
@@ -655,7 +660,7 @@ function transformScraperData(raw) {
  *   dryRun: boolean (default: false)
  * }
  */
-app.post('/api/v1/import/apify', async (req, res) => {
+app.post('/api/v1/import/apify', requireAuth, async (req, res) => {
     console.log('📥 POST /api/v1/import/apify');
     
     try {
@@ -898,7 +903,7 @@ app.post('/api/v1/match', async (req, res) => {
  * POST /api/v1/feedback - Record thumbs up/down (or rating) for testing; appends to Google Sheet when FEEDBACK_SHEET_ID set.
  * Body: { event: 'match'|'semantic', briefOrQuery: string, sessionId?: string, resultId?: string, creatorId?: string, rating: 'up'|'down', comment?: string }
  */
-app.post('/api/v1/feedback', async (req, res) => {
+app.post('/api/v1/feedback', requireAuth, async (req, res) => {
     const { event, briefOrQuery, sessionId, resultId, creatorId, rating, comment } = req.body || {};
     if (!rating || !['up', 'down'].includes(rating)) {
         return res.status(400).json({ success: false, error: 'rating is required and must be "up" or "down"' });
@@ -928,7 +933,7 @@ app.post('/api/v1/feedback', async (req, res) => {
  * POST /api/v1/categorize - Auto-categorize a creator from bio/portfolio
  * Body: { bio: string, portfolio_url?: string, recentWork?: string[] }
  */
-app.post('/api/v1/categorize', async (req, res) => {
+app.post('/api/v1/categorize', requireAuth, async (req, res) => {
     console.log('📥 POST /api/v1/categorize');
     
     try {
@@ -997,7 +1002,7 @@ app.post('/api/v1/categorize', async (req, res) => {
  * POST /api/v1/style-signature - Generate a style signature for a creator
  * Body: { name: string, craft: string, bio: string, technicalTags?: string[] }
  */
-app.post('/api/v1/style-signature', async (req, res) => {
+app.post('/api/v1/style-signature', requireAuth, async (req, res) => {
     console.log('📥 POST /api/v1/style-signature');
     
     try {
@@ -1030,7 +1035,7 @@ app.post('/api/v1/style-signature', async (req, res) => {
 /**
  * GET /api/v1/llm/test - Test LLM connection
  */
-app.get('/api/v1/llm/test', async (req, res) => {
+app.get('/api/v1/llm/test', optionalAuth, async (req, res) => {
     console.log('📥 GET /api/v1/llm/test');
     
     try {
@@ -1059,7 +1064,7 @@ app.get('/api/v1/llm/test', async (req, res) => {
 /**
  * GET /api/v1/embeddings/test - Test embedding generation
  */
-app.get('/api/v1/embeddings/test', async (req, res) => {
+app.get('/api/v1/embeddings/test', optionalAuth, async (req, res) => {
     console.log('📥 GET /api/v1/embeddings/test');
     
     try {
@@ -1085,7 +1090,7 @@ app.get('/api/v1/embeddings/test', async (req, res) => {
 /**
  * POST /api/v1/embeddings/generate/:id - Generate embedding for a specific creator
  */
-app.post('/api/v1/embeddings/generate/:id', async (req, res) => {
+app.post('/api/v1/embeddings/generate/:id', requireAuth, async (req, res) => {
     const { id } = req.params;
     console.log(`📥 POST /api/v1/embeddings/generate/${id}`);
     
@@ -1133,7 +1138,7 @@ app.post('/api/v1/embeddings/generate/:id', async (req, res) => {
 /**
  * POST /api/v1/embeddings/batch - Generate embeddings for all creators (or subset)
  */
-app.post('/api/v1/embeddings/batch', async (req, res) => {
+app.post('/api/v1/embeddings/batch', requireAuth, async (req, res) => {
     console.log('📥 POST /api/v1/embeddings/batch');
     
     const { 
@@ -1228,7 +1233,7 @@ app.post('/api/v1/embeddings/batch', async (req, res) => {
 /**
  * GET /api/v1/similar/:id - Find creators similar to a given creator
  */
-app.get('/api/v1/similar/:id', async (req, res) => {
+app.get('/api/v1/similar/:id', optionalAuth, async (req, res) => {
     const { id } = req.params;
     const { limit = 5, minSimilarity = 0.5 } = req.query;
     
@@ -1395,7 +1400,7 @@ async function getGoldenRecordModel(forceRefresh = false) {
 /**
  * GET /api/v1/lookalikes/model - Get Golden Record model info
  */
-app.get('/api/v1/lookalikes/model', async (req, res) => {
+app.get('/api/v1/lookalikes/model', optionalAuth, async (req, res) => {
     console.log('📥 GET /api/v1/lookalikes/model');
     
     try {
@@ -1435,7 +1440,7 @@ app.get('/api/v1/lookalikes/model', async (req, res) => {
 /**
  * GET /api/v1/lookalikes - Find creators most similar to Golden Records
  */
-app.get('/api/v1/lookalikes', async (req, res) => {
+app.get('/api/v1/lookalikes', optionalAuth, async (req, res) => {
     const { limit = 10, minSimilarity = 0.5, includeGoldenRecords = false } = req.query;
     console.log(`📥 GET /api/v1/lookalikes?limit=${limit}&minSimilarity=${minSimilarity}`);
     
@@ -1491,7 +1496,7 @@ app.get('/api/v1/lookalikes', async (req, res) => {
 /**
  * GET /api/v1/lookalikes/score/:id - Get a specific creator's Golden Record similarity score
  */
-app.get('/api/v1/lookalikes/score/:id', async (req, res) => {
+app.get('/api/v1/lookalikes/score/:id', optionalAuth, async (req, res) => {
     const { id } = req.params;
     console.log(`📥 GET /api/v1/lookalikes/score/${id}`);
     
@@ -1556,7 +1561,7 @@ app.get('/api/v1/lookalikes/score/:id', async (req, res) => {
 /**
  * POST /api/v1/lookalikes/refresh - Force refresh the Golden Record model
  */
-app.post('/api/v1/lookalikes/refresh', async (req, res) => {
+app.post('/api/v1/lookalikes/refresh', requireAuth, async (req, res) => {
     console.log('📥 POST /api/v1/lookalikes/refresh');
     
     try {
@@ -1585,13 +1590,18 @@ app.post('/api/v1/lookalikes/refresh', async (req, res) => {
 });
 
 // =============================================================================
+// 🕷️ SCRAPER TRIGGER (Cloud Scheduler)
+// =============================================================================
+app.use('/api/v1/scraper', scraperTriggerRouter);
+
+// =============================================================================
 // 📊 STATS API
 // =============================================================================
 
 /**
  * GET /api/v1/stats - Get database statistics
  */
-app.get('/api/v1/stats', async (req, res) => {
+app.get('/api/v1/stats', optionalAuth, async (req, res) => {
     console.log('📥 GET /api/v1/stats');
     
     try {
@@ -1681,6 +1691,7 @@ Endpoints:
   GET  /api/v1/lookalikes/model     - Get model info
   GET  /api/v1/lookalikes/score/:id - Score creator vs Golden Records
   POST /api/v1/lookalikes/refresh   - Refresh model cache
+  POST /api/v1/scraper/trigger      - Cloud Scheduler scrape trigger
   GET  /api/v1/stats                - Database statistics
 ============================================================
 `);

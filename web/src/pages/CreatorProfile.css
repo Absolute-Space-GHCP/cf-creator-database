@@ -204,14 +204,14 @@
 .golden-card-link .golden-card {
   display: block;
   padding: 16px;
-  background: linear-gradient(135deg, rgba(201, 162, 39, 0.05), transparent);
-  border: 1px solid rgba(201, 162, 39, 0.15);
+  background: linear-gradient(135deg, var(--color-gold-5), transparent);
+  border: 1px solid var(--color-gold-15);
   border-radius: var(--radius-md);
   transition: all 0.2s ease;
 }
 
 .golden-card-link:hover .golden-card {
-  border-color: rgba(201, 162, 39, 0.3);
+  border-color: var(--color-gold-30);
   transform: translateY(-2px);
 }
 

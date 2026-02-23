@@ -8,29 +8,46 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { api, type Creator, type SemanticSearchResult, type LookalikeScoreResponse } from '../api/client';
+import { api, ApiError, type Creator, type SemanticSearchResult, type LookalikeScoreResponse } from '../api/client';
+import { useToast } from '../components/ui/Toast';
 import '../components/ui/ui.css';
 import './CreatorProfile.css';
 
 export default function CreatorProfile() {
   const { id } = useParams<{ id: string }>();
+  const { showToast } = useToast();
   const [creator, setCreator] = useState<Creator | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [similar, setSimilar] = useState<SemanticSearchResult[]>([]);
+  const [similarError, setSimilarError] = useState(false);
   const [grScore, setGrScore] = useState<LookalikeScoreResponse | null>(null);
 
   useEffect(() => {
     if (!id) return;
     setLoading(true);
     setError(null);
+    setSimilarError(false);
     api
       .getCreator(id)
       .then((r) => {
         setCreator(r.creator);
         if (r.creator.embedding) {
-          api.getSimilar(id, 5).then((s) => setSimilar(s.similar)).catch(() => {});
-          api.scoreLookalike(id).then(setGrScore).catch(() => {});
+          api.getSimilar(id, 5)
+            .then((s) => setSimilar(s.similar))
+            .catch((e) => {
+              setSimilarError(true);
+              if (e instanceof ApiError && e.isTransient) {
+                showToast('Could not load similar creators', 'warning');
+              }
+            });
+          api.scoreLookalike(id)
+            .then(setGrScore)
+            .catch((e) => {
+              if (e instanceof ApiError && e.isTransient) {
+                showToast('Could not load Golden Record score', 'warning');
+              }
+            });
         }
       })
       .catch((e) => {
@@ -38,7 +55,7 @@ export default function CreatorProfile() {
         setError(e instanceof Error ? e.message : 'Failed to load creator');
       })
       .finally(() => setLoading(false));
-  }, [id]);
+  }, [id, showToast]);
 
   if (loading) {
     return (
@@ -246,7 +263,7 @@ export default function CreatorProfile() {
       </div>
 
       {/* Similar Creators */}
-      {similar.length > 0 && (
+      {similar.length > 0 ? (
         <div className="similar-section">
           <h2 className="section-heading">Similar Creators</h2>
           <div className="similar-grid stagger">
@@ -268,7 +285,12 @@ export default function CreatorProfile() {
             ))}
           </div>
         </div>
-      )}
+      ) : similarError ? (
+        <div className="similar-section">
+          <h2 className="section-heading">Similar Creators</h2>
+          <p className="text-muted">Could not load similar creators. The embedding service may be temporarily unavailable.</p>
+        </div>
+      ) : null}
 
       {/* Source Info */}
       {creator.source && (

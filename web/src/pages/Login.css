@@ -1,0 +1,145 @@
+/**
+ * @file Login.css
+ * @description Styles for Login / token entry page – Beta Control Center design system
+ * @author Charley Scholz, JLAI
+ * @coauthor Claude Opus 4.6, Claude Code (coding assistant), Cursor (IDE)
+ * @updated 2026-02-23
+ */
+
+.login-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - var(--header-height) - 120px);
+  padding: var(--space-8);
+}
+
+.login-card {
+  width: 100%;
+  max-width: 420px;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-10) var(--space-8);
+  box-shadow: var(--shadow-card);
+  text-align: center;
+}
+
+.login-card h1 {
+  font-family: var(--font-serif);
+  font-size: var(--text-2xl);
+  font-weight: 400;
+  margin-bottom: var(--space-2);
+  color: var(--text-primary);
+}
+
+.login-subtitle {
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  margin-bottom: var(--space-8);
+  line-height: var(--leading-relaxed);
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.login-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  text-align: left;
+}
+
+.login-field label {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wider);
+  font-weight: 500;
+}
+
+.login-field input {
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-bg-input);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  outline: none;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.login-field input::placeholder {
+  color: var(--text-muted);
+  font-family: var(--font-sans);
+}
+
+.login-field input:focus {
+  border-color: var(--color-gold);
+  box-shadow: 0 0 0 2px var(--color-gold-15);
+}
+
+.login-submit {
+  padding: var(--space-3) var(--space-6);
+  background: var(--color-gold);
+  color: var(--bg-primary);
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  letter-spacing: var(--tracking-wide);
+  cursor: pointer;
+  transition: background var(--transition-fast), box-shadow var(--transition-fast);
+  margin-top: var(--space-2);
+}
+
+.login-submit:hover {
+  background: var(--color-gold-light);
+  box-shadow: var(--shadow-glow);
+}
+
+.login-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.login-error {
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-error-dim);
+  border: 1px solid var(--color-error);
+  border-radius: var(--radius-sm);
+  color: var(--color-error);
+  font-size: var(--text-sm);
+}
+
+.login-status {
+  margin-top: var(--space-4);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.login-status.authenticated {
+  color: var(--color-success);
+}
+
+.login-logout {
+  margin-top: var(--space-3);
+  padding: var(--space-2) var(--space-4);
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-xs);
+  cursor: pointer;
+  transition: border-color var(--transition-fast), color var(--transition-fast);
+}
+
+.login-logout:hover {
+  border-color: var(--color-error);
+  color: var(--color-error);
+}

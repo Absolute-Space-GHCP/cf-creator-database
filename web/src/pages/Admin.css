@@ -123,8 +123,8 @@
 
 .golden-tag {
   padding: 2px 8px;
-  background: linear-gradient(135deg, rgba(201, 162, 39, 0.2), transparent);
-  border: 1px solid rgba(201, 162, 39, 0.3);
+  background: linear-gradient(135deg, var(--color-gold-20), transparent);
+  border: 1px solid var(--color-gold-30);
   border-radius: 4px;
   font-size: 0.6rem;
   font-weight: 700;
@@ -233,7 +233,7 @@
 }
 
 .admin-table .golden-row td {
-  background: rgba(201, 162, 39, 0.05);
+  background: var(--color-gold-5);
 }
 
 .table-name {

@@ -1,22 +1,54 @@
 /**
  * @file client.ts
  * @description Typed API client for CatchFire Matching Engine
- * @author Charley Scholz, JLIT
- * @coauthor Claude Opus 4.5, Claude Code (coding assistant), Cursor (IDE)
+ * @author Charley Scholz, JLAI
+ * @coauthor Claude Opus 4.6, Claude Code (coding assistant), Cursor (IDE)
  * @created 2026-01-28
- * @updated 2026-01-28
+ * @updated 2026-02-23
  */
 
 const BASE = import.meta.env.VITE_API_BASE ?? '';
+const TOKEN_KEY = 'cf-auth-token';
+
+function authHeaders(): Record<string, string> {
+  const token = localStorage.getItem(TOKEN_KEY);
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
+export class ApiError extends Error {
+  status: number;
+  isNetwork: boolean;
+
+  constructor(message: string, status: number, isNetwork = false) {
+    super(message);
+    this.name = 'ApiError';
+    this.status = status;
+    this.isNetwork = isNetwork;
+  }
+
+  get isServerError() { return this.status >= 500; }
+  get isClientError() { return this.status >= 400 && this.status < 500; }
+  get isTransient() { return this.isNetwork || this.isServerError; }
+}
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${BASE}${path}`, {
-    headers: { 'Content-Type': 'application/json', ...init?.headers },
-    ...init,
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${BASE}${path}`, {
+      headers: { 'Content-Type': 'application/json', ...authHeaders(), ...init?.headers },
+      ...init,
+    });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : 'Network error';
+    throw new ApiError(
+      navigator.onLine === false ? 'You appear to be offline' : `Network error: ${msg}`,
+      0,
+      true,
+    );
+  }
   if (!res.ok) {
     const body = await res.json().catch(() => ({ error: res.statusText }));
-    throw new Error(body.error ?? `Request failed: ${res.status}`);
+    throw new ApiError(body.error ?? `Request failed: ${res.status}`, res.status);
   }
   return res.json();
 }
@@ -187,6 +219,38 @@ export interface FeedbackPayload {
   comment?: string;
 }
 
+/* ── Scraper types ────────────────────────────────────── */
+
+export interface ScraperStatusResponse {
+  success: boolean;
+  running: boolean;
+  lastRun: string | null;
+  totalRuns: number;
+  platforms: string[];
+}
+
+export interface ScraperReport {
+  id: string;
+  timestamp: string;
+  platform: string;
+  creatorsFound: number;
+  creatorsAdded: number;
+  duration: number;
+  status: string;
+}
+
+export interface ScraperReportsResponse {
+  success: boolean;
+  reports: ScraperReport[];
+}
+
+export interface ScraperTriggerResponse {
+  success: boolean;
+  message: string;
+  platforms: string[];
+  limit: number;
+}
+
 /* ── API functions ─────────────────────────────────────── */
 
 export const api = {
@@ -245,4 +309,16 @@ export const api = {
     request<{ success: boolean; target: { id: string; name: string }; similar: SemanticSearchResult[] }>(
       `/api/v1/similar/${id}?limit=${limit}`
     ),
+
+  getScraperStatus: () =>
+    request<ScraperStatusResponse>('/api/v1/scraper/status'),
+
+  getScraperReports: () =>
+    request<ScraperReportsResponse>('/api/v1/scraper/reports'),
+
+  triggerScrape: (platforms?: string[], limit?: number) =>
+    request<ScraperTriggerResponse>('/api/v1/scraper/trigger', {
+      method: 'POST',
+      body: JSON.stringify({ platforms, limit }),
+    }),
 };

@@ -8,6 +8,7 @@ export default function Header() {
     { to: '/how-it-works', label: 'How It Works' },
     { to: '/creators', label: 'Browse Creators' },
     { to: '/admin', label: 'Admin' },
+    { to: '/scraper', label: 'Scraper' },
     { to: '/status', label: 'Status' },
   ];
 

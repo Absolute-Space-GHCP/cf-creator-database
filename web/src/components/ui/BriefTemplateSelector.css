@@ -1,0 +1,148 @@
+/**
+ * @file BriefTemplateSelector.css
+ * @description Styles for the brief template discovery cards
+ * @author Charley Scholz, JLAI
+ * @coauthor Claude Opus 4.6, Cursor (IDE)
+ * @updated 2026-02-23
+ */
+
+/* ── Container ───────────────────────────────────────── */
+
+.brief-templates {
+  margin-top: var(--space-6);
+}
+
+.brief-templates-heading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+}
+
+.brief-templates-label {
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wider);
+  color: var(--text-muted);
+}
+
+.brief-templates-rule {
+  flex: 1;
+  height: 1px;
+  background: var(--border-subtle);
+}
+
+/* ── Category groups ─────────────────────────────────── */
+
+.brief-category {
+  margin-bottom: var(--space-6);
+}
+
+.brief-category:last-child {
+  margin-bottom: 0;
+}
+
+.brief-category-name {
+  font-family: var(--font-serif);
+  font-size: var(--text-base);
+  font-weight: 400;
+  color: var(--accent-gold);
+  margin-bottom: var(--space-3);
+  letter-spacing: var(--tracking-tight);
+}
+
+.brief-category-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--space-3);
+}
+
+/* ── Template card ───────────────────────────────────── */
+
+.brief-card {
+  position: relative;
+  padding: var(--space-4);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition:
+    background var(--transition-fast),
+    border-color var(--transition-fast),
+    transform var(--transition-fast),
+    box-shadow var(--transition-fast);
+  overflow: hidden;
+}
+
+.brief-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(201, 162, 39, 0.06) 0%,
+    transparent 60%
+  );
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+  pointer-events: none;
+}
+
+.brief-card:hover {
+  background: var(--bg-card);
+  border-color: rgba(201, 162, 39, 0.25);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-card-hover);
+}
+
+.brief-card:hover::before {
+  opacity: 1;
+}
+
+.brief-card:active {
+  transform: translateY(0);
+}
+
+.brief-card-title {
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--space-1);
+  position: relative;
+}
+
+.brief-card-desc {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  line-height: var(--leading-normal);
+  position: relative;
+}
+
+.brief-card-arrow {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+  font-size: var(--text-xs);
+  color: var(--accent-gold-dim);
+  opacity: 0;
+  transform: translateX(-4px);
+  transition:
+    opacity var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.brief-card:hover .brief-card-arrow {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* ── Responsive ──────────────────────────────────────── */
+
+@media (max-width: 768px) {
+  .brief-category-grid {
+    grid-template-columns: 1fr;
+  }
+}

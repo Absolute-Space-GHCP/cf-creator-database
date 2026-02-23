@@ -20,6 +20,7 @@
     "web:preview": "cd web && npm run preview",
     "build:all": "npm run build && npm run web:build",
     "deploy": "npm run build:all && gcloud run deploy cf-matching-engine --source . --region us-central1 --project catchfire-app-2026 --allow-unauthenticated",
+    "deploy:staging": "npm run build:all && gcloud run deploy cf-matching-staging --source . --region us-east1 --project catchfire-app-2026 --memory 512Mi --cpu 1 --allow-unauthenticated --set-env-vars NODE_ENV=staging,GCP_PROJECT_ID=catchfire-app-2026,GOOGLE_CLOUD_PROJECT=catchfire-app-2026,FIRESTORE_COLLECTION=creators-staging",
     "match": "node src/index.js --match",
     "import": "node src/index.js --import"
   },

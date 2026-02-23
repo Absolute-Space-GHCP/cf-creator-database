@@ -4,6 +4,8 @@
 
 **How to use:** Each entry has a Problem, Root Cause, Solution, and file references. When touching the listed files, verify the fix is still in place. When encountering the listed symptoms, apply the known solution before investigating further.
 
+> **Cross-Project Lessons:** For issues that apply across ALL projects (PowerShell syntax, Cloud Run deploys, mojibake, npx limitations, etc.), see the global file: `C:\Users\cmsch\Projects\tools\LEARN-GLOBAL.md`. This file contains only project-specific entries.
+
 ---
 
 ## Table of Contents
@@ -20,6 +22,11 @@
 | [L008](#l008-project-has-three-testing-layers--know-them-all) | Project Has Three Testing Layers -- Know Them All | Info | `tests/`, `docs/TESTING_*.md`, `public/testing.html` |
 | [L009](#l009-pdf-generation--use-puppeteer-via-md-to-pdfjs) | PDF Generation -- Use Puppeteer via md-to-pdf.js | Medium | `scripts/md-to-pdf.js` |
 | [L010](#l010-garbled-emojispecial-characters-in-html-files) | Garbled Emoji/Special Characters in HTML Files | High | `public/index.html`, any HTML with emoji |
+| [L011](#l011-claude-mem-chroma-server-fails-on-windows-npx-cannot-resolve-python-cli) | Claude-Mem Chroma Server Fails on Windows | High | `~/.claude/plugins/.../worker-service.cjs` |
+| [L012](#l012-powershell-invoke-webrequest-hangs-on-localhost) | PowerShell Invoke-WebRequest Hangs on Localhost | Medium | All localhost HTTP testing |
+| [L013](#l013-npx-cannot-resolve-non-npm-executables-on-windows-npm-v9) | npx Cannot Resolve Non-npm Executables (npm v9+) | High | Any `npx` calls to Python/system tools |
+| [L014](#l014-typescript-erasablesyntaxonly-blocks-parameter-properties) | TypeScript erasableSyntaxOnly Blocks Parameter Properties | Medium | `web/src/**/*.ts`, `tsconfig.app.json` |
+| [L015](#l015-web-dependencies-missing-after-clone-webnodemodules) | Web Dependencies Missing After Clone | Medium | `web/package.json`, `web/node_modules/` |
 
 ---
 
@@ -495,12 +502,307 @@ p.write_bytes(data)
 
 ---
 
+## L011: Claude-Mem Chroma Server Fails on Windows (npx Cannot Resolve Python CLI)
+
+**Severity:** High
+**First Observed:** 2026-02-23
+**Last Confirmed:** 2026-02-23
+**Status:** FIXED - Patched worker-service.cjs on 2026-02-23
+
+### Problem
+
+The claude-mem persistent memory plugin's Chroma vector database server fails to start on Windows, causing a 60-second timeout and disabling vector search entirely. The worker reports "ready" after the timeout but without semantic search capability.
+
+### Symptoms
+
+- Claude-mem logs: `[CHROMA_SERVER] Server process exited {code=1, signal=null}`
+- 60-second delay on every worker startup before it becomes available
+- `/api/readiness` returns 503 during the 60s wait, then 200 but with degraded (no vector search) capability
+- `npx chroma run` fails with: `npm error could not determine executable to run`
+
+### Root Cause
+
+Two compounding issues:
+
+1. **`chromadb` Python package was not installed.** The Chroma CLI (`chroma run`) is a Python executable, not an npm package. It must be installed via `pip install chromadb`.
+
+2. **`npx` (npm v9+) cannot resolve Python CLIs.** Claude-mem's `worker-service.cjs` spawns `npx.cmd chroma run` on Windows. But `npx` in npm v9+ only resolves npm packages, NOT system PATH executables. Even with `chromadb` installed and `chroma.exe` on PATH, `npx chroma` still fails.
+
+### Solution
+
+**Step 1:** Install the Python `chromadb` package:
+```powershell
+pip install chromadb
+```
+
+**Step 2:** Add Python Scripts to User PATH (for direct `chroma` access):
+```powershell
+$scriptsPath = "$env:LOCALAPPDATA\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\Scripts"
+[Environment]::SetEnvironmentVariable("PATH", "$([Environment]::GetEnvironmentVariable('PATH', 'User'));$scriptsPath", "User")
+```
+
+**Step 3:** Patch `worker-service.cjs` to bypass `npx` and call `chroma.exe` directly:
+
+In `~/.claude/plugins/marketplaces/thedotmack/plugin/scripts/worker-service.cjs`, find:
+```
+r?"npx.cmd":"npx",i=["chroma","run",
+```
+Replace with:
+```
+r?"C:\\Users\\cmsch\\AppData\\Local\\Packages\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\LocalCache\\local-packages\\Python312\\Scripts\\chroma.exe":"chroma",i=["run",
+```
+
+**Step 4:** Create a backup before patching:
+```powershell
+Copy-Item worker-service.cjs worker-service.cjs.bak
+```
+
+**Result:** Chroma startup goes from 60s timeout + failure to ~1 second + full success.
+
+### Proactive Maintenance
+
+1. After any claude-mem marketplace update, the patch will be **overwritten**. Re-apply the patch from `worker-service.cjs.bak` diff.
+2. Verify with: `curl.exe -s http://127.0.0.1:37777/api/readiness` — should return `{"status":"ready","mcpReady":true}`
+3. Do NOT use PowerShell `Invoke-WebRequest` to test localhost — it hangs (see L012)
+4. A `.cmd` shim in npm global bin does NOT work — `npx` doesn't resolve it
+
+### Cross-Project Applicability
+
+**Applies to ALL projects** using claude-mem on this Windows workstation. The fix is in the global plugin directory, not per-project.
+
+---
+
+## L012: PowerShell Invoke-WebRequest Hangs on Localhost
+
+**Severity:** Medium
+**First Observed:** 2026-02-23
+**Last Confirmed:** 2026-02-23
+**Status:** PERMANENT - Windows .NET HTTP stack limitation
+
+### Problem
+
+PowerShell's `Invoke-WebRequest` (and `Invoke-RestMethod`) hangs indefinitely when making requests to `http://127.0.0.1` or `http://localhost`, even when the target service is confirmed running and responding.
+
+### Symptoms
+
+- `Invoke-WebRequest -Uri "http://127.0.0.1:37777/api/readiness"` never returns
+- The command must be killed with `Ctrl+C` or `Stop-Process`
+- The same URL works instantly with `curl.exe`
+- `netstat` confirms the target port is listening
+
+### Root Cause
+
+PowerShell's `Invoke-WebRequest` uses the .NET `HttpClient` / `WebRequest` stack, which respects system proxy settings and can behave unexpectedly with loopback addresses. Common triggers include:
+
+- System proxy configuration (corporate/VPN proxy) intercepting localhost
+- .NET's connection pooling holding stale TCP connections after a previous timeout
+- IPv6 vs IPv4 loopback resolution issues (`::1` vs `127.0.0.1`)
+
+### Solution
+
+**Use `curl.exe` instead of `Invoke-WebRequest` for localhost testing:**
+
+```powershell
+# CORRECT: Use curl.exe (Windows ships with it)
+curl.exe -s --connect-timeout 5 "http://127.0.0.1:37777/api/readiness"
+
+# WRONG: PowerShell cmdlet (may hang)
+Invoke-WebRequest -Uri "http://127.0.0.1:37777/api/readiness"
+
+# ALTERNATIVE: Use .NET directly with proxy bypass
+$handler = [System.Net.Http.HttpClientHandler]::new()
+$handler.UseProxy = $false
+$client = [System.Net.Http.HttpClient]::new($handler)
+$client.GetStringAsync("http://127.0.0.1:37777/api/readiness").Result
+```
+
+### Proactive Maintenance
+
+1. ALWAYS use `curl.exe` (not `curl` alias) for localhost HTTP requests in PowerShell
+2. If you must use `Invoke-WebRequest`, add `-NoProxy` parameter (PowerShell 7+)
+3. This applies to any local service: claude-mem, Express dev server, Vite, etc.
+4. Note: `curl` in PowerShell is an alias for `Invoke-WebRequest` — use `curl.exe` explicitly
+
+### Cross-Project Applicability
+
+**Applies to ALL projects** on this Windows workstation. Any time you need to test a local HTTP service from PowerShell, use `curl.exe`.
+
+---
+
+## L013: npx Cannot Resolve Non-npm Executables on Windows (npm v9+)
+
+**Severity:** High
+**First Observed:** 2026-02-23
+**Last Confirmed:** 2026-02-23
+**Status:** PERMANENT - npm v9+ behavioral change
+
+### Problem
+
+`npx <command>` fails with "could not determine executable to run" for executables that are on PATH but are not npm packages (e.g., Python CLIs, system tools).
+
+### Symptoms
+
+- `npx chroma run` → `npm error could not determine executable to run`
+- The command works fine when called directly: `chroma run` (if on PATH)
+- Creating a `.cmd` shim in npm global bin (`%APPDATA%\npm\`) does NOT fix it
+- The error occurs even when the executable is on system PATH
+
+### Root Cause
+
+In npm v7+ (and especially v9+), `npx` was reimplemented as `npm exec`. The new implementation:
+1. Checks local `node_modules/.bin/` first
+2. Checks for a matching npm package (in registry or cache)
+3. Does **NOT** check system PATH for arbitrary executables
+
+This is a deliberate behavioral change from older `npx` (npm v6 and below), which DID check PATH.
+
+### Solution
+
+When a third-party tool uses `npx` to call a non-npm executable:
+
+1. **Patch the caller** to invoke the executable directly instead of through `npx` (preferred)
+2. **Create a wrapper npm package** with a `bin` entry pointing to the real executable (complex, fragile)
+3. **Install the tool's npm equivalent** if one exists (not always available)
+
+For the specific case of `chroma`:
+```powershell
+# This does NOT work (npm v9+):
+npx chroma run --path ./data
+
+# This WORKS:
+chroma run --path ./data
+
+# Or with full path:
+& "C:\path\to\chroma.exe" run --path ./data
+```
+
+### Proactive Maintenance
+
+1. When you see "could not determine executable to run", check if the target is an npm package
+2. If it's a Python/system tool, call it directly — don't use `npx`
+3. This affects ANY tool that uses `npx` to invoke non-npm executables
+4. See L011 for the specific claude-mem/Chroma instance of this problem
+
+### Cross-Project Applicability
+
+**Applies to ALL projects** on any system running npm v9+. Particularly affects AI tooling plugins that shell out to Python-based services.
+
+---
+
+## L014: TypeScript erasableSyntaxOnly Blocks Parameter Properties
+
+**Severity:** Medium
+**First Observed:** 2026-02-23
+**Last Confirmed:** 2026-02-23
+**Status:** PERMANENT - TypeScript configuration constraint
+
+### Problem
+
+TypeScript classes with parameter properties in constructors (`public`, `private`, `protected` in constructor params) fail to compile with error `TS1294: This syntax is not allowed when 'erasableSyntaxOnly' is enabled`.
+
+### Symptoms
+
+- `error TS1294: This syntax is not allowed when 'erasableSyntaxOnly' is enabled`
+- Occurs on constructor parameter properties like `constructor(public name: string)`
+- Build fails even though the code is valid TypeScript
+
+### Root Cause
+
+The `tsconfig.app.json` (or equivalent) has `"erasableSyntaxOnly": true` (or inherits it). This TypeScript 5.8+ option restricts syntax to only "erasable" constructs — annotations that can be removed without changing runtime behavior. Parameter properties generate JavaScript code (they assign `this.name = name`), so they're not purely erasable.
+
+### Solution
+
+Use explicit property declarations instead of parameter properties:
+
+```typescript
+// WRONG (fails with erasableSyntaxOnly):
+class ApiError extends Error {
+  constructor(
+    message: string,
+    public status: number,      // parameter property
+    public isNetwork: boolean,  // parameter property
+  ) {
+    super(message);
+  }
+}
+
+// CORRECT:
+class ApiError extends Error {
+  status: number;
+  isNetwork: boolean;
+
+  constructor(message: string, status: number, isNetwork = false) {
+    super(message);
+    this.status = status;
+    this.isNetwork = isNetwork;
+  }
+}
+```
+
+### Proactive Maintenance
+
+1. Check `tsconfig.app.json` for `erasableSyntaxOnly` before using parameter properties
+2. Also avoid `enum` declarations (they're also non-erasable) — use `const` objects instead
+3. This setting is common in modern Vite + React projects (Vite's default template enables it)
+4. When scaffolding new classes, always use explicit property declarations to be safe
+
+### Cross-Project Applicability
+
+Applies to any project with `erasableSyntaxOnly: true` in tsconfig. Particularly common in **Vite-based React/TypeScript projects** where the default template enables this setting.
+
+---
+
+## L015: Web Dependencies Missing After Clone (web/node_modules)
+
+**Severity:** Medium
+**First Observed:** 2026-02-23
+**Last Confirmed:** 2026-02-23
+**Status:** PERMANENT - Expected behavior
+
+### Problem
+
+The React SPA in `web/` has its own `package.json` and `node_modules/` separate from the root project. After a fresh clone or workspace switch, `npm run web:build` fails because `web/node_modules/` is empty or missing.
+
+### Symptoms
+
+- `npm run web:build` fails with hundreds of `TS7026: JSX element implicitly has type 'any'` errors
+- `Cannot find module '@vitejs/plugin-react'`
+- `web/node_modules/` is empty or only contains `.tmp/`
+
+### Root Cause
+
+The project has a dual dependency structure:
+- Root `package.json` — Express server, vitest, build tools
+- `web/package.json` — React, Vite, TypeScript (separate workspace)
+
+Running `npm install` at the root does NOT install web dependencies.
+
+### Solution
+
+```powershell
+# Install both dependency sets
+npm install             # root deps
+cd web; npm install     # web/React deps
+cd ..
+
+# Or use the combined build command (which cd's into web/)
+npm run web:build
+```
+
+### Proactive Maintenance
+
+1. After fresh clone, always run `npm install` in BOTH root and `web/` directories
+2. If `web:build` fails with JSX/module errors, check `web/node_modules/` first
+3. See also L002 for the root-level variant of this issue
+
+---
+
 ## Adding New Entries
 
 When you discover and fix a recurring problem:
 
 1. Add a new section following the template above
-2. Assign the next sequential ID (L008, L009, etc.)
+2. Assign the next sequential ID (L011, L012, etc.)
 3. Update the Table of Contents
 4. Reference the specific files and line numbers (approximate is fine)
 5. Include the proactive maintenance steps
@@ -526,6 +828,6 @@ Template:
 
 ---
 
-Author: Charley Scholz
-Co-authored: Claude Opus 4.6, Cursor (IDE)
-Last Updated: 2026-02-19
+Author: Charley Scholz, JLAI
+Co-authored: Claude Opus 4.6, Claude Code (coding assistant), Cursor (IDE)
+Last Updated: 2026-02-23

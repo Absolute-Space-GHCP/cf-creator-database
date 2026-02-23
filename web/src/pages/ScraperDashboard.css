@@ -1,0 +1,269 @@
+/**
+ * @file ScraperDashboard.css
+ * @description Styles for Scraper Dashboard page – dark luxury design system
+ * @author Charley Scholz, JLAI
+ * @coauthor Claude Opus 4.6, Cursor (IDE)
+ * @updated 2026-02-23
+ */
+
+.scraper-page {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 32px 48px;
+}
+
+.scraper-page h1 {
+  font-family: var(--font-serif);
+  font-size: 2rem;
+  font-weight: 400;
+  margin-bottom: 8px;
+}
+
+.scraper-description {
+  color: var(--text-secondary);
+  margin-bottom: 32px;
+  max-width: 560px;
+  font-size: var(--text-sm);
+}
+
+/* Loading */
+.scraper-loading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 48px;
+  color: var(--text-muted);
+}
+
+/* Cards */
+.scraper-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.scraper-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.scraper-card-header .card-icon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-elevated);
+  border-radius: var(--radius-sm);
+  font-size: 1.25rem;
+}
+
+.scraper-card-header .card-title {
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  font-weight: 400;
+}
+
+/* Status grid */
+.scraper-status-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 20px;
+}
+
+.status-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.status-label {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.status-value {
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-value.mono {
+  font-family: var(--font-mono);
+  color: var(--accent-gold);
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.status-value.idle .status-dot {
+  background: var(--text-muted);
+}
+
+.status-value.running .status-dot {
+  background: #4ade80;
+  box-shadow: 0 0 6px rgba(74, 222, 128, 0.5);
+  animation: pulse-dot 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* Platform tags */
+.platform-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.platform-tag {
+  padding: 2px 10px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: 4px;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  text-transform: capitalize;
+}
+
+/* Trigger section */
+.trigger-hint {
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  margin-bottom: 16px;
+}
+
+.trigger-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.platform-selector {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.platform-chip {
+  padding: 8px 16px;
+  background: transparent;
+  border: 1px solid var(--border-subtle);
+  border-radius: 100px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: var(--font-sans);
+  text-transform: capitalize;
+}
+
+.platform-chip:hover {
+  border-color: var(--accent-gold);
+  color: var(--accent-gold);
+}
+
+.platform-chip.selected {
+  border-color: var(--accent-gold);
+  background: linear-gradient(135deg, var(--color-gold-20), transparent);
+  color: var(--accent-gold);
+  font-weight: 600;
+}
+
+/* Reports table */
+.no-reports {
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  padding: 24px 0;
+}
+
+.scraper-table-wrapper {
+  overflow-x: auto;
+}
+
+.scraper-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.scraper-table th {
+  text-align: left;
+  padding: 12px 16px;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.scraper-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-subtle);
+  font-size: 0.9rem;
+  background: var(--bg-secondary);
+}
+
+.scraper-table .mono {
+  font-family: var(--font-mono);
+}
+
+.scraper-table .text-gold {
+  color: var(--accent-gold);
+}
+
+.report-status {
+  padding: 2px 10px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.report-status.completed {
+  background: linear-gradient(135deg, rgba(74, 222, 128, 0.15), transparent);
+  border: 1px solid rgba(74, 222, 128, 0.3);
+  color: #4ade80;
+}
+
+.report-status.failed {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), transparent);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #ef4444;
+}
+
+.report-status.running {
+  background: linear-gradient(135deg, var(--color-gold-20), transparent);
+  border: 1px solid var(--color-gold-30);
+  color: var(--accent-gold);
+}
+
+@media (max-width: 768px) {
+  .scraper-page {
+    padding: 24px 16px;
+  }
+
+  .scraper-status-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .trigger-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

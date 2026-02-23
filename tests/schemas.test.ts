@@ -4,7 +4,7 @@
  * @author Charley Scholz, JLAI
  * @coauthor Claude Opus 4.6, Claude Code (coding assistant), Cursor (IDE)
  * @created 2026-02-17
- * @updated 2026-02-17
+ * @updated 2026-02-23
  */
 
 import { describe, it, expect } from 'vitest';
@@ -27,43 +27,20 @@ import {
     SUBJECT_SUBCATEGORY_TAGS,
     CLASSIFICATION_TYPES,
 } from '../src/schemas';
+import {
+    ROGER_DEAKINS,
+    SOFIA_VARGA,
+    ELENA_KOVAC,
+    JAKE_MORRISON,
+    ALL_CREATORS,
+    GOLDEN_RECORDS,
+} from './fixtures';
 
 // =============================================================================
-// Test data based on Golden Records
+// Test data based on Golden Records (sourced from fixtures)
 // =============================================================================
 
-const VALID_CREATOR = {
-    name: 'Roger Deakins',
-    handle: '@rogerdeakins',
-    platform: 'vimeo' as const,
-    source: {
-        type: 'festival' as const,
-        name: 'Academy Awards',
-        url: 'https://www.oscars.org',
-        discoveredAt: '2026-01-28T00:00:00Z'
-    },
-    craft: {
-        primary: 'cinematographer' as const,
-        secondary: ['director'],
-        styleSignature: 'Master of naturalistic lighting',
-        technicalTags: ['#ARRIAlexa', '#NaturalLight'],
-        subjectMatterTags: ['entertainment'],
-        subjectSubcategoryTags: ['film-tv'],
-        primaryMedium: 'video' as const,
-        classification: 'film_narrative'
-    },
-    matching: {
-        positiveKeywords: ['cinematography', 'lighting', 'oscar winner'],
-        negativeKeywords: [],
-        qualityScore: 100,
-        isGoldenRecord: true
-    },
-    contact: {
-        location: 'Los Angeles, CA',
-        locationConstraints: 'flexible' as const,
-        isHireable: false
-    }
-};
+const { id: _id, createdAt: _ca, updatedAt: _ua, ...VALID_CREATOR } = ROGER_DEAKINS;
 
 const MINIMAL_CREATOR = {
     name: 'Test Creator'
@@ -385,5 +362,65 @@ describe('Validation Helpers', () => {
     it('validateCategorizeRequest accepts valid bio', () => {
         const result = validateCategorizeRequest({ bio: 'Some bio text' });
         expect(result.success).toBe(true);
+    });
+});
+
+// =============================================================================
+// Fixture-based validation (ensures all fixtures pass schema validation)
+// =============================================================================
+
+describe('Fixture Data Integrity', () => {
+    it('all 12 fixture creators pass CreateCreatorSchema', () => {
+        for (const creator of ALL_CREATORS) {
+            const { id, createdAt, updatedAt, ...input } = creator;
+            const result = CreateCreatorSchema.safeParse(input);
+            expect(result.success, `Fixture ${creator.id} (${creator.name}) failed validation`).toBe(true);
+        }
+    });
+
+    it('exactly 3 fixtures are Golden Records', () => {
+        expect(GOLDEN_RECORDS).toHaveLength(3);
+        for (const gr of GOLDEN_RECORDS) {
+            expect(gr.matching?.isGoldenRecord).toBe(true);
+        }
+    });
+
+    it('fixture creators cover all 8 required crafts', () => {
+        const requiredCrafts = [
+            'cinematographer', 'director', 'motion_designer', 'vfx_artist',
+            'colorist', 'animator', 'sound_designer', '3d_artist',
+        ];
+        const fixtureCrafts = new Set(ALL_CREATORS.map((c) => c.craft?.primary));
+        for (const craft of requiredCrafts) {
+            expect(fixtureCrafts.has(craft), `Missing craft: ${craft}`).toBe(true);
+        }
+    });
+
+    it('fixture creators span at least 5 distinct platforms', () => {
+        const platforms = new Set(ALL_CREATORS.map((c) => c.platform));
+        expect(platforms.size).toBeGreaterThanOrEqual(5);
+    });
+
+    it('validateCreator succeeds for Sofia Varga fixture', () => {
+        const { id, createdAt, updatedAt, ...input } = SOFIA_VARGA;
+        const result = validateCreator(input);
+        expect(result.success).toBe(true);
+        expect(result.data!.craft?.primary).toBe('director');
+    });
+
+    it('validateBatchCreator succeeds for all fixtures', () => {
+        for (const creator of ALL_CREATORS) {
+            const { id, createdAt, updatedAt, ...input } = creator;
+            const result = validateBatchCreator(input);
+            expect(result.success, `Batch validation failed for ${creator.name}`).toBe(true);
+        }
+    });
+
+    it('fixture locations are diverse', () => {
+        const locations = ALL_CREATORS
+            .map((c) => c.contact?.location)
+            .filter(Boolean);
+        const unique = new Set(locations);
+        expect(unique.size).toBeGreaterThanOrEqual(6);
     });
 });

@@ -123,6 +123,18 @@
 | — | **Confidence Scoring** — per-match confidence levels | Low |
 | — | **Tier 3 Image Analysis** — AI-derived visual attributes | Low |
 | — | **End-user work links** — links to portfolios, reels, festival awards | Medium |
+| 8.8 | **Interactive Kanban Board** — Real-time task board for project development | Medium |
+
+### Interactive Kanban Board (8.8) — Full Spec
+
+- **Description:** A real-time, interactive Kanban-style task board for tracking project development tasks (To-Do, In Progress, Done). Could be built as a React page within the existing SPA or as a standalone dashboard.
+- **Features:**
+  - Drag-and-drop task cards
+  - Category swimlanes (Frontend, Backend, DevOps, Testing)
+  - Priority indicators
+  - Assignment tracking
+  - Integration with GitHub Issues API
+- **Tech suggestions:** React DnD or @hello-pangea/dnd for drag-drop; Firestore for persistence.
 
 ---
 
@@ -132,4 +144,4 @@ _CatchFire — Finding craft, not clout._
 
 Author: Charley Scholz
 Co-authored: Claude Opus 4.6, Cursor (IDE)
-Last Updated: 2026-02-19
+Last Updated: 2026-02-23

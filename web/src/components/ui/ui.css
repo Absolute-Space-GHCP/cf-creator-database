@@ -125,8 +125,8 @@
 .badge-default { background: var(--bg-elevated); color: var(--text-secondary); }
 
 .badge-gold {
-  background: linear-gradient(135deg, rgba(201, 162, 39, 0.2), transparent);
-  border: 1px solid rgba(201, 162, 39, 0.3);
+  background: linear-gradient(135deg, var(--color-gold-20), transparent);
+  border: 1px solid var(--color-gold-30);
   color: var(--accent-gold);
 }
 
@@ -173,8 +173,8 @@
 
 .golden-tag {
   padding: 2px 8px;
-  background: linear-gradient(135deg, rgba(201, 162, 39, 0.2), transparent);
-  border: 1px solid rgba(201, 162, 39, 0.3);
+  background: linear-gradient(135deg, var(--color-gold-20), transparent);
+  border: 1px solid var(--color-gold-30);
   border-radius: 4px;
   font-size: 0.6rem;
   font-weight: 700;
@@ -288,7 +288,7 @@
 
 .search-bar:focus-within {
   border-color: var(--accent-gold);
-  box-shadow: 0 0 0 4px rgba(201, 162, 39, 0.1);
+  box-shadow: 0 0 0 4px var(--color-gold-10);
 }
 
 .search-bar-md { height: 44px; }
@@ -390,14 +390,14 @@
 
 .golden-card {
   padding: 16px;
-  background: linear-gradient(135deg, rgba(201, 162, 39, 0.05), transparent);
-  border: 1px solid rgba(201, 162, 39, 0.15);
+  background: linear-gradient(135deg, var(--color-gold-5), transparent);
+  border: 1px solid var(--color-gold-15);
   border-radius: var(--radius-md);
   transition: all 0.2s ease;
 }
 
 .golden-card:hover {
-  border-color: rgba(201, 162, 39, 0.3);
+  border-color: var(--color-gold-30);
   transform: translateY(-2px);
 }
 
@@ -537,6 +537,101 @@
 
 @media (max-width: 1200px) {
   .golden-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Error Boundary ───────────────────────────────────── */
+
+.error-boundary-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  padding: var(--space-lg);
+}
+
+.error-boundary-card {
+  text-align: center;
+  max-width: 420px;
+  padding: var(--space-xl);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-lg);
+  background: var(--bg-elevated);
+}
+
+.error-boundary-card h2 {
+  margin-bottom: var(--space-sm);
+  color: var(--text-primary);
+}
+
+.error-boundary-card .btn-primary {
+  margin-top: var(--space-md);
+}
+
+/* ── Toast Notifications ─────────────────────────────── */
+
+.toast-container {
+  position: fixed;
+  bottom: var(--space-lg);
+  right: var(--space-lg);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  max-width: 400px;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-md);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-primary);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  animation: toast-in 0.3s ease-out;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+}
+
+.toast-error { border-color: var(--color-error); }
+.toast-success { border-color: var(--color-success); }
+.toast-warning { border-color: var(--accent-gold); }
+.toast-info { border-color: var(--text-muted); }
+
+.toast-icon {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.toast-error .toast-icon { color: var(--color-error); }
+.toast-success .toast-icon { color: var(--color-success); }
+.toast-warning .toast-icon { color: var(--accent-gold); }
+
+.toast-message { flex: 1; }
+
+.toast-close {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.125rem;
+  cursor: pointer;
+  padding: 0 2px;
+  line-height: 1;
+}
+
+.toast-close:hover { color: var(--text-primary); }
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -94,7 +94,7 @@
 .pipeline-step:hover .step-dot,
 .pipeline-step.expanded .step-dot {
   background: var(--accent-gold);
-  box-shadow: 0 0 16px rgba(201, 162, 39, 0.3);
+  box-shadow: 0 0 16px var(--color-gold-30);
 }
 
 .pipeline-step:hover .step-number,

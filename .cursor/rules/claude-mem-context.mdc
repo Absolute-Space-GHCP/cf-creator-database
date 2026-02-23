@@ -1,4 +1,4 @@
-﻿---
+---
 alwaysApply: true
 description: "Claude-mem context from past sessions (auto-updated)"
 ---
@@ -7,7 +7,20 @@ description: "Claude-mem context from past sessions (auto-updated)"
 
 The following context is from claude-mem, a persistent memory system that tracks your coding sessions.
 
-This file is auto-populated by claude-mem on session start.
+## Session: 2026-02-23 — Chroma Fix & Sprint Kickoff
+
+**Claude-mem status:** Fully operational
+- Worker: running (PID auto-managed, port 37777)
+- Chroma vector DB: running (port 8000, startup ~1s)
+- MCP: connected
+- Fix applied: patched `worker-service.cjs` to call `chroma.exe` directly instead of via `npx.cmd` (which can't resolve Python packages)
+
+**Key observations:**
+- Chroma was failing because `chromadb` Python package was not installed; `npx chroma run` can't resolve Python CLIs
+- Installed `chromadb` via pip, patched worker to use direct path to `chroma.exe`
+- Backup of original at `worker-service.cjs.bak`
+- Python Scripts path added to User PATH permanently
 
 ---
-*Updated after last session. Use claude-mem's MCP search tools for more detailed queries.*
+
+*Updated: 2026-02-23. Use claude-mem's MCP search tools for more detailed queries.*
