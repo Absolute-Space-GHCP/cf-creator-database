@@ -73,3 +73,6 @@ chat-transcripts/
 *.temp
 ._.
 .tmp_docx/
+
+# Generated PDFs (session-pdf tool output)
+pdf-exports/
