@@ -2,7 +2,7 @@
 
 **Repo:** cf-influencer-matching-engine
 **As of:** 2026-02-19
-**Current version:** v0.7.0 (Phase 7 Complete)
+**Current version:** v0.8.0 (Phase 8 In Progress)
 
 ---
 

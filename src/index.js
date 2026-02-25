@@ -62,7 +62,7 @@ const CONFIG = {
     
     // App Identity
     appName: process.env.APP_NAME || 'CatchFire Matching Engine',
-    appVersion: process.env.APP_VERSION || '0.7.0',
+    appVersion: process.env.APP_VERSION || '0.8.0',
     orgName: process.env.ORG_NAME || 'CF - Influencer Matching Engine',
     supportEmail: process.env.SUPPORT_EMAIL || '',
     baseUrl: process.env.BASE_URL || 'http://localhost:8090',

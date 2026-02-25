@@ -1,4 +1,4 @@
-> **Version:** 0.7.0 | **Date:** 2026-02-19 | **Repo:** cf-influencer-matching-engine
+> **Version:** 0.8.0 | **Date:** 2026-02-25 | **Repo:** cf-influencer-matching-engine
 
 # CLAUDE.md - CatchFire Influencer Matching Engine
 
