@@ -13,4 +13,7 @@ chat-transcripts/
 .gitignore
 .gcloudignore
 Screenshot*
+scraper/__pycache__/
+scraper/scrapers/__pycache__/
+scraper/data/
 

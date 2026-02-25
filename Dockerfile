@@ -1,7 +1,7 @@
 # CatchFire Creator Matching Engine - Cloud Run Dockerfile
 # Author: Charley Scholz, JLIT
-# Co-authored: Claude Opus 4.5, Claude Code (coding assistant), Cursor (IDE)
-# Last Updated: 2026-01-28
+# Co-authored: Claude Opus 4.6, Claude Code (coding assistant), Cursor (IDE)
+# Last Updated: 2026-02-25
 
 FROM node:22-slim AS base
 
@@ -17,6 +17,11 @@ RUN npm run build
 FROM base
 WORKDIR /app
 
+# Install Python 3 for scraper pipeline
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3 python3-pip python3-venv && \
+    rm -rf /var/lib/apt/lists/*
+
 # Install backend dependencies
 COPY package*.json ./
 RUN npm install
@@ -31,6 +36,10 @@ COPY public/ ./public/
 
 # Copy data files
 COPY data/ ./data/
+
+# Copy scraper pipeline and install Python deps
+COPY scraper/ ./scraper/
+RUN pip3 install --no-cache-dir --break-system-packages -r scraper/requirements.txt
 
 # Copy built React app from frontend stage
 COPY --from=frontend-build /app/web/dist ./web/dist

@@ -142,6 +142,9 @@ function clearCreatorCache() {
 // =============================================================================
 const app = express();
 
+// Share Firestore client with sub-routers (e.g., scraperTrigger)
+app.set('firestore', firestore);
+
 // -----------------------------------------------------------------------------
 // 🔒 SECURITY MIDDLEWARE (helmet, cors, rate-limit)
 // -----------------------------------------------------------------------------
