@@ -27,7 +27,8 @@ export default function App() {
                 <Route path="/admin" element={<Admin />} />
                 <Route path="/status" element={<Status />} />
                 <Route path="/scraper" element={<ScraperDashboard />} />
-                <Route path="*" element={<Navigate to="/" replace />} />
+                <Route path="/" element={<Navigate to="/creators" replace />} />
+                <Route path="*" element={<Navigate to="/creators" replace />} />
               </Routes>
             </ErrorBoundary>
           </main>
