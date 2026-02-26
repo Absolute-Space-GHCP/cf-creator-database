@@ -30,6 +30,7 @@
 | [L014](#l014-typescript-erasablesyntaxonly-blocks-parameter-properties) | TypeScript erasableSyntaxOnly Blocks Parameter Properties | Medium | `web/src/**/*.ts`, `tsconfig.app.json` |
 | [L015](#l015-web-dependencies-missing-after-clone-webnodemodules) | Web Dependencies Missing After Clone | Medium | `web/package.json`, `web/node_modules/` |
 | [L016](#l016-integration-tests-require-running-local-server) | Integration Tests Require Running Local Server | Medium | `tests/integration/`, status reports |
+| [L017](#l017-cloud-run-public-access-via-allusers-iam-binding) | Cloud Run Public Access via allUsers IAM Binding | Critical | Cloud Run IAM, `gcloud run deploy` |
 
 ---
 
@@ -840,6 +841,63 @@ Applies to any project with live integration tests that depend on a running serv
 
 ---
 
+## L017: Cloud Run Public Access via allUsers IAM Binding
+
+**Severity:** Critical
+**First Observed:** 2026-02-26
+**Last Confirmed:** 2026-02-26
+**Status:** FIXED - IAP deployed, allUsers removed, global audit performed
+
+### Problem
+
+The Cloud Run service `cf-matching-engine` was publicly accessible to anyone on the internet. All creator data, search functionality, and matching results were exposed without any authentication.
+
+### Symptoms
+
+- Visiting the Cloud Run URL in any browser (no login) shows the full web UI
+- All GET endpoints return data without authentication
+- Creator profiles, search results, and match data visible to anyone with the URL
+- The `--allow-unauthenticated` flag was used during initial `gcloud run deploy`
+
+### Root Cause
+
+When deploying to Cloud Run, the `--allow-unauthenticated` flag adds an `allUsers` member with `roles/run.invoker` to the service's IAM policy. This was used during initial development for convenience but was never removed before sharing the URL with stakeholders.
+
+The existing `requireAuth` middleware only protected mutating (POST/PUT/DELETE) endpoints. All read endpoints (GET) were intentionally left open for easy testing, which meant the entire database was browsable without any credentials.
+
+### Solution
+
+**Phase 1: Emergency Lockdown (immediate)**
+```bash
+gcloud run services remove-iam-policy-binding cf-matching-engine \
+  --region=us-central1 --project=catchfire-app-2026 \
+  --member="allUsers" --role="roles/run.invoker"
+```
+
+**Phase 2: IAP + Load Balancer (permanent)**
+1. Created HTTPS Load Balancer stack (NEG, backend, URL map, static IP, SSL cert, forwarding rule)
+2. Enabled IAP on the backend service
+3. Granted IAP service account `roles/run.invoker` on Cloud Run
+4. Granted 3 approved JL users `roles/iap.httpsResourceAccessor`
+5. Cloud Scheduler retains direct `run.invoker` binding for automated scraping
+
+**Result:** Users access via `https://cf-matching-engine.34.54.144.178.nip.io` with Google SSO. Non-JL users get 403. Cloud Run URL returns 403 to everyone except authorized service accounts.
+
+### Proactive Maintenance
+
+1. **NEVER use `--allow-unauthenticated` in production deploys** -- use explicit IAM bindings instead
+2. After every `gcloud run deploy`, verify IAM: `gcloud run services get-iam-policy SERVICE --region=REGION`
+3. Check for `allUsers` or `allAuthenticatedUsers` bindings -- these mean PUBLIC access
+4. For web UIs, always use IAP or application-level authentication
+5. For service-to-service calls, use service account IAM bindings
+6. See global Cursor rule `cloud-run-security.mdc` for enforcement
+
+### Cross-Project Applicability
+
+**CRITICAL: Applies to ALL projects using Cloud Run.** Every Cloud Run service across all GCP projects must be audited for `allUsers` bindings. This is a global security rule.
+
+---
+
 ## Adding New Entries
 
 When you discover and fix a recurring problem:
@@ -873,4 +931,4 @@ Template:
 
 Author: Charley Scholz, JLAI
 Co-authored: Claude Opus 4.6, Claude Code (coding assistant), Cursor (IDE)
-Last Updated: 2026-02-23
+Last Updated: 2026-02-26

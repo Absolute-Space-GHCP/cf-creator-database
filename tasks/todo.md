@@ -1,7 +1,7 @@
 # CatchFire Matching Engine -- TASKS
 
-**Version:** 1.5.0  
-**Last Updated:** 2026-02-23
+**Version:** 1.6.0  
+**Last Updated:** 2026-02-26
 **Project:** cf-influencer-matching-engine
 
 > **Migrated from:** `docs/TASKS.md` on 2026-02-23. This is now the canonical location per the `task-management.mdc` global rule.
@@ -104,7 +104,7 @@ All tasks completed 2026-01-28.
 | 7.4 | Build brief submission form | completed | High | IT | 7.1 | Client brief -> ranked match results with per-creator feedback (thumbs up/down) |
 | 7.5 | Add admin panel for Golden Records | completed | Medium | IT | 7.1 | Toggle Golden Record status, refresh lookalike model, sortable table |
 | 7.6 | Deploy to Cloud Run with custom domain | completed | Medium | IT | 7.1-7.5 | Live at production URL, multi-stage Dockerfile, single container |
-| 7.7 | Add user authentication | not_started | Low | IT | 7.6 | JL employees only |
+| 7.7 | Add user authentication | completed | High | IT | 7.6 | IAP + HTTPS LB deployed 2026-02-26. Google SSO for @johannesleonardo.com domain. 3 users authorized. |
 
 ### Web Application Details (Phase 7)
 
@@ -163,6 +163,7 @@ All tasks completed 2026-01-28.
 
 | ID | Task | Completed | Notes |
 |----|------|-----------|-------|
+| 7.7 | IAP authentication + HTTPS Load Balancer | 2026-02-26 | Google SSO for JL domain, 3 users authorized, allUsers removed |
 | 7.1-7.6 | Full React web application (7 pages, dark mode, deployed) | 2026-02-18 | React 19 + Vite 7, multi-stage Docker, live on Cloud Run |
 | -- | Platform filter added to GET /api/v1/creators | 2026-02-19 | Backend now supports ?platform= query param |
 | -- | 404 catch-all route added | 2026-02-19 | NotFound page for unknown URLs |
@@ -194,7 +195,8 @@ All tasks completed 2026-01-28.
 - Phase 8: Future Enhancements (Brief Templates, Image Analysis)
 
 ### Key URLs
-- **Production:** https://cf-matching-engine-34240596768.us-central1.run.app
+- **Production (IAP-secured):** https://cf-matching-engine.34.54.144.178.nip.io (Google SSO required)
+- **Cloud Run (direct, locked):** https://cf-matching-engine-34240596768.us-central1.run.app (403 to public)
 - **GitHub (Matching Engine):** https://github.com/Absolute-Space-GHCP/cf-influencer-matching-engine
 - **GitHub (Creator Database):** https://github.com/Absolute-Space-GHCP/cf-creator-database
 
