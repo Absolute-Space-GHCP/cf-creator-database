@@ -2,8 +2,32 @@
 
 > **Living document.** This file describes every workflow in the system end-to-end: from creator discovery through brief matching to result delivery. Each workflow is self-contained but connected to the others via the master overview.
 
-**Version:** 0.8.0
+**Version:** 0.8.1
 **Last Updated:** 2026-03-05
+
+---
+
+## Immediate Priorities -- Planned Workflow Changes (Leadership-Directed)
+
+The following changes are **next up for implementation**, driven by CatchFire creative leadership (Leo). They affect nearly every workflow in the system. Throughout this document, planned additions are marked with **[PLANNED]** labels and rendered with dashed lines (`-.->`) in diagrams.
+
+### Micro-Creator Follower Gate
+
+A hard filter restricting the system to creators with **1,000 to 10,000 followers only**. Large-audience influencers are incompatible with CatchFire's craft-over-clout mission and must be excluded from all results.
+
+**Workflows affected:** WF1 (scraper must capture follower counts), WF2 (enrichment validates counts), WF5 (scoring and search apply the gate as a pre-filter), WF6 (UI exposes follower range control).
+
+### Three-Pillar Selection Framework
+
+Creator evaluation is being restructured around three dimensions:
+
+| Pillar | What It Captures | Examples |
+|--------|-----------------|----------|
+| **Passion / Archetype** | What drives the creator | Investigative, foodie, travel, tech |
+| **Craft / Skill** | Technical and creative strengths | Interviewing, emotion, special FX, music |
+| **Follower Demographics** | Audience composition and identity | Gen Z streetwear, small-town America, retired population, car enthusiasts |
+
+**Workflows affected:** WF2 (LLM categorization outputs three-pillar tags), WF3 (embedding text includes pillar data), WF4 (Golden Record criteria incorporate pillars), WF5 (scoring gains three new weighted dimensions; briefs can target specific pillars), WF6 (UI shows pillar tags and allows pillar-based filtering), WF7 (feedback can be pillar-specific).
 
 ---
 
@@ -34,13 +58,16 @@ graph LR
         Scraper["Automated Scraper<br/>(14 sources)"]
         Manual["Manual Entry<br/>(API / Admin UI)"]
         Apify["Apify Import<br/>(scaffolded)"]
+        FollowerCapture["[PLANNED] Capture<br/>follower count"]
     end
 
     subgraph enrichment [WF2: Enrichment]
         Categorize["LLM Categorization"]
+        ThreePillar["[PLANNED] Three-Pillar<br/>Classification"]
         Style["Style Signature"]
         Vision["Image Analysis"]
         Contact["Contact Enrichment<br/>(scaffolded)"]
+        FollowerGate["[PLANNED] Follower<br/>Gate (1K-10K)"]
     end
 
     subgraph indexing [WF3 + WF4: Indexing]
@@ -51,6 +78,7 @@ graph LR
     subgraph matching [WF5: Brief Matching]
         BriefIn["Client Brief"]
         KeywordExtract["Keyword<br/>Extraction"]
+        PillarMatch["[PLANNED] Pillar<br/>Matching"]
         Score["Scoring<br/>Algorithm"]
         SemanticSearch["Semantic<br/>Search"]
     end
@@ -71,16 +99,23 @@ graph LR
     Scraper --> Categorize
     Manual --> Categorize
     Apify --> Categorize
+    Scraper -.-> FollowerCapture
+    FollowerCapture -.-> FollowerGate
 
     Categorize --> Embed
+    Categorize -.-> ThreePillar
+    ThreePillar -.-> Embed
     Style --> Embed
     Vision --> Embed
+    FollowerGate -.-> Embed
 
     Embed --> GoldenModel
     Embed --> SemanticSearch
 
     BriefIn --> KeywordExtract
+    BriefIn -.-> PillarMatch
     KeywordExtract --> Score
+    PillarMatch -.-> Score
     KeywordExtract --> SemanticSearch
     Score --> ReactApp
     Score --> LegacyUI
@@ -96,16 +131,18 @@ graph LR
     PromptTuning -.-> Categorize
 ```
 
+> **Reading this diagram:** Solid lines represent current live workflows. Dashed lines (`-.->`) and **[PLANNED]** labels indicate changes coming in the next implementation cycle, driven by Leo's three-pillar framework and micro-creator focus.
+
 ### Lifecycle Summary
 
 | Phase | What Happens | Frequency | Owner |
 |-------|-------------|-----------|-------|
-| Discovery | Creators are found via scraping, manual entry, or import | Daily/weekly (automated), ad hoc (manual) | System + Creative team |
-| Enrichment | LLM categorizes craft, generates style signatures, analyzes portfolio images | On ingestion + on demand | System (automated) |
-| Indexing | 768-dim embeddings generated, Golden Record centroid model built | On ingestion + manual refresh | System (automated) |
-| Matching | Client brief is analyzed, creators are scored and semantically ranked | On demand (per brief) | Creative team via UI/API/Slack |
-| Delivery | Ranked results presented through React SPA, legacy dashboard, Slack, or API | Immediate | System |
-| Feedback | Match quality ratings collected, fed back into prompt improvements | Per match result | Creative team |
+| Discovery | Creators are found via scraping, manual entry, or import. **[PLANNED]** Follower counts captured at ingestion. | Daily/weekly (automated), ad hoc (manual) | System + Creative team |
+| Enrichment | LLM categorizes craft, generates style signatures, analyzes portfolio images. **[PLANNED]** Three-pillar classification (Passion, Craft, Demographics) added to enrichment output. Follower gate (1K-10K) applied as early filter. | On ingestion + on demand | System (automated) |
+| Indexing | 768-dim embeddings generated, Golden Record centroid model built. **[PLANNED]** Embedding text expanded to include pillar tags and follower range. | On ingestion + manual refresh | System (automated) |
+| Matching | Client brief is analyzed, creators are scored and semantically ranked. **[PLANNED]** Follower count hard gate applied pre-scoring. Three new pillar-match scoring dimensions added. Briefs can target specific pillars. | On demand (per brief) | Creative team via UI/API/Slack |
+| Delivery | Ranked results presented through React SPA, legacy dashboard, Slack, or API. **[PLANNED]** Pillar tags displayed on creator cards. Follower range exposed as UI filter. | Immediate | System |
+| Feedback | Match quality ratings collected, fed back into prompt improvements. **[PLANNED]** Pillar-specific feedback (was the passion/craft/demographics match good?). | Per match result | Creative team |
 | Operations | Health monitoring, scraper management, admin actions | Continuous | Engineering |
 
 ---
@@ -171,10 +208,12 @@ This is the main ingestion path. It runs on a schedule and discovers creators fr
 4. Python pipeline (`pipeline.py`) orchestrates:
    - **Scrape:** Each configured source scraper (`scrapers/`) fetches creator data from festivals, platforms, and editorial sites
    - **Quality filter:** Reject creators with fewer than 1 award/recognition OR fewer than 3 technical tags
+   - **[PLANNED] Follower count capture:** Extract follower/subscriber count from platform profiles during scrape. Required for the 1K-10K micro-creator gate.
+   - **[PLANNED] Follower gate:** Reject creators outside the 1,000-10,000 follower range at ingestion time (hard filter, not soft score)
    - **Deduplicate:** Match on name + URL to avoid duplicates
    - **Export:** Write JSON to `/tmp/scrape-{uuid}.json`
 5. Express reads the JSON output file
-6. `scraper-transform.js` converts Python output to the `BatchCreatorSchema` format
+6. `scraper-transform.js` converts Python output to the `BatchCreatorSchema` format. **[PLANNED]** Transform must map `followerCount` to schema.
 7. Internal `POST /api/v1/creators/batch` writes creators to Firestore
 8. Run metadata (timestamp, platforms, creators found/imported, duration, errors) logged to `scraper_runs`
 
@@ -200,8 +239,8 @@ This is the main ingestion path. It runs on a schedule and discovers creators fr
 Used by the Creative team to add creators they discover through personal networks, events, or referrals.
 
 1. User hits `POST /api/v1/creators` with a JSON body
-2. Request is validated against `CreateCreatorSchema` (Zod)
-3. Valid creators are written to Firestore
+2. Request is validated against `CreateCreatorSchema` (Zod). **[PLANNED]** Schema will require `followerCount` field.
+3. Valid creators are written to Firestore. **[PLANNED]** Creators outside the 1K-10K range are rejected or flagged.
 4. Response returns the created document with its ID
 
 ### Path C: Apify Import (Scaffolded)
@@ -213,6 +252,16 @@ Intended for bulk imports from Apify web scraping actors.
 3. Endpoint transforms Apify format to internal schema and writes to Firestore
 
 > **Status:** Endpoint exists but no Apify actor is selected yet. Blocked on budget + ToS review.
+
+### [PLANNED] Follower Count at Ingestion
+
+All three ingestion paths must capture and store `followerCount` (integer) on each creator profile. This is the foundation for the micro-creator gate:
+
+- **Automated scraper:** Platform-specific scrapers extract follower/subscriber count from profile pages
+- **Manual entry:** `CreateCreatorSchema` gains a required `followerCount` field
+- **Apify import:** Transform maps the platform's follower count field to `followerCount`
+
+Creators outside the 1,000-10,000 range are hard-rejected at ingestion time. This keeps the database focused on micro-creators and prevents large influencers from entering the system at all.
 
 ---
 
@@ -233,6 +282,10 @@ graph TD
         CatPrompt["Categorization Prompt<br/>(bio + portfolio + recent work)"]
         CatModel["Gemini Flash<br/>(categorizeCreator)"]
         CatResult["CategorizationResult:<br/>craft, tags, style, keywords"]
+
+        PillarPrompt["[PLANNED] Three-Pillar Prompt<br/>(bio + content + audience signals)"]
+        PillarModel["[PLANNED] Gemini Flash<br/>(classifyPillars)"]
+        PillarResult["[PLANNED] PillarResult:<br/>passion, craft/skill,<br/>follower demographics"]
 
         StylePrompt["Style Signature Prompt<br/>(name + craft + bio + tags)"]
         StyleModel["Gemini Flash<br/>(generateStyleSignature)"]
@@ -259,6 +312,9 @@ graph TD
     OnDemand --> VisionFetch
 
     CatPrompt --> CatModel --> CatResult
+    CatResult -.-> PillarPrompt
+    PillarPrompt -.-> PillarModel
+    PillarModel -.-> PillarResult
     StylePrompt --> StyleModel --> StyleResult
     VisionFetch --> VisionModel --> VisionResult
 
@@ -268,6 +324,7 @@ graph TD
     Hunter -.-> ContactResult
 
     CatResult --> Merge
+    PillarResult -.-> Merge
     StyleResult --> Merge
     VisionResult --> Merge
     ContactResult -.-> Merge
@@ -295,6 +352,24 @@ graph TD
 - Lists all 14 valid craft types so the model uses the correct enum
 - Asks for negative keywords to flag influencer noise
 - Requires pure JSON output (no markdown fences)
+
+### [PLANNED] Three-Pillar Classification
+
+A new enrichment step that runs after initial categorization, using the categorization output plus additional signals (content themes, audience indicators, bio language) to classify each creator across Leo's three pillars.
+
+**Endpoint:** `POST /api/v1/classify-pillars` (planned)
+
+**What it will produce:**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `pillars.passion` | `string[]` | Archetype tags: what drives the creator (e.g. `investigative`, `foodie`, `travel`, `tech`) |
+| `pillars.craftSkill` | `string[]` | Technical/creative skill tags (e.g. `interviewing`, `emotion`, `special-fx`, `music`) |
+| `pillars.followerDemographics` | `string[]` | Audience identity tags (e.g. `gen-z-streetwear`, `small-town-america`, `car-enthusiasts`) |
+
+**Prompt strategy:** The LLM will receive the creator's bio, content samples, existing categorization (craft, tags, style), and platform audience signals. It classifies across all three pillars simultaneously. The `craftSkill` pillar overlaps with existing `craft.primary`/`craft.secondary` but captures finer-grained skills (e.g. a cinematographer who excels at "interviewing" vs "special FX").
+
+> **Note:** The examples above (investigative, foodie, interviewing, Gen Z streetwear, etc.) are illustrative, not exhaustive. The taxonomy will grow organically as more creators are classified and patterns emerge.
 
 ### Style Signature Generation
 
@@ -352,6 +427,7 @@ graph TD
     subgraph build [Build Embedding Text]
         BuildText["buildCreatorEmbeddingText()"]
         TextParts["Concatenate:<br/>Name + Handle + Craft +<br/>Style Signature + Tags +<br/>Keywords + Location + Bio"]
+        PillarText["[PLANNED] Append:<br/>Passion tags + Craft/Skill tags +<br/>Demographics tags + Follower range"]
     end
 
     subgraph generate [Generate Embedding]
@@ -367,6 +443,8 @@ graph TD
     SingleCreator --> BuildText
     BatchAll --> BuildText
     BuildText --> TextParts
+    TextParts -.-> PillarText
+    PillarText -.-> EmbedCall
     TextParts --> EmbedCall
     EmbedCall --> Normalize
     Normalize --> FirestoreUpdate
@@ -384,6 +462,16 @@ with a preference for handheld intimacy and available light. Technical
 expertise: #ArriAlexa, #Anamorphic, #NaturalLight. Keywords: award winner,
 Camerimage, staff pick. Location: Los Angeles.
 ```
+
+**[PLANNED] Expanded embedding text** will also include three-pillar tags and follower range:
+
+```
+...Location: Los Angeles. Passion: investigative, travel. Craft/Skill:
+interviewing, emotion. Audience: small-town-america, car-enthusiasts.
+Followers: micro-creator (3,200).
+```
+
+This enriched text gives the embedding model more semantic dimensions to work with, improving search accuracy when briefs mention passion areas ("someone driven by food culture"), specific skills ("great at interviewing"), or target audience demographics ("reach Gen Z streetwear").
 
 This text is then embedded into a 768-dimensional vector using `gemini-embedding-001` with the `RETRIEVAL_DOCUMENT` task type (optimized for indexing documents that will be searched later).
 
@@ -450,6 +538,16 @@ graph TD
 
 > **Note:** The model is cached in memory and must be manually refreshed via `POST /api/v1/lookalikes/refresh` when new Golden Records are added. The Creative team is responsible for identifying and marking Golden Records.
 
+### [PLANNED] Three-Pillar Impact on Golden Records
+
+The introduction of the three-pillar framework changes how Golden Records are selected and how the model behaves:
+
+1. **Selection criteria expand.** Currently, Golden Records are picked on overall "CatchFire aesthetic" intuition. The three pillars give the Creative team structured dimensions to evaluate: does this creator exemplify the right **passion/archetype**, demonstrate exceptional **craft/skill**, and reach a relevant **follower demographic**?
+2. **Per-pillar centroid models.** In addition to the overall centroid, `buildCraftSpecificModels()` can be extended to build per-pillar centroids -- e.g. a centroid for "foodie" passion creators, another for "Gen Z streetwear" demographic creators. This enables pillar-targeted lookalike searches.
+3. **Follower count as a gate, not a score factor.** Golden Records must also fall within the 1K-10K range. Creators outside this range should not be Golden Records, consistent with the micro-creator thesis.
+
+> **Decision needed:** Should Golden Record selection require excellence across all three pillars, or can a creator qualify with exceptional strength in just one? This is a Creative team decision for Leo and Dan.
+
 ---
 
 ## 6. Workflow 5: Brief Intake and Matching
@@ -463,13 +561,19 @@ graph TD
     subgraph intake [Brief Intake]
         ClientBrief["Client brief text<br/>e.g. 'We need a moody cinematographer<br/>for a luxury automotive brand<br/>based in LA'"]
         Filters["Optional structured filters:<br/>craft, location, subjectMatter,<br/>budgetTier, primaryMedium,<br/>goldenRecordsOnly"]
+        PillarFilters["[PLANNED] Pillar filters:<br/>passion, craftSkill,<br/>followerDemographics"]
+    end
+
+    subgraph pregate [[PLANNED] Pre-Filter Gate]
+        FollowerGate["Follower Gate:<br/>hard reject outside 1K-10K"]
     end
 
     subgraph strategy_a [Strategy A: Scoring Algorithm]
         ExtractKW["extractBriefKeywords():<br/>Parse brief for craft, technical,<br/>location, style, subject,<br/>medium keywords"]
+        ExtractPillars["[PLANNED] extractBriefPillars():<br/>Parse brief for passion,<br/>skill, and demographic targets"]
         LoadCreators["Load all creators from Firestore<br/>(5-min cache)"]
         ApplyFilters["applyCreatorFilters():<br/>AND logic across filters"]
-        ScoreEach["scoreCreator() for each:<br/>weighted multi-factor scoring"]
+        ScoreEach["scoreCreator() for each:<br/>weighted multi-factor scoring<br/>[PLANNED] + pillar dimensions"]
         RankA["Normalize 0-100, sort descending"]
     end
 
@@ -482,22 +586,28 @@ graph TD
     end
 
     subgraph output [Output]
-        Results["Ranked creator recommendations<br/>with scores/similarity + metadata"]
+        Results["Ranked creator recommendations<br/>with scores/similarity + metadata<br/>[PLANNED] + pillar match details"]
     end
 
     ClientBrief --> ExtractKW
     ClientBrief --> EmbedQuery
+    ClientBrief -.-> ExtractPillars
     Filters --> ApplyFilters
     Filters --> ApplyFiltersB
+    PillarFilters -.-> ApplyFilters
+    PillarFilters -.-> ApplyFiltersB
 
     ExtractKW --> LoadCreators
-    LoadCreators --> ApplyFilters
+    LoadCreators --> FollowerGate
+    FollowerGate -.-> ApplyFilters
     ApplyFilters --> ScoreEach
+    ExtractPillars -.-> ScoreEach
     ScoreEach --> RankA
     RankA --> Results
 
     EmbedQuery --> LoadEmbedded
-    LoadEmbedded --> ApplyFiltersB
+    LoadEmbedded --> FollowerGate
+    FollowerGate -.-> ApplyFiltersB
     ApplyFiltersB --> CosineSim
     CosineSim --> RankB
     RankB --> Results
@@ -519,7 +629,8 @@ Best for: Structured matching where the brief mentions specific crafts, location
    - Primary medium hint (still, video, audio)
 3. **Load all creators** from Firestore (in-memory cache, 5-min TTL)
 4. **Apply pre-filters** using `applyCreatorFilters()` (AND logic across all filter dimensions)
-5. **Score each creator** using `scoreCreator()` with the weighted system:
+5. **[PLANNED] Apply follower gate:** Hard-reject creators outside the 1,000-10,000 range before scoring. This is a pass/fail gate, not a scoring factor.
+6. **Score each creator** using `scoreCreator()` with the weighted system:
    - Exact name match: 100 pts
    - Craft match: 30 pts (primary) / 15 pts (secondary)
    - Location match: 20 pts
@@ -530,8 +641,11 @@ Best for: Structured matching where the brief mentions specific crafts, location
    - Quality score factor: 0.2x
    - Penalties: negative keywords (-20 each), influencer noise (-10 each)
    - Bonuses: craft indicators (+5 each, max +20)
-6. **Normalize** scores to 0-100 and **rank** descending
-7. **Return** top N results with score breakdowns
+   - **[PLANNED] Passion/Archetype match:** +15 pts per matching passion tag
+   - **[PLANNED] Craft/Skill match:** +12 pts per matching skill tag (complements existing craft match)
+   - **[PLANNED] Follower Demographics match:** +15 pts per matching audience demographic tag
+7. **Normalize** scores to 0-100 and **rank** descending
+8. **Return** top N results with score breakdowns. **[PLANNED]** Results include per-pillar match details showing which pillars aligned.
 
 ### Strategy B: Semantic Search (`POST /api/v1/search/semantic`)
 
@@ -541,10 +655,11 @@ Best for: Natural language queries, exploratory searches, or when the brief is f
 
 1. **Embed the query** using `generateEmbedding(brief, 'RETRIEVAL_QUERY')` -- the `RETRIEVAL_QUERY` task type optimizes the vector for searching against indexed documents
 2. **Load all creators with embeddings** from Firestore
-3. **Apply structured filters** (if provided) using `applyCreatorFilters()` to narrow candidates before similarity ranking
-4. **Calculate cosine similarity** between the query embedding and each candidate's stored embedding
-5. **Filter** by `minSimilarity` threshold (default 0.3)
-6. **Return** top N results sorted by similarity score
+3. **[PLANNED] Apply follower gate:** Remove creators outside 1K-10K range before similarity calculation
+4. **Apply structured filters** (if provided) using `applyCreatorFilters()` to narrow candidates before similarity ranking. **[PLANNED]** Filters expand to include `passion`, `craftSkill`, and `followerDemographics` pillar facets.
+5. **Calculate cosine similarity** between the query embedding and each candidate's stored embedding. **[PLANNED]** Because embedding text now includes pillar tags, queries mentioning passion areas or demographic targets will naturally rank pillar-matched creators higher.
+6. **Filter** by `minSimilarity` threshold (default 0.3)
+7. **Return** top N results sorted by similarity score
 
 ### Multi-Chip AND Logic (Hint Chips)
 
@@ -565,6 +680,8 @@ The legacy dashboard supports combining multiple search dimensions:
 | "Someone who can make food look cinematic and warm" | Semantic (Strategy B) | Fuzzy/aesthetic query, no specific technical terms |
 | "Moody DP for automotive" | Both | Use hint chips: query chip for "Moody DP" + filter chip for "automotive" |
 | "Who's similar to our Golden Record creators?" | Golden Record model | `GET /api/v1/lookalikes` |
+| **[PLANNED]** "A foodie creator who does great interviews, reaching Gen Z streetwear audiences" | Both + Pillar matching | Pillar-specific: passion=foodie, craft=interviewing, demo=gen-z-streetwear |
+| **[PLANNED]** "Investigative storyteller for car enthusiasts, under 10K followers" | Scoring + Follower gate | Passion + demographics match with follower range enforced |
 
 ---
 
@@ -610,24 +727,24 @@ graph TD
 
 #### React SPA (`/app/*`)
 
-- **CreatorBrowse** (`/app/creators`): Search bar + filter chips for craft, platform, location. Paginated results.
-- **CreatorProfile** (`/app/creators/:id`): Full creator detail with craft info, style signature, tags, contact, quality score.
+- **CreatorBrowse** (`/app/creators`): Search bar + filter chips for craft, platform, location. Paginated results. **[PLANNED]** Add pillar filter chips (passion, craft/skill, demographics) and follower range slider.
+- **CreatorProfile** (`/app/creators/:id`): Full creator detail with craft info, style signature, tags, contact, quality score. **[PLANNED]** Display three-pillar tags as labeled badge groups. Show follower count with micro-creator indicator.
 - **Admin** (`/app/admin`): Protected route. Refresh lookalike model, admin actions.
 - **Status** (`/app/status`): Health check dashboard showing all service statuses with response times.
 - **Auth:** Token in `localStorage`, validated via `GET /api/v1/auth/me`. IAP auto-detected.
 
 #### Legacy Dashboard (`/`)
 
-- **Semantic search** with hint chips (query + filter chips, multi-select AND logic)
-- **Brief templates** (10 pre-built queries across 5 categories: Fashion, Tech, Music, Branding, Film)
-- **CSV export** of search results
+- **Semantic search** with hint chips (query + filter chips, multi-select AND logic). **[PLANNED]** Add pillar-based filter chips alongside existing subject matter and location chips.
+- **Brief templates** (10 pre-built queries across 5 categories: Fashion, Tech, Music, Branding, Film). **[PLANNED]** Templates can pre-populate pillar targets.
+- **CSV export** of search results. **[PLANNED]** Export includes pillar tags and follower count.
 - **Direct access** to all matching endpoints
 
 #### Slack (`/catchfire find <query>`)
 
-- Sends query through semantic search pipeline
+- Sends query through semantic search pipeline. **[PLANNED]** All results pre-filtered through follower gate.
 - Returns Slack Block Kit formatted results (header + up to 5 creator cards)
-- Each card shows: name, craft, location, similarity score, style signature
+- Each card shows: name, craft, location, similarity score, style signature. **[PLANNED]** Cards include pillar tags and follower count.
 - Visible to all channel members (`response_type: 'in_channel'`)
 
 #### REST API
@@ -662,7 +779,8 @@ graph TD
 
     subgraph future [Future: Feedback Loop]
         Analyze["Analyze feedback patterns<br/>(which crafts, tags, styles<br/>get positive ratings)"]
-        TunePrompts["Adjust LLM prompts:<br/>- Categorization weights<br/>- Style signature emphasis<br/>- Scoring algorithm weights"]
+        PillarFeedback["[PLANNED] Pillar-specific<br/>feedback analysis:<br/>was passion/craft/demo<br/>match accurate?"]
+        TunePrompts["Adjust LLM prompts:<br/>- Categorization weights<br/>- Style signature emphasis<br/>- Scoring algorithm weights<br/>[PLANNED] + pillar weights"]
         ImproveModel["Update Golden Records<br/>based on consistently<br/>high-rated creators"]
     end
 
@@ -672,7 +790,8 @@ graph TD
     Validate --> GoogleSheet
 
     GoogleSheet -.-> Analyze
-    Analyze -.-> TunePrompts
+    Analyze -.-> PillarFeedback
+    PillarFeedback -.-> TunePrompts
     Analyze -.-> ImproveModel
     TunePrompts -.-> FeedbackEndpoint
 ```
@@ -688,6 +807,7 @@ graph TD
 - `FEEDBACK_SHEET_ID` env var is not yet set -- **waiting on PM decision from Dan**
 - Without the sheet ID, feedback is accepted by the API but has nowhere to write
 - The "future" feedback loop (prompt tuning, Golden Record updates) depends on having enough feedback data to analyze patterns
+- **[PLANNED]** Feedback form will expand to capture pillar-specific ratings: "Was the passion/archetype match relevant?" / "Was the craft/skill match accurate?" / "Was the audience demographic match useful?" This per-pillar signal enables targeted weight adjustments in the scoring algorithm
 
 ---
 
@@ -880,14 +1000,14 @@ graph TD
 
 ### The Big Picture
 
-1. **A client comes to CatchFire** with a creative project need (e.g. "We're launching a luxury automotive brand and need a moody cinematographer")
-2. **The Creative team translates this into a brief** and enters it into the Matching Engine (via the React SPA, legacy dashboard, or Slack)
-3. **The engine searches its database** of pre-vetted creators using both algorithmic scoring and semantic similarity
-4. **Ranked recommendations** are returned with scores, style signatures, and craft details
-5. **The Creative team reviews** the recommendations, potentially adjusting filters or trying different query phrasings
+1. **A client comes to CatchFire** with a creative project need (e.g. "We're launching a luxury automotive brand and need a moody cinematographer who resonates with car enthusiasts")
+2. **The Creative team translates this into a brief** and enters it into the Matching Engine (via the React SPA, legacy dashboard, or Slack). **[PLANNED]** The brief can explicitly target passion archetypes, craft skills, and audience demographics.
+3. **The engine searches its database** of pre-vetted **micro-creators** (1K-10K followers only) using both algorithmic scoring and semantic similarity. **[PLANNED]** Creators are evaluated across three pillars: passion/archetype, craft/skill, and follower demographics.
+4. **Ranked recommendations** are returned with scores, style signatures, craft details, **[PLANNED]** and per-pillar match breakdowns
+5. **The Creative team reviews** the recommendations, potentially adjusting filters or trying different query phrasings. **[PLANNED]** Pillar-based filters let the team refine by audience demographic or passion area without changing the core query.
 6. **A shortlist is presented to the client** with creator profiles, portfolio links, and CatchFire's recommendation rationale
 7. **The client selects creators**, and CatchFire manages the engagement (outreach, contracting, production)
-8. **After the project**, quality feedback flows back into the engine to improve future matching
+8. **After the project**, quality feedback flows back into the engine to improve future matching. **[PLANNED]** Feedback is captured per-pillar for targeted algorithm tuning.
 
 ### What's Inside vs Outside This System
 
@@ -895,6 +1015,8 @@ graph TD
 |---------------------------|------------------------|
 | Creator discovery and scraping | Client relationship management |
 | LLM categorization and enrichment | Contract negotiation |
+| **[PLANNED]** Three-pillar classification | Leo's creative direction and pillar taxonomy |
+| **[PLANNED]** Follower count gate (1K-10K) | Deciding which creators get exceptions (if any) |
 | Embedding generation and indexing | Production management |
 | Brief analysis and matching | Budget and billing |
 | Result ranking and delivery | Client presentation |
@@ -912,25 +1034,29 @@ These questions affect how the Matching Engine evolves to better serve CatchFire
 | Should there be a client-facing view (not just internal)? | New frontend or API integration | Product decision |
 | How do Golden Records get selected -- formal criteria or Creative intuition? | Affects model quality | Dan / Creative |
 | Should the feedback loop auto-adjust scoring weights? | ML pipeline complexity | Engineering |
+| **[NEW]** Should the 1K-10K follower gate have exceptions for exceptional craft? | Gate strictness, edge cases | Leo / Creative |
+| **[NEW]** Should Golden Records require strength in all three pillars or just one? | Model quality, selection breadth | Leo / Dan |
+| **[NEW]** How do we source follower demographic data for the third pillar? | Requires platform API access or manual tagging | Engineering / Budget |
+| **[NEW]** Is the three-pillar taxonomy fixed or should it evolve with the database? | Schema flexibility, LLM prompt stability | Leo / Engineering |
 
 ---
 
 ## 12. Workflow Status Summary
 
-| Workflow | Status | Key Dependencies |
-|----------|--------|-----------------|
-| WF1: Creator Discovery | **Live** (automated scraper + manual entry) | Cloud Scheduler, Python, Firestore |
-| WF2: Enrichment | **Live** (categorization, style, vision); **Scaffolded** (contact enrichment) | Gemini Flash, Gemini Vision |
-| WF3: Embedding Generation | **Live** | gemini-embedding-001, Firestore |
-| WF4: Golden Record Model | **Live** | Golden Records in Firestore, manual refresh |
-| WF5: Brief Matching | **Live** (both strategies) | Scoring algorithm, embeddings, Firestore |
-| WF6: Result Delivery | **Live** (React, Legacy, API); **Scaffolded** (Slack) | Express, React SPA, Slack app registration |
-| WF7: Feedback Loop | **Scaffolded** (collection); **Planned** (prompt tuning) | `FEEDBACK_SHEET_ID` from Dan |
-| WF8: Admin and Operations | **Live** | Cloud Monitoring, Status page |
-| WF9: Deployment and CI/CD | **Live** | GitHub Actions, Docker, Cloud Run |
+| Workflow | Status | Key Dependencies | Planned Changes |
+|----------|--------|-----------------|-----------------|
+| WF1: Creator Discovery | **Live** (automated scraper + manual entry) | Cloud Scheduler, Python, Firestore | **[PLANNED]** Follower count capture at ingestion; 1K-10K hard gate |
+| WF2: Enrichment | **Live** (categorization, style, vision); **Scaffolded** (contact enrichment) | Gemini Flash, Gemini Vision | **[PLANNED]** Three-pillar classification (passion, craft/skill, demographics) |
+| WF3: Embedding Generation | **Live** | gemini-embedding-001, Firestore | **[PLANNED]** Embedding text includes pillar tags + follower range |
+| WF4: Golden Record Model | **Live** | Golden Records in Firestore, manual refresh | **[PLANNED]** Pillar-aware selection criteria; per-pillar centroids |
+| WF5: Brief Matching | **Live** (both strategies) | Scoring algorithm, embeddings, Firestore | **[PLANNED]** Follower gate pre-filter; 3 new pillar scoring dimensions; pillar-based brief extraction |
+| WF6: Result Delivery | **Live** (React, Legacy, API); **Scaffolded** (Slack) | Express, React SPA, Slack app registration | **[PLANNED]** Pillar tags on cards; follower range filter in UI; pillar filter chips |
+| WF7: Feedback Loop | **Scaffolded** (collection); **Planned** (prompt tuning) | `FEEDBACK_SHEET_ID` from Dan | **[PLANNED]** Per-pillar feedback ratings |
+| WF8: Admin and Operations | **Live** | Cloud Monitoring, Status page | No changes planned |
+| WF9: Deployment and CI/CD | **Live** | GitHub Actions, Docker, Cloud Run | No changes planned |
 
 ---
 
 Author: Charley Scholz, JLAI
 Co-authored: Claude Opus 4.6, Claude Code (coding assistant), Cursor (IDE)
-Last Updated: 2026-03-05
+Last Updated: 2026-03-05 (v0.8.1 -- added three-pillar framework and follower gate planned changes)

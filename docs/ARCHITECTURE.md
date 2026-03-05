@@ -2,8 +2,40 @@
 
 > **Living document.** This file is the single source of truth for the system's architecture, services, data flows, and configuration. Update it when components are added, changed, or retired.
 
-**Version:** 0.8.0  
+**Version:** 0.8.1  
 **Last Updated:** 2026-03-05
+
+---
+
+## Immediate Priorities (Leadership-Directed)
+
+The following changes are actively in progress and represent the next evolution of the matching engine, driven by CatchFire creative leadership (Leo).
+
+### Micro-Creator Focus: Follower Count Filtering
+
+CatchFire's core thesis is **craft over clout**. The system must enforce a hard constraint limiting results to **micro-creators with 1,000 to 10,000 followers only**. Large-audience influencers are explicitly excluded from consideration.
+
+**Impact across the stack:**
+
+| Layer | Change Required |
+|-------|----------------|
+| **Schema** | Add `followerCount` (number) to creator profile |
+| **Scoring** | Penalize or hard-exclude creators outside the 1K--10K band |
+| **API** | Add `followerRange` filter to `/match` and `/search/semantic` |
+| **Scraper** | Capture follower count during ingestion across all platforms |
+| **Frontend** | Expose follower range as a filter option in search and browse |
+
+### Three-Pillar Selection Framework
+
+Creator evaluation is being restructured around three categories that define what makes a CatchFire creator:
+
+| Pillar | What It Captures | Examples |
+|--------|-----------------|----------|
+| **Passion / Archetype** | What drives the creator's work | Investigative, foodie, travel, tech |
+| **Craft / Skill** | Technical and creative strengths | Interviewing, emotion, special FX, music |
+| **Follower Demographics** | Audience composition and identity | Gen Z streetwear, small-town America, retired population, car enthusiasts |
+
+These pillars will be formalized as schema fields, integrated into the scoring algorithm's weighted dimensions, surfaced in the brief-matching prompts, and exposed as filter facets in the web UI. The examples above are illustrative -- the taxonomy will grow as the creator database expands.
 
 ---
 
@@ -976,8 +1008,8 @@ Every major component is tagged with one of four statuses:
 | Apify import endpoint | **Scaffolded** | `POST /api/v1/import/apify` exists, no Apify actor selected |
 | Feedback to Google Sheets | **Scaffolded** | Code live, blocked on `FEEDBACK_SHEET_ID` from PM |
 | `@google-cloud/storage` | **Unused** | In `package.json` but not imported anywhere |
-| `sync_firestore.js` | **Unused** | Legacy ETL from employee directory sheet |
-| `config.template.js` | **Unused** | Leftover from ai-agents-gmaster-build |
+| `sync_firestore.js` | **Removed** | Legacy ETL from employee directory sheet (deleted 2026-03-05) |
+| `config.template.js` | **Removed** | Leftover from ai-agents-gmaster-build (deleted 2026-03-05) |
 | Auto-categorize improvements | **Planned** | Needs feedback data loop |
 | Chroma vector DB | **Planned** | Alternative to in-memory similarity search |
 | Multi-region deployment | **Planned** | Currently single-region per environment |
@@ -1015,7 +1047,7 @@ Every major component is tagged with one of four statuses:
 | `web/README.md` is Vite boilerplate | Low | Should be replaced or removed |
 | Integration tests need running server | Medium | 13 tests require `localhost:8090` (L016), no auto-start |
 | `@google-cloud/storage` unused | Low | Can be removed from `package.json` |
-| `sync_firestore.js` unused | Low | Legacy ETL, candidate for removal |
+| ~~`sync_firestore.js` unused~~ | ~~Low~~ | Removed 2026-03-05 |
 | 7 low-severity npm audit vulns | Low | Transitive, in `@google-cloud/storage` chain |
 
 ---
