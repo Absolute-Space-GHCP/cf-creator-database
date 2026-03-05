@@ -145,6 +145,8 @@ All tasks completed 2026-01-28.
 | 8.7 | Multi-Chip Search (AND logic) | not_started | Medium | IT | -- | Click multiple hint chips to narrow search scope (e.g. "Moody DP" + "Colorist") |
 | 8.8 | Animated "How It Works" page | completed | Medium | IT | -- | /app/how-it-works -- 6-step pipeline, expandable details, flow diagram |
 | 8.9 | Search Results Export (CSV + Email) | completed | Medium | IT | -- | Download CSV and email list buttons on Beta Control Center |
+| 8.10 | Upgrade dotenv to v17 | completed | Low | IT | -- | Upgraded 2026-03-05, no breaking changes for require('dotenv').config() usage |
+| 8.11 | Upgrade vitest to v4 | completed | Low | IT | -- | Upgraded 2026-03-05, 119/119 unit tests pass, fully compatible |
 
 ---
 
