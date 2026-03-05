@@ -44,7 +44,7 @@ All tasks completed 2026-01-28.
 | 4.2 | Test Python scraper -> Matching Engine sync flow | completed | High | IT | 4.1 | Sync script transforms 3-tier schema to batch API format |
 | 4.3 | Verify auto-embedding on batch import | completed | High | IT | 4.2 | Batch embedding endpoint generates 768d vectors |
 | 4.4 | Create "Golden Records Ask" one-pager for Creative team | completed | Medium | IT/Strategy | Dan's approval | Sent to Dan 2026-02-13 |
-| 4.5 | Add scraping cadence scheduler | not_started | Medium | IT | 4.1-4.3 | Festivals=annual, portfolios=quarterly |
+| 4.5 | Add scraping cadence scheduler | completed | Medium | IT | 4.1-4.3 | Deployed 2026-03-05: 3 Cloud Scheduler jobs (daily Vimeo, daily Behance, weekly all-platforms) |
 | 4.6 | Build deduplication logic | completed | Medium | IT | 4.1-4.3 | Name-normalized matching, merge strategy for tags/keywords/scores |
 
 ---
@@ -55,8 +55,8 @@ All tasks completed 2026-01-28.
 |----|------|--------|----------|-------|--------------|-------|
 | 5.1 | Add rate limiting to public API endpoints | completed | High | IT | -- | express-rate-limit active in index.js |
 | 5.2 | Add Helmet security headers | completed | High | IT | -- | helmet active in index.js |
-| 5.3 | Set up Cloud Monitoring alerts | in_progress | Medium | IT | -- | JSON configs exist in scripts/monitoring/ but deployment to GCP unverified |
-| 5.4 | Create staging environment | not_started | Medium | IT | -- | Separate from production |
+| 5.3 | Set up Cloud Monitoring alerts | completed | Medium | IT | -- | Deployed 2026-03-05: uptime check, error-rate alert, latency alert to catchfire-app-2026 |
+| 5.4 | Create staging environment | completed | Medium | IT | -- | Deployed 2026-03-05: cf-matching-staging in us-east1, Firestore creators-staging, no public access |
 | 5.5 | Build admin dashboard for scraper status | not_started | Low | IT | 4.1-4.3 | Show last run, success rate |
 
 ---
@@ -69,16 +69,23 @@ All tasks completed 2026-01-28.
 | 6.2 | Create smoke test suite | completed | High | IT | -- | 31 tests, local + production, `npm run smoke` |
 | 6.3 | Build health check dashboard | not_started | Medium | IT | 6.2 | Visual service status |
 | 6.4 | Add integration test workflow | completed | High | IT | 6.1-6.2 | 13 tests: batch import -> embedding -> search -> feedback -> lookalikes |
-| 6.5 | Create E2E test for semantic search | not_started | Medium | IT | 6.1-6.2 | Brief -> Match -> Results validation |
+| 6.5 | Create E2E test for semantic search | completed | Medium | IT | 6.1-6.2 | tests/e2e-semantic.test.ts: full pipeline tests (Feb 23 session) |
 | 6.6 | Set up CI/CD pipeline | completed | Medium | IT | 6.1-6.5 | GitHub Actions: unit tests + type check + build + smoke tests |
-| 6.7 | Create test data fixtures | not_started | Low | IT | -- | Mock creators for consistent testing |
+| 6.7 | Create test data fixtures | completed | Low | IT | -- | tests/fixtures/: 12 mock creators, 768-dim embeddings, golden records (Feb 23 session) |
 
 ### Test Coverage Details
 
-**Vitest Suite (Task 6.1) -- 79 Unit Tests:**
+**Vitest Suite (Task 6.1) -- 119 Unit + E2E Tests:**
 - `tests/schemas.test.ts` -- Schema validation tests (38)
 - `tests/scoring.test.ts` -- Scoring algorithm tests (41)
+- `tests/e2e-semantic.test.ts` -- E2E semantic search pipeline tests (40)
 - Config: `vitest.config.ts`
+
+**Test Fixtures (Task 6.7):**
+- `tests/fixtures/creators.ts` -- 12 mock creator profiles
+- `tests/fixtures/embeddings.ts` -- Deterministic 768-dim vectors (Mulberry32 PRNG)
+- `tests/fixtures/goldenRecords.ts` -- 3 golden records, helper functions
+- `tests/fixtures/index.ts` -- Barrel export
 
 **Integration Suite (Task 6.4) -- 13 Tests:**
 - `tests/integration.test.ts` -- Full pipeline: health -> batch import -> embedding -> semantic search -> feedback -> lookalikes
@@ -126,9 +133,9 @@ All tasks completed 2026-01-28.
 - Status: service health checks, database statistics
 
 **Known Remaining Work:**
-- Error state handling (5/7 pages silently swallow API errors)
-- User authentication (7.7)
-- CSS token cleanup (hardcoded 10px sizes, 5 raw RGBA values)
+- Error state handling: ErrorBoundary + Toast wired in App.tsx, but only CreatorProfile and ScraperDashboard use ApiError/Toast. Admin, Status, Login, CreatorBrowse still swallow errors silently.
+- ~~User authentication (7.7)~~ Completed 2026-02-26 (IAP + HTTPS LB)
+- CSS token cleanup: Token system in tokens.css created, but 5 files still have hardcoded 10px and 5 files have raw rgba() values outside tokens.
 
 ---
 
@@ -138,7 +145,7 @@ All tasks completed 2026-01-28.
 |----|------|--------|----------|-------|--------------|-------|
 | 8.1 | Image Analysis (Gemini Vision) | not_started | High | IT | -- | Auto-tag visual style from portfolios |
 | 8.2 | Contact Enrichment (Clay.com/Hunter.io) | not_started | Medium | IT | Budget approval | $1,000 budget allocated |
-| 8.3 | Brief Templates | not_started | High | IT | -- | Pre-built search queries |
+| 8.3 | Brief Templates | completed | High | IT | -- | 10 templates, 5 categories. Live in Beta Control Center; React component exists but unwired (Feb 23 session) |
 | 8.4 | Slack Integration | not_started | Medium | IT | -- | `/catchfire find` slash command |
 | 8.5 | Auto-Categorize Improvements | not_started | Medium | IT | Review feedback | Fine-tune LLM prompts |
 | 8.6 | Multi-Model Support | not_started | Low | IT | -- | Gemini Pro for complex briefs |

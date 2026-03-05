@@ -51,8 +51,8 @@ jobs:
             --project catchfire-app-2026 \
             --memory 512Mi \
             --cpu 1 \
-            --allow-unauthenticated \
-            --set-env-vars "NODE_ENV=staging,GCP_PROJECT_ID=catchfire-app-2026,GOOGLE_CLOUD_PROJECT=catchfire-app-2026,FIRESTORE_COLLECTION=creators-staging"
+            --no-allow-unauthenticated \
+            --update-env-vars "NODE_ENV=staging,GCP_PROJECT_ID=catchfire-app-2026,GOOGLE_CLOUD_PROJECT=catchfire-app-2026,FIRESTORE_COLLECTION=creators-staging"
 
       - name: Get service URL
         id: url

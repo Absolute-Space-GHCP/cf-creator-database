@@ -149,7 +149,20 @@ app.set('firestore', firestore);
 // 🔒 SECURITY MIDDLEWARE (helmet, cors, rate-limit)
 // -----------------------------------------------------------------------------
 app.use(helmet({
-    contentSecurityPolicy: false, // allow inline scripts for dashboard; tighten for production if needed
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"],
+            scriptSrc: ["'self'", "'unsafe-inline'"],
+            styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+            fontSrc: ["'self'", "https://fonts.gstatic.com"],
+            imgSrc: ["'self'", "data:"],
+            connectSrc: ["'self'"],
+            frameSrc: ["'none'"],
+            objectSrc: ["'none'"],
+            baseUri: ["'self'"],
+            formAction: ["'self'"],
+        }
+    },
     crossOriginResourcePolicy: { policy: 'cross-origin' }
 }));
 app.use(cors({
