@@ -4,7 +4,7 @@
  * @author Charley Scholz, JLAI
  * @coauthor Claude Opus 4.6, Cursor (IDE)
  * @created 2026-02-23
- * @updated 2026-02-23
+ * @updated 2026-03-05
  */
 
 import { useEffect, useState, useCallback } from 'react';
@@ -12,7 +12,11 @@ import { api, type ScraperStatusResponse, type ScraperReport } from '../api/clie
 import { useToast } from '../components/ui/Toast';
 import './ScraperDashboard.css';
 
-const AVAILABLE_PLATFORMS = ['vimeo', 'behance', 'artstation'];
+const AVAILABLE_PLATFORMS = [
+  'camerimage', 'annecy', 'ars_electronica', 'sxsw_title',
+  'ciclope', 'ukmva', 'promax', 'sitges', 'fantastic_fest',
+  'the_rookies', 'shotdeck', 'directors_notes', 'motionographer', 'stash_media',
+];
 
 function formatDuration(ms: number): string {
   const seconds = Math.floor(ms / 1000);
@@ -73,7 +77,7 @@ export default function ScraperDashboard() {
       const platforms = selectedPlatforms.length > 0 ? selectedPlatforms : undefined;
       const res = await api.triggerScrape(platforms);
       showToast(
-        `Scrape triggered for ${res.platforms.join(', ')} (limit: ${res.limit})`,
+        `Scrape triggered for ${res.platforms.join(', ')}`,
         'success',
       );
       await fetchData();
@@ -107,15 +111,15 @@ export default function ScraperDashboard() {
             <div className="scraper-status-grid">
               <div className="status-item">
                 <span className="status-label">State</span>
-                <span className={`status-value ${status?.running ? 'running' : 'idle'}`}>
+                <span className={`status-value ${status?.lastRun?.status === 'running' ? 'running' : 'idle'}`}>
                   <span className="status-dot" />
-                  {status?.running ? 'Running' : 'Idle'}
+                  {status?.lastRun?.status === 'running' ? 'Running' : 'Idle'}
                 </span>
               </div>
               <div className="status-item">
                 <span className="status-label">Last Run</span>
                 <span className="status-value">
-                  {status?.lastRun ? formatTimestamp(status.lastRun) : '—'}
+                  {status?.lastRun?.timestamp ? formatTimestamp(status.lastRun.timestamp) : '—'}
                 </span>
               </div>
               <div className="status-item">
@@ -125,7 +129,7 @@ export default function ScraperDashboard() {
               <div className="status-item">
                 <span className="status-label">Platforms</span>
                 <div className="platform-tags">
-                  {status?.platforms.map((p) => (
+                  {(status?.lastRun?.platforms ?? []).map((p) => (
                     <span key={p} className="platform-tag">{p}</span>
                   ))}
                 </div>
@@ -180,9 +184,9 @@ export default function ScraperDashboard() {
                   <thead>
                     <tr>
                       <th>Timestamp</th>
-                      <th>Platform</th>
+                      <th>Platforms</th>
                       <th>Found</th>
-                      <th>Added</th>
+                      <th>Imported</th>
                       <th>Duration</th>
                       <th>Status</th>
                     </tr>
@@ -192,10 +196,12 @@ export default function ScraperDashboard() {
                       <tr key={r.id}>
                         <td>{formatTimestamp(r.timestamp)}</td>
                         <td>
-                          <span className="platform-tag">{r.platform}</span>
+                          {r.platforms?.map((p) => (
+                            <span key={p} className="platform-tag">{p}</span>
+                          ))}
                         </td>
                         <td className="mono">{r.creatorsFound}</td>
-                        <td className="mono text-gold">{r.creatorsAdded}</td>
+                        <td className="mono text-gold">{r.creatorsImported}</td>
                         <td className="mono">{formatDuration(r.duration)}</td>
                         <td>
                           <span className={`report-status ${r.status}`}>

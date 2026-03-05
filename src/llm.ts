@@ -5,10 +5,11 @@
  * @author Charley Scholz, JLAI
  * @coauthor Claude Opus 4.5, Claude Code (coding assistant), Cursor (IDE)
  * @created 2026-01-28
- * @updated 2026-02-17
+ * @updated 2026-03-05
  */
 
 import { GoogleGenAI } from '@google/genai';
+import axios from 'axios';
 import { CRAFT_TYPES, CraftType } from './schemas';
 
 // =============================================================================
@@ -223,6 +224,152 @@ export async function generateStyleSignature(
     } catch (error) {
         console.error('❌ Style signature generation failed:', error);
         return `${name} is a talented ${craft} with a distinctive creative vision.`;
+    }
+}
+
+// =============================================================================
+// 📸 IMAGE ANALYSIS (Gemini Vision)
+// =============================================================================
+
+const MAX_IMAGE_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
+
+const ALLOWED_IMAGE_MIME_TYPES = [
+    'image/jpeg',
+    'image/png',
+    'image/gif',
+    'image/webp',
+    'image/heic',
+    'image/heif'
+];
+
+export interface ImageAnalysis {
+    technicalTags: string[];
+    styleKeywords: string[];
+    subjectMatter: string[];
+    colorPalette: string[];
+    moodDescriptor: string;
+    equipmentGuess: string[];
+}
+
+const IMAGE_ANALYSIS_PROMPT = `You are an expert creative director and technical analyst evaluating portfolio images for a talent matching platform called CatchFire, which values CRAFT over CLOUT.
+
+Analyze this image as a seasoned creative professional would, focusing on technical execution and artistic merit.
+
+Return ONLY valid JSON (no markdown fences, no explanation) with this exact structure:
+
+{
+  "technicalTags": ["#HashtagFormat tags for camera/equipment/technique indicators, e.g. #NaturalLight, #Anamorphic, #35mm, #MediumFormat, #StudioLighting, #PracticalEffects, #LongExposure. Max 8 tags."],
+  "styleKeywords": ["Descriptive style terms like cinematic, minimalist, high-contrast, desaturated, warm-toned, editorial, moody, documentary, surreal. Max 8 keywords."],
+  "subjectMatter": ["What is being photographed or filmed: portrait, landscape, product, food, architecture, automotive, fashion, sports, nature, street, event, abstract. Max 5 items."],
+  "colorPalette": ["Dominant colors and color treatment: warm earth tones, cool blues, muted pastels, high saturation, monochromatic, teal-and-orange, etc. Max 5 descriptors."],
+  "moodDescriptor": "A single concise phrase capturing the emotional tone: intimate and contemplative, bold and energetic, serene and ethereal, gritty and raw, etc.",
+  "equipmentGuess": ["Best guesses at equipment/tools based on visual evidence: full-frame DSLR, medium format, cinema camera, drone, iPhone, mirrorless, anamorphic lens, vintage glass, studio strobes, LED panels. Only include if you have reasonable confidence. Max 5 items."]
+}
+
+Analyze the image now:`;
+
+/**
+ * Analyze a portfolio image using Gemini Vision to extract visual style data
+ */
+export async function analyzePortfolioImage(imageUrl: string): Promise<ImageAnalysis> {
+    if (!genAI) {
+        initializeClient();
+    }
+    if (!genAI) {
+        throw new Error('No AI client available');
+    }
+
+    console.log(`📸 Analyzing portfolio image: ${imageUrl.substring(0, 80)}...`);
+    const startTime = Date.now();
+
+    // Fetch the image
+    let imageBuffer: Buffer;
+    let mimeType: string;
+    try {
+        const response = await axios.get(imageUrl, {
+            responseType: 'arraybuffer',
+            timeout: 15000,
+            maxContentLength: MAX_IMAGE_SIZE_BYTES,
+            maxBodyLength: MAX_IMAGE_SIZE_BYTES,
+            headers: {
+                'Accept': 'image/*',
+                'User-Agent': 'CatchFire-ImageAnalyzer/1.0'
+            }
+        });
+
+        const contentType = (response.headers['content-type'] || '').split(';')[0].trim().toLowerCase();
+        if (!ALLOWED_IMAGE_MIME_TYPES.includes(contentType)) {
+            throw new Error(`Unsupported content type: ${contentType}. Expected one of: ${ALLOWED_IMAGE_MIME_TYPES.join(', ')}`);
+        }
+
+        const contentLength = response.data.byteLength;
+        if (contentLength > MAX_IMAGE_SIZE_BYTES) {
+            throw new Error(`Image too large: ${(contentLength / 1024 / 1024).toFixed(1)}MB exceeds ${MAX_IMAGE_SIZE_BYTES / 1024 / 1024}MB limit`);
+        }
+
+        imageBuffer = Buffer.from(response.data);
+        mimeType = contentType;
+    } catch (error: unknown) {
+        if (axios.isAxiosError(error)) {
+            if (error.code === 'ECONNABORTED') {
+                throw new Error(`Image fetch timed out for URL: ${imageUrl}`);
+            }
+            if (error.response?.status === 404) {
+                throw new Error(`Image not found (404): ${imageUrl}`);
+            }
+            throw new Error(`Failed to fetch image: ${error.message}`);
+        }
+        throw error;
+    }
+
+    const fetchTime = Date.now() - startTime;
+    console.log(`   Fetched ${(imageBuffer.length / 1024).toFixed(0)}KB image (${mimeType}) in ${fetchTime}ms`);
+
+    // Convert to base64 and send to Gemini
+    const base64Image = imageBuffer.toString('base64');
+
+    try {
+        const response = await genAI.models.generateContent({
+            model: MODEL_ID,
+            contents: [
+                {
+                    role: 'user',
+                    parts: [
+                        { text: IMAGE_ANALYSIS_PROMPT },
+                        { inlineData: { mimeType, data: base64Image } }
+                    ]
+                }
+            ],
+            config: {
+                temperature: 0.3,
+                maxOutputTokens: 1024
+            }
+        });
+
+        const text = response.text || '';
+        const elapsed = Date.now() - startTime;
+        console.log(`⏱️ Image analysis completed in ${elapsed}ms`);
+
+        const jsonMatch = text.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) {
+            throw new Error('No JSON found in LLM vision response');
+        }
+
+        const result = JSON.parse(jsonMatch[0]) as ImageAnalysis;
+
+        // Ensure all fields exist with defaults
+        result.technicalTags = result.technicalTags || [];
+        result.styleKeywords = result.styleKeywords || [];
+        result.subjectMatter = result.subjectMatter || [];
+        result.colorPalette = result.colorPalette || [];
+        result.moodDescriptor = result.moodDescriptor || 'undetermined';
+        result.equipmentGuess = result.equipmentGuess || [];
+
+        return result;
+    } catch (error: unknown) {
+        const elapsed = Date.now() - startTime;
+        console.error(`❌ Image analysis failed after ${elapsed}ms:`, error);
+        throw error;
     }
 }
 

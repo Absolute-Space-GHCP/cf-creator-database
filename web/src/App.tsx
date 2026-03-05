@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import ErrorBoundary from './components/ui/ErrorBoundary';
+import { ProtectedRoute } from './components/ui/ProtectedRoute';
 import { ToastProvider } from './components/ui/Toast';
 import CreatorBrowse from './pages/CreatorBrowse';
 import CreatorProfile from './pages/CreatorProfile';
@@ -24,9 +25,9 @@ export default function App() {
                 <Route path="/creators/:id" element={<CreatorProfile />} />
                 <Route path="/how-it-works" element={<HowItWorks />} />
                 <Route path="/login" element={<Login />} />
-                <Route path="/admin" element={<Admin />} />
+                <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
                 <Route path="/status" element={<Status />} />
-                <Route path="/scraper" element={<ScraperDashboard />} />
+                <Route path="/scraper" element={<ProtectedRoute><ScraperDashboard /></ProtectedRoute>} />
                 <Route path="/" element={<Navigate to="/creators" replace />} />
                 <Route path="*" element={<Navigate to="/creators" replace />} />
               </Routes>

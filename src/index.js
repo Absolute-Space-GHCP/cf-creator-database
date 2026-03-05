@@ -4,7 +4,7 @@
  * @author Charley Scholz, JLAI
  * @coauthor Claude Opus 4.6, Claude Code (coding assistant), Cursor (IDE)
  * @created 2026-01-28
- * @updated 2026-02-23
+ * @updated 2026-03-05
  */
 
 require('dotenv').config();
@@ -27,6 +27,7 @@ const { appendFeedbackRow } = require('./feedback-sheet');
 const { 
     categorizeCreator, 
     generateStyleSignature, 
+    analyzePortfolioImage,
     testLLMConnection,
     testEmbeddings,
     generateEmbedding,
@@ -218,6 +219,39 @@ app.get('/health', (req, res) => {
 });
 
 // HTML pages served at root via express.static + explicit routes above
+
+// =============================================================================
+// 🔑 AUTH INFO
+// =============================================================================
+
+/**
+ * GET /api/v1/auth/me - Return current user authentication info.
+ * Reports whether the caller is authenticated via IAP or Bearer token.
+ */
+app.get('/api/v1/auth/me', (req, res) => {
+    const iapEmail = req.headers['x-goog-authenticated-user-email'];
+    const iapId = req.headers['x-goog-authenticated-user-id'];
+    const bearerToken = req.headers.authorization?.startsWith('Bearer ') ? 'present' : 'absent';
+
+    if (iapEmail) {
+        const email = iapEmail.replace('accounts.google.com:', '');
+        return res.json({
+            success: true,
+            authenticated: true,
+            method: 'iap',
+            email,
+            iapId: iapId?.replace('accounts.google.com:', '')
+        });
+    }
+    if (bearerToken === 'present') {
+        return res.json({
+            success: true,
+            authenticated: true,
+            method: 'token'
+        });
+    }
+    return res.json({ success: true, authenticated: false });
+});
 
 // =============================================================================
 // 🎬 CREATOR API (v1)
@@ -1048,6 +1082,132 @@ app.post('/api/v1/style-signature', requireAuth, async (req, res) => {
     }
 });
 
+// =============================================================================
+// 📸 IMAGE ANALYSIS API (Phase 8 - Gemini Vision)
+// =============================================================================
+
+/**
+ * POST /api/v1/analyze-image - Preview image analysis without saving
+ * Body: { imageUrl: string }
+ */
+app.post('/api/v1/analyze-image', requireAuth, async (req, res) => {
+    console.log('📥 POST /api/v1/analyze-image');
+    
+    try {
+        const { imageUrl } = req.body;
+        
+        if (!imageUrl || typeof imageUrl !== 'string') {
+            return res.status(400).json({ success: false, error: 'imageUrl is required and must be a string' });
+        }
+        
+        try {
+            new URL(imageUrl);
+        } catch {
+            return res.status(400).json({ success: false, error: 'imageUrl must be a valid URL' });
+        }
+        
+        const analysis = await analyzePortfolioImage(imageUrl);
+        
+        console.log('✅ Image analysis complete (preview)');
+        
+        res.json({
+            success: true,
+            imageUrl,
+            analysis,
+            model: CONFIG.model
+        });
+    } catch (error) {
+        console.error('❌ Image analysis failed:', error.message);
+        const status = error.message.includes('not found') || error.message.includes('404') ? 404
+            : error.message.includes('too large') ? 413
+            : error.message.includes('Unsupported content type') ? 415
+            : 500;
+        res.status(status).json({ success: false, error: error.message });
+    }
+});
+
+/**
+ * POST /api/v1/creators/:id/analyze-image - Analyze image and merge tags into creator profile
+ * Body: { imageUrl: string }
+ */
+app.post('/api/v1/creators/:id/analyze-image', requireAuth, async (req, res) => {
+    const { id } = req.params;
+    console.log(`📥 POST /api/v1/creators/${id}/analyze-image`);
+    
+    try {
+        if (!firestore) {
+            return res.status(503).json({ success: false, error: 'Firestore not available' });
+        }
+        
+        const { imageUrl } = req.body;
+        
+        if (!imageUrl || typeof imageUrl !== 'string') {
+            return res.status(400).json({ success: false, error: 'imageUrl is required and must be a string' });
+        }
+        
+        try {
+            new URL(imageUrl);
+        } catch {
+            return res.status(400).json({ success: false, error: 'imageUrl must be a valid URL' });
+        }
+        
+        // Verify creator exists
+        const docRef = firestore.collection(CONFIG.creatorsCollection).doc(id);
+        const doc = await docRef.get();
+        if (!doc.exists) {
+            return res.status(404).json({ success: false, error: 'Creator not found' });
+        }
+        
+        const analysis = await analyzePortfolioImage(imageUrl);
+        
+        // Merge analysis into existing creator data
+        const existing = doc.data();
+        const existingTechnicalTags = existing.craft?.technicalTags || [];
+        const existingSubjectMatterTags = existing.craft?.subjectMatterTags || [];
+        
+        const mergedTechnicalTags = [...new Set([...existingTechnicalTags, ...analysis.technicalTags])];
+        const mergedSubjectMatter = [...new Set([...existingSubjectMatterTags, ...analysis.subjectMatter])];
+        
+        const updates = {
+            'craft.technicalTags': mergedTechnicalTags,
+            'craft.subjectMatterTags': mergedSubjectMatter,
+            'imageAnalysis': {
+                lastAnalyzedUrl: imageUrl,
+                styleKeywords: analysis.styleKeywords,
+                colorPalette: analysis.colorPalette,
+                moodDescriptor: analysis.moodDescriptor,
+                equipmentGuess: analysis.equipmentGuess,
+                analyzedAt: new Date().toISOString()
+            },
+            'updatedAt': new Date().toISOString()
+        };
+        
+        await docRef.update(updates);
+        clearCreatorCache();
+        
+        console.log(`✅ Image analysis merged into creator ${id}`);
+        
+        const updated = await docRef.get();
+        res.json({
+            success: true,
+            creatorId: id,
+            analysis,
+            mergedTags: {
+                technicalTags: mergedTechnicalTags,
+                subjectMatterTags: mergedSubjectMatter
+            },
+            creator: { id: updated.id, ...updated.data() }
+        });
+    } catch (error) {
+        console.error('❌ Image analysis for creator failed:', error.message);
+        const status = error.message.includes('not found') || error.message.includes('404') ? 404
+            : error.message.includes('too large') ? 413
+            : error.message.includes('Unsupported content type') ? 415
+            : 500;
+        res.status(status).json({ success: false, error: error.message });
+    }
+});
+
 /**
  * GET /api/v1/llm/test - Test LLM connection
  */
@@ -1686,6 +1846,7 @@ Collection: ${CONFIG.creatorsCollection}
 ────────────────────────────────────────────────────────────
 Endpoints:
   GET  /health                      - Health check
+  GET  /api/v1/auth/me              - Current user auth info (IAP/token)
   GET  /dashboard                   - Monitoring dashboard
   GET  /testing                     - Temp testing UI (match + thumbs up/down feedback)
   POST /api/v1/feedback             - Thumbs up/down → monitored sheet (FEEDBACK_SHEET_ID)
@@ -1697,6 +1858,8 @@ Endpoints:
   POST /api/v1/match                - Match creators to brief
   POST /api/v1/categorize           - LLM auto-categorize
   POST /api/v1/style-signature      - Generate style signature
+  POST /api/v1/analyze-image        - Preview image analysis (Vision)
+  POST /api/v1/creators/:id/analyze-image - Analyze image & merge into creator
   GET  /api/v1/llm/test             - Test LLM connection
   GET  /api/v1/embeddings/test      - Test embeddings
   POST /api/v1/embeddings/generate/:id - Generate creator embedding

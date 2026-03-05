@@ -4,7 +4,7 @@
  * @author Charley Scholz, JLAI
  * @coauthor Claude Opus 4.6, Claude Code (coding assistant), Cursor (IDE)
  * @created 2026-01-28
- * @updated 2026-02-23
+ * @updated 2026-03-05
  */
 
 const BASE = import.meta.env.VITE_API_BASE ?? '';
@@ -219,24 +219,54 @@ export interface FeedbackPayload {
   comment?: string;
 }
 
-/* ── Scraper types ────────────────────────────────────── */
+/* ── Image Analysis types ─────────────────────────────── */
 
-export interface ScraperStatusResponse {
-  success: boolean;
-  running: boolean;
-  lastRun: string | null;
-  totalRuns: number;
-  platforms: string[];
+export interface ImageAnalysis {
+  technicalTags: string[];
+  styleKeywords: string[];
+  subjectMatter: string[];
+  colorPalette: string[];
+  moodDescriptor: string;
+  equipmentGuess: string[];
 }
+
+export interface ImageAnalysisPreviewResponse {
+  success: boolean;
+  imageUrl: string;
+  analysis: ImageAnalysis;
+  model: string;
+}
+
+export interface ImageAnalysisCreatorResponse {
+  success: boolean;
+  creatorId: string;
+  analysis: ImageAnalysis;
+  mergedTags: {
+    technicalTags: string[];
+    subjectMatterTags: string[];
+  };
+  creator: Creator;
+}
+
+/* ── Scraper types ────────────────────────────────────── */
 
 export interface ScraperReport {
   id: string;
   timestamp: string;
-  platform: string;
-  creatorsFound: number;
-  creatorsAdded: number;
-  duration: number;
+  platforms: string[];
   status: string;
+  creatorsFound: number;
+  creatorsImported: number;
+  duration: number;
+  error: string | null;
+  triggeredBy: string;
+  dryRun?: boolean;
+}
+
+export interface ScraperStatusResponse {
+  success: boolean;
+  lastRun: ScraperReport | null;
+  totalRuns: number;
 }
 
 export interface ScraperReportsResponse {
@@ -246,15 +276,22 @@ export interface ScraperReportsResponse {
 
 export interface ScraperTriggerResponse {
   success: boolean;
-  message: string;
+  runId: string;
+  dryRun: boolean;
+  creatorsFound: number;
+  creatorsTransformed: number;
+  creatorsImported: number;
+  transformErrors: number;
+  duration: number;
   platforms: string[];
-  limit: number;
 }
 
 /* ── API functions ─────────────────────────────────────── */
 
 export const api = {
   getHealth: () => request<HealthResponse>('/health'),
+
+  getAuthMe: () => request<{ success: boolean; authenticated: boolean; method?: string; email?: string }>('/api/v1/auth/me'),
 
   getStats: () => request<StatsResponse>('/api/v1/stats'),
 
@@ -320,5 +357,17 @@ export const api = {
     request<ScraperTriggerResponse>('/api/v1/scraper/trigger', {
       method: 'POST',
       body: JSON.stringify({ platforms, limit }),
+    }),
+
+  analyzeImagePreview: (imageUrl: string) =>
+    request<ImageAnalysisPreviewResponse>('/api/v1/analyze-image', {
+      method: 'POST',
+      body: JSON.stringify({ imageUrl }),
+    }),
+
+  analyzeCreatorImage: (creatorId: string, imageUrl: string) =>
+    request<ImageAnalysisCreatorResponse>(`/api/v1/creators/${creatorId}/analyze-image`, {
+      method: 'POST',
+      body: JSON.stringify({ imageUrl }),
     }),
 };
