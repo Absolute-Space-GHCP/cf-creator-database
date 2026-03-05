@@ -31,6 +31,8 @@
 | [L015](#l015-web-dependencies-missing-after-clone-webnodemodules) | Web Dependencies Missing After Clone | Medium | `web/package.json`, `web/node_modules/` |
 | [L016](#l016-integration-tests-require-running-local-server) | Integration Tests Require Running Local Server | Medium | `tests/integration/`, status reports |
 | [L017](#l017-cloud-run-public-access-via-allusers-iam-binding) | Cloud Run Public Access via allUsers IAM Binding | Critical | Cloud Run IAM, `gcloud run deploy` |
+| [L018](#l018-npx-md-to-pdf-hangs-indefinitely-on-windows-puppeteer-chrome-discovery) | npx md-to-pdf Hangs on Windows (Puppeteer) | Medium | `scripts/md-to-pdf.mjs` |
+| [L019](#l019-claude-mem-cursor-hooks-cause-post-tool-usejs-tab-opening) | Claude-Mem Cursor Hooks Tab Opening | High | `~/.cursor/hooks.json` |
 
 ---
 
@@ -929,6 +931,81 @@ Template:
 
 ---
 
+## L018: npx md-to-pdf Hangs Indefinitely on Windows (Puppeteer Chrome Discovery)
+
+**Severity:** Medium
+**First Observed:** 2026-03-05
+**Last Confirmed:** 2026-03-05
+**Status:** FIXED
+
+### Problem
+`npx md-to-pdf <file>` hangs indefinitely with zero output on Windows. The process never completes, even after 2+ minutes.
+
+### Symptoms
+- `npx md-to-pdf docs/ARCHITECTURE.md` produces no output, no error, no file
+- Process consumes no CPU after initial launch
+- Affects all markdown files, not file-specific
+- JSON `--pdf-options` flag makes no difference
+
+### Root Cause
+`md-to-pdf` v5 depends on `puppeteer` (full package), which expects its own bundled Chromium. On this Windows machine, `puppeteer`'s Chromium cache (`~/.cache/puppeteer/`) was empty and the download silently stalled. Setting `PUPPETEER_EXECUTABLE_PATH` to system Chrome didn't help because `md-to-pdf` doesn't pass it through.
+
+### Solution
+Use a custom script (`scripts/md-to-pdf.mjs`) that imports `puppeteer-core` directly and points to the system Chrome installation:
+
+```javascript
+import puppeteer from 'puppeteer-core';
+const browser = await puppeteer.launch({
+  executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+  headless: true,
+  args: ['--no-sandbox', '--disable-setuid-sandbox'],
+});
+```
+
+This script also loads Mermaid JS from CDN for diagram rendering in ~6 seconds.
+
+### Prevention
+- Always use `scripts/md-to-pdf.mjs` instead of `npx md-to-pdf` on Windows
+- If `npx md-to-pdf` is needed, run `npx puppeteer browsers install chrome` first to populate the cache
+
+### Cross-Project Applicability
+Any Windows project using `md-to-pdf` or Puppeteer. Add to LEARN-GLOBAL.md as G013.
+
+---
+
+## L019: Claude-Mem Cursor Hooks Cause post-tool-use.js Tab Opening
+
+**Severity:** High
+**First Observed:** 2026-03-05
+**Last Confirmed:** 2026-03-05
+**Status:** FIXED
+
+### Problem
+Cursor IDE opens a `post-tool-use.js` file as a new tab after every file edit, shell command, and MCP execution. Happens across all project repos on Windows.
+
+### Symptoms
+- `post-tool-use.js` tab opens in editor after every agent action
+- Happens globally, not project-specific
+- Only on Windows, not macOS installs
+
+### Root Cause
+The claude-mem plugin (`thedotmack` marketplace) installed user-level Cursor hooks at `C:\Users\cmsch\.cursor\hooks.json`. The `afterFileEdit` hook triggers after every file change, and Cursor surfaces the hook script (`C:\Users\cmsch\.claude-mem\hooks\post-tool-use.js`) in the editor.
+
+### Solution
+Remove the `afterFileEdit` entry from `C:\Users\cmsch\.cursor\hooks.json`. Keep other hooks (`beforeSubmitPrompt`, `afterMCPExecution`, `afterShellExecution`, `stop`) if desired.
+
+If `afterMCPExecution` or `afterShellExecution` also cause tab-opening, remove those too.
+
+### Prevention
+- After claude-mem marketplace updates, check `~/.cursor/hooks.json` for re-added entries
+- On macOS, hooks are not installed at user level by default
+- If re-installing claude-mem cursor hooks, use project-level (`claude-mem cursor install project`) instead of user-level to limit scope
+
+### Cross-Project Applicability
+Any Windows machine with claude-mem + Cursor. Add to LEARN-GLOBAL.md as G014.
+
+---
+
 Author: Charley Scholz, JLAI
 Co-authored: Claude Opus 4.6, Claude Code (coding assistant), Cursor (IDE)
-Last Updated: 2026-02-26
+Last Updated: 2026-03-05
