@@ -21,6 +21,8 @@ const { optionalAuth } = require('./middleware/optionalAuth');
 
 // Local modules
 const scraperTriggerRouter = require('./routes/scraperTrigger');
+const slackRouter = require('./routes/slack');
+const enrichmentRouter = require('./routes/enrichment');
 const { validateCreator, validateBatchCreator, validateMatchRequest, validateCategorizeRequest, PLATFORMS, CRAFT_TYPES } = require('./schemas');
 const { rankCreators, extractBriefKeywords } = require('./scoring');
 const { appendFeedbackRow } = require('./feedback-sheet');
@@ -37,6 +39,7 @@ const {
     cosineSimilarity,
     getEmbeddingConfig,
     getClientType,
+    getModelRoutes,
     // Golden Record Lookalike Model
     buildGoldenRecordModel,
     findLookalikes,
@@ -143,8 +146,9 @@ function clearCreatorCache() {
 // =============================================================================
 const app = express();
 
-// Share Firestore client with sub-routers (e.g., scraperTrigger)
+// Share Firestore client and helpers with sub-routers
 app.set('firestore', firestore);
+app.set('getCreators', getCreators);
 
 // -----------------------------------------------------------------------------
 // 🔒 SECURITY MIDDLEWARE (helmet, cors, rate-limit)
@@ -347,6 +351,7 @@ app.get('/api/v1/creators', optionalAuth, async (req, res) => {
 
 /**
  * GET /api/v1/creators/:id - Get creator by ID
+ * Query params: includeWork=true to include work array, includeSource=true for full source
  */
 app.get('/api/v1/creators/:id', optionalAuth, async (req, res) => {
     console.log('📥 GET /api/v1/creators/:id', req.params.id);
@@ -362,9 +367,20 @@ app.get('/api/v1/creators/:id', optionalAuth, async (req, res) => {
             return res.status(404).json({ success: false, error: 'Creator not found' });
         }
         
+        const creator = { id: doc.id, ...doc.data() };
+        const includeWork = req.query.includeWork === 'true';
+        const includeSource = req.query.includeSource === 'true';
+        
+        if (!includeWork) {
+            delete creator.work;
+        }
+        if (!includeSource) {
+            delete creator.source;
+        }
+        
         res.json({
             success: true,
-            creator: { id: doc.id, ...doc.data() }
+            creator
         });
     } catch (error) {
         console.error('❌ Error getting creator:', error.message);
@@ -839,6 +855,73 @@ app.post('/api/v1/import/apify', requireAuth, async (req, res) => {
 // =============================================================================
 
 /**
+ * Shared filter logic for narrowing creator lists (used by match + semantic search)
+ */
+function applyCreatorFilters(creators, filters = {}) {
+    let result = creators;
+
+    if (filters.craft) {
+        const craft = filters.craft.toLowerCase();
+        result = result.filter(c =>
+            c.craft?.primary?.toLowerCase().includes(craft) ||
+            c.craft?.secondary?.some(s => s.toLowerCase().includes(craft))
+        );
+    }
+
+    if (filters.location) {
+        const location = filters.location.toLowerCase();
+        result = result.filter(c =>
+            c.contact?.location?.toLowerCase().includes(location)
+        );
+    }
+
+    if (filters.goldenRecordsOnly) {
+        result = result.filter(c => c.matching?.isGoldenRecord === true);
+    }
+
+    if (filters.minQualityScore) {
+        result = result.filter(c =>
+            (c.matching?.qualityScore || 0) >= filters.minQualityScore
+        );
+    }
+
+    if (filters.subjectMatter) {
+        const subjects = Array.isArray(filters.subjectMatter) ? filters.subjectMatter : [filters.subjectMatter];
+        const lower = subjects.map(s => String(s).toLowerCase());
+        result = result.filter(c => {
+            const creatorSubjects = (c.craft?.subjectMatterTags ?? []).map(t => t.toLowerCase());
+            return lower.some(s => creatorSubjects.includes(s));
+        });
+    }
+
+    if (filters.subjectSubcategory) {
+        const subcats = Array.isArray(filters.subjectSubcategory) ? filters.subjectSubcategory : [filters.subjectSubcategory];
+        const lower = subcats.map(s => String(s).toLowerCase());
+        result = result.filter(c => {
+            const creatorSubcats = (c.craft?.subjectSubcategoryTags ?? []).map(t => t.toLowerCase());
+            return lower.some(s => creatorSubcats.includes(s));
+        });
+    }
+
+    if (filters.primaryMedium) {
+        const medium = String(filters.primaryMedium).toLowerCase();
+        result = result.filter(c => c.craft?.primaryMedium?.toLowerCase() === medium);
+    }
+
+    if (filters.budgetTier) {
+        const tier = String(filters.budgetTier).toLowerCase();
+        result = result.filter(c => c.contact?.budgetTier?.toLowerCase() === tier);
+    }
+
+    if (filters.platform) {
+        const platform = String(filters.platform).toLowerCase();
+        result = result.filter(c => c.platform?.toLowerCase() === platform);
+    }
+
+    return result;
+}
+
+/**
  * POST /api/v1/match - Match creators to a brief
  * Body: { brief: string, filters?: { craft?, location?, tags?, minQualityScore?, goldenRecordsOnly?, limit? } }
  */
@@ -855,65 +938,12 @@ app.post('/api/v1/match', async (req, res) => {
             });
         }
         
-        const { brief, filters } = validation.data;
+        const { brief, filters, includeWorkLinks, includeSourceLinks } = validation.data;
         console.log(`🎯 Matching creators for brief: "${brief.substring(0, 100)}..."`);
         
-        // Get all creators
+        // Get all creators and apply pre-filters
         let creators = await getCreators();
-        
-        // Apply pre-filters before scoring
-        if (filters.craft) {
-            const craft = filters.craft.toLowerCase();
-            creators = creators.filter(c => 
-                c.craft?.primary?.toLowerCase().includes(craft) ||
-                c.craft?.secondary?.some(s => s.toLowerCase().includes(craft))
-            );
-        }
-        
-        if (filters.location) {
-            const location = filters.location.toLowerCase();
-            creators = creators.filter(c => 
-                c.contact?.location?.toLowerCase().includes(location)
-            );
-        }
-        
-        if (filters.goldenRecordsOnly) {
-            creators = creators.filter(c => c.matching?.isGoldenRecord === true);
-        }
-        
-        if (filters.minQualityScore) {
-            creators = creators.filter(c => 
-                (c.matching?.qualityScore || 0) >= filters.minQualityScore
-            );
-        }
-        
-        if (filters.subjectMatter) {
-            const subjects = Array.isArray(filters.subjectMatter) ? filters.subjectMatter : [filters.subjectMatter];
-            const lower = subjects.map(s => String(s).toLowerCase());
-            creators = creators.filter(c => {
-                const creatorSubjects = (c.craft?.subjectMatterTags ?? []).map(t => t.toLowerCase());
-                return lower.some(s => creatorSubjects.includes(s));
-            });
-        }
-        
-        if (filters.subjectSubcategory) {
-            const subcats = Array.isArray(filters.subjectSubcategory) ? filters.subjectSubcategory : [filters.subjectSubcategory];
-            const lower = subcats.map(s => String(s).toLowerCase());
-            creators = creators.filter(c => {
-                const creatorSubcats = (c.craft?.subjectSubcategoryTags ?? []).map(t => t.toLowerCase());
-                return lower.some(s => creatorSubcats.includes(s));
-            });
-        }
-        
-        if (filters.primaryMedium) {
-            const medium = String(filters.primaryMedium).toLowerCase();
-            creators = creators.filter(c => c.craft?.primaryMedium?.toLowerCase() === medium);
-        }
-        
-        if (filters.budgetTier) {
-            const tier = String(filters.budgetTier).toLowerCase();
-            creators = creators.filter(c => c.contact?.budgetTier?.toLowerCase() === tier);
-        }
+        creators = applyCreatorFilters(creators, filters);
         
         // Use scoring algorithm to rank creators
         const matches = rankCreators(creators, brief, {
@@ -922,6 +952,18 @@ app.post('/api/v1/match', async (req, res) => {
         });
         
         console.log(`✅ Found ${matches.length} matches`);
+        
+        // Strip work/source from results unless explicitly requested
+        const trimmedMatches = matches.map(m => {
+            const result = { ...m };
+            if (!includeWorkLinks) {
+                delete result.work;
+            }
+            if (!includeSourceLinks) {
+                delete result.source;
+            }
+            return result;
+        });
         
         // Extract keywords for response metadata
         const keywords = extractBriefKeywords(brief);
@@ -937,8 +979,8 @@ app.post('/api/v1/match', async (req, res) => {
                 subjects: keywords.subjects,
                 primaryMediumHint: keywords.primaryMediumHint
             },
-            matchCount: matches.length,
-            matches
+            matchCount: trimmedMatches.length,
+            matches: trimmedMatches
         });
     } catch (error) {
         console.error('❌ Error matching creators:', error.message);
@@ -1221,6 +1263,7 @@ app.get('/api/v1/llm/test', optionalAuth, async (req, res) => {
             success: true,
             connected,
             model: CONFIG.model,
+            modelRoutes: getModelRoutes(),
             message: connected ? 'LLM connection successful' : 'LLM connection failed'
         });
     } catch (error) {
@@ -1481,44 +1524,50 @@ app.get('/api/v1/similar/:id', optionalAuth, async (req, res) => {
 });
 
 /**
- * POST /api/v1/search/semantic - Semantic search with a text query
+ * POST /api/v1/search/semantic - Semantic search with optional structured filters
+ * Body: { query: string, limit?: number, minSimilarity?: number, filters?: { craft?, location?, platform?, subjectMatter?, budgetTier?, ... } }
+ * Filters use AND logic across fields; the query provides semantic ranking.
  */
 app.post('/api/v1/search/semantic', async (req, res) => {
     console.log('📥 POST /api/v1/search/semantic');
-    
-    const { query, limit = 10, minSimilarity = 0.3 } = req.body;
-    
+
+    const { query, limit = 10, minSimilarity = 0.3, filters } = req.body;
+
     if (!query) {
         return res.status(400).json({ success: false, error: 'Query is required' });
     }
-    
+
     try {
-        // Generate embedding for the search query
         const queryEmbedding = await generateEmbedding(query, 'RETRIEVAL_QUERY');
-        
-        // Get all creators with embeddings
+
         const allCreators = await getCreators();
-        const creatorsWithEmbeddings = allCreators.filter(c => c.embedding);
-        
-        if (creatorsWithEmbeddings.length === 0) {
+        let candidates = allCreators.filter(c => c.embedding);
+
+        if (candidates.length === 0) {
             return res.json({
                 success: true,
                 query,
+                filters: filters || {},
                 results: [],
                 message: 'No creators have embeddings yet. Run POST /api/v1/embeddings/batch first.'
             });
         }
-        
-        // Find similar creators
+
+        // Apply structured filters before semantic ranking
+        if (filters && typeof filters === 'object') {
+            candidates = applyCreatorFilters(candidates, filters);
+        }
+
         const results = findSimilar(
             queryEmbedding.values,
-            creatorsWithEmbeddings,
+            candidates,
             { limit, minSimilarity }
         );
-        
+
         res.json({
             success: true,
             query,
+            filters: filters || {},
             results: results.map(c => ({
                 id: c.id,
                 name: c.name,
@@ -1528,9 +1577,12 @@ app.post('/api/v1/search/semantic', async (req, res) => {
                 location: c.contact?.location,
                 similarity: Math.round(c.similarity * 1000) / 1000,
                 styleSignature: c.craft?.styleSignature,
+                subjectMatter: c.craft?.subjectMatterTags || [],
+                budgetTier: c.contact?.budgetTier,
                 isGoldenRecord: c.matching?.isGoldenRecord || false
             })),
-            totalSearched: creatorsWithEmbeddings.length,
+            totalSearched: candidates.length,
+            totalInDb: allCreators.length,
             embeddingModel: queryEmbedding.model
         });
     } catch (error) {
@@ -1769,6 +1821,8 @@ app.post('/api/v1/lookalikes/refresh', requireAuth, async (req, res) => {
 // 🕷️ SCRAPER TRIGGER (Cloud Scheduler)
 // =============================================================================
 app.use('/api/v1/scraper', scraperTriggerRouter);
+app.use('/api/v1/slack', slackRouter);
+app.use('/api/v1/enrichment', enrichmentRouter);
 
 // =============================================================================
 // 📊 STATS API
@@ -1872,6 +1926,11 @@ Endpoints:
   POST /api/v1/lookalikes/refresh   - Refresh model cache
   POST /api/v1/scraper/trigger      - Cloud Scheduler scrape trigger
   GET  /api/v1/stats                - Database statistics
+  POST /api/v1/slack/commands       - Slack slash command handler
+  GET  /api/v1/slack/health         - Slack integration health check
+  GET  /api/v1/enrichment/status    - Enrichment config status
+  POST /api/v1/enrichment/enrich/:id - Enrich single creator (scaffold)
+  POST /api/v1/enrichment/bulk      - Bulk enrichment (scaffold)
 ============================================================
 `);
 });

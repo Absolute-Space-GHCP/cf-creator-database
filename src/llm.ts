@@ -16,9 +16,23 @@ import { CRAFT_TYPES, CraftType } from './schemas';
 // 🔧 CONFIGURATION
 // =============================================================================
 
-const MODEL_ID = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
 const GCP_PROJECT_ID = process.env.GCP_PROJECT_ID || 'catchfire-app-2026';
 const GCP_REGION = process.env.GCP_REGION || 'us-central1';
+
+type TaskCategory = 'brief_analysis' | 'categorization' | 'style' | 'vision' | 'search' | 'default';
+
+const MODEL_ROUTES: Record<TaskCategory, string> = {
+    brief_analysis: process.env.GEMINI_MODEL_PRO || 'gemini-2.5-pro',
+    categorization: process.env.GEMINI_MODEL || 'gemini-2.5-flash',
+    style:          process.env.GEMINI_MODEL || 'gemini-2.5-flash',
+    vision:         process.env.GEMINI_MODEL || 'gemini-2.5-flash',
+    search:         process.env.GEMINI_MODEL || 'gemini-2.5-flash',
+    default:        process.env.GEMINI_MODEL || 'gemini-2.5-flash',
+};
+
+function getModelForTask(task: TaskCategory): string {
+    return MODEL_ROUTES[task] || MODEL_ROUTES.default;
+}
 
 // Unified client instance
 let genAI: GoogleGenAI | null = null;
@@ -48,8 +62,12 @@ function initializeClient(): void {
 
 /**
  * Generate content using the unified @google/genai client
+ * Routes to the appropriate model based on task category
  */
-async function generateContent(prompt: string, options: { temperature?: number; maxOutputTokens?: number } = {}): Promise<string> {
+async function generateContent(
+    prompt: string, 
+    options: { temperature?: number; maxOutputTokens?: number; task?: TaskCategory } = {}
+): Promise<string> {
     if (!genAI) {
         initializeClient();
     }
@@ -58,10 +76,11 @@ async function generateContent(prompt: string, options: { temperature?: number; 
         throw new Error('No AI client available');
     }
     
-    const { temperature = 0.3, maxOutputTokens = 1024 } = options;
+    const { temperature = 0.3, maxOutputTokens = 1024, task = 'default' } = options;
+    const model = getModelForTask(task);
     
     const response = await genAI.models.generateContent({
-        model: MODEL_ID,
+        model,
         contents: prompt,
         config: {
             temperature,
@@ -138,11 +157,12 @@ export async function categorizeCreator(
     
     const prompt = CATEGORIZATION_PROMPT + context;
     
-    console.log(`🤖 Categorizing with ${MODEL_ID}...`);
+    const model = getModelForTask('categorization');
+    console.log(`🤖 Categorizing with ${model}...`);
     const startTime = Date.now();
     
     try {
-        const text = await generateContent(prompt, { temperature: 0.3, maxOutputTokens: 1024 });
+        const text = await generateContent(prompt, { temperature: 0.3, maxOutputTokens: 1024, task: 'categorization' });
         
         const elapsed = Date.now() - startTime;
         console.log(`⏱️ LLM response in ${elapsed}ms`);
@@ -210,11 +230,12 @@ export async function generateStyleSignature(
         .replace('{bio}', bio)
         .replace('{tags}', technicalTags.join(', ') || 'none specified');
     
-    console.log(`🎨 Generating style signature for ${name}...`);
+    const model = getModelForTask('style');
+    console.log(`🎨 Generating style signature for ${name} with ${model}...`);
     const startTime = Date.now();
     
     try {
-        const text = await generateContent(prompt, { temperature: 0.7, maxOutputTokens: 256 });
+        const text = await generateContent(prompt, { temperature: 0.7, maxOutputTokens: 256, task: 'style' });
         
         const elapsed = Date.now() - startTime;
         console.log(`⏱️ Style signature generated in ${elapsed}ms`);
@@ -279,7 +300,8 @@ export async function analyzePortfolioImage(imageUrl: string): Promise<ImageAnal
         throw new Error('No AI client available');
     }
 
-    console.log(`📸 Analyzing portfolio image: ${imageUrl.substring(0, 80)}...`);
+    const visionModel = getModelForTask('vision');
+    console.log(`📸 Analyzing portfolio image with ${visionModel}: ${imageUrl.substring(0, 80)}...`);
     const startTime = Date.now();
 
     // Fetch the image
@@ -330,7 +352,7 @@ export async function analyzePortfolioImage(imageUrl: string): Promise<ImageAnal
 
     try {
         const response = await genAI.models.generateContent({
-            model: MODEL_ID,
+            model: visionModel,
             contents: [
                 {
                     role: 'user',
@@ -414,11 +436,12 @@ export interface BriefAnalysis {
 export async function analyzeBrief(brief: string): Promise<BriefAnalysis> {
     const prompt = BRIEF_ANALYSIS_PROMPT + brief;
     
-    console.log('📋 Analyzing brief with LLM...');
+    const model = getModelForTask('brief_analysis');
+    console.log(`📋 Analyzing brief with ${model}...`);
     const startTime = Date.now();
     
     try {
-        const text = await generateContent(prompt, { temperature: 0.2, maxOutputTokens: 512 });
+        const text = await generateContent(prompt, { temperature: 0.2, maxOutputTokens: 512, task: 'brief_analysis' });
         
         const elapsed = Date.now() - startTime;
         console.log(`⏱️ Brief analysis in ${elapsed}ms`);
@@ -861,6 +884,13 @@ export function getClientType(): string {
         initializeClient();
     }
     return clientMode === 'vertex_ai' ? `Vertex AI (${GCP_PROJECT_ID})` : 'Google AI API';
+}
+
+/**
+ * Get the model routing configuration (for diagnostics / status page)
+ */
+export function getModelRoutes(): Record<string, string> {
+    return { ...MODEL_ROUTES };
 }
 
 /**
