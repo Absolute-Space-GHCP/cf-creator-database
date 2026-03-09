@@ -30,6 +30,9 @@
 | [L014](#l014-typescript-erasablesyntaxonly-blocks-parameter-properties) | TypeScript erasableSyntaxOnly Blocks Parameter Properties | Medium | `web/src/**/*.ts`, `tsconfig.app.json` |
 | [L015](#l015-web-dependencies-missing-after-clone-webnodemodules) | Web Dependencies Missing After Clone | Medium | `web/package.json`, `web/node_modules/` |
 | [L016](#l016-integration-tests-require-running-local-server) | Integration Tests Require Running Local Server | Medium | `tests/integration/`, status reports |
+| [L017](#l017-cloud-run-public-access-via-allusers-iam-binding) | Cloud Run Public Access via allUsers IAM Binding | Critical | Cloud Run IAM, `gcloud run deploy` |
+| [L018](#l018-npx-md-to-pdf-hangs-indefinitely-on-windows-puppeteer-chrome-discovery) | npx md-to-pdf Hangs on Windows (Puppeteer) | Medium | `scripts/md-to-pdf.mjs` |
+| [L019](#l019-claude-mem-cursor-hooks-cause-post-tool-usejs-tab-opening) | Claude-Mem Cursor Hooks Tab Opening | High | `~/.cursor/hooks.json` |
 
 ---
 
@@ -840,6 +843,63 @@ Applies to any project with live integration tests that depend on a running serv
 
 ---
 
+## L017: Cloud Run Public Access via allUsers IAM Binding
+
+**Severity:** Critical
+**First Observed:** 2026-02-26
+**Last Confirmed:** 2026-02-26
+**Status:** FIXED - IAP deployed, allUsers removed, global audit performed
+
+### Problem
+
+The Cloud Run service `cf-matching-engine` was publicly accessible to anyone on the internet. All creator data, search functionality, and matching results were exposed without any authentication.
+
+### Symptoms
+
+- Visiting the Cloud Run URL in any browser (no login) shows the full web UI
+- All GET endpoints return data without authentication
+- Creator profiles, search results, and match data visible to anyone with the URL
+- The `--allow-unauthenticated` flag was used during initial `gcloud run deploy`
+
+### Root Cause
+
+When deploying to Cloud Run, the `--allow-unauthenticated` flag adds an `allUsers` member with `roles/run.invoker` to the service's IAM policy. This was used during initial development for convenience but was never removed before sharing the URL with stakeholders.
+
+The existing `requireAuth` middleware only protected mutating (POST/PUT/DELETE) endpoints. All read endpoints (GET) were intentionally left open for easy testing, which meant the entire database was browsable without any credentials.
+
+### Solution
+
+**Phase 1: Emergency Lockdown (immediate)**
+```bash
+gcloud run services remove-iam-policy-binding cf-matching-engine \
+  --region=us-central1 --project=catchfire-app-2026 \
+  --member="allUsers" --role="roles/run.invoker"
+```
+
+**Phase 2: IAP + Load Balancer (permanent)**
+1. Created HTTPS Load Balancer stack (NEG, backend, URL map, static IP, SSL cert, forwarding rule)
+2. Enabled IAP on the backend service
+3. Granted IAP service account `roles/run.invoker` on Cloud Run
+4. Granted 3 approved JL users `roles/iap.httpsResourceAccessor`
+5. Cloud Scheduler retains direct `run.invoker` binding for automated scraping
+
+**Result:** Users access via `https://cf-matching-engine.34.54.144.178.nip.io` with Google SSO. Non-JL users get 403. Cloud Run URL returns 403 to everyone except authorized service accounts.
+
+### Proactive Maintenance
+
+1. **NEVER use `--allow-unauthenticated` in production deploys** -- use explicit IAM bindings instead
+2. After every `gcloud run deploy`, verify IAM: `gcloud run services get-iam-policy SERVICE --region=REGION`
+3. Check for `allUsers` or `allAuthenticatedUsers` bindings -- these mean PUBLIC access
+4. For web UIs, always use IAP or application-level authentication
+5. For service-to-service calls, use service account IAM bindings
+6. See global Cursor rule `cloud-run-security.mdc` for enforcement
+
+### Cross-Project Applicability
+
+**CRITICAL: Applies to ALL projects using Cloud Run.** Every Cloud Run service across all GCP projects must be audited for `allUsers` bindings. This is a global security rule.
+
+---
+
 ## Adding New Entries
 
 When you discover and fix a recurring problem:
@@ -871,6 +931,81 @@ Template:
 
 ---
 
+## L018: npx md-to-pdf Hangs Indefinitely on Windows (Puppeteer Chrome Discovery)
+
+**Severity:** Medium
+**First Observed:** 2026-03-05
+**Last Confirmed:** 2026-03-05
+**Status:** FIXED
+
+### Problem
+`npx md-to-pdf <file>` hangs indefinitely with zero output on Windows. The process never completes, even after 2+ minutes.
+
+### Symptoms
+- `npx md-to-pdf docs/ARCHITECTURE.md` produces no output, no error, no file
+- Process consumes no CPU after initial launch
+- Affects all markdown files, not file-specific
+- JSON `--pdf-options` flag makes no difference
+
+### Root Cause
+`md-to-pdf` v5 depends on `puppeteer` (full package), which expects its own bundled Chromium. On this Windows machine, `puppeteer`'s Chromium cache (`~/.cache/puppeteer/`) was empty and the download silently stalled. Setting `PUPPETEER_EXECUTABLE_PATH` to system Chrome didn't help because `md-to-pdf` doesn't pass it through.
+
+### Solution
+Use a custom script (`scripts/md-to-pdf.mjs`) that imports `puppeteer-core` directly and points to the system Chrome installation:
+
+```javascript
+import puppeteer from 'puppeteer-core';
+const browser = await puppeteer.launch({
+  executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+  headless: true,
+  args: ['--no-sandbox', '--disable-setuid-sandbox'],
+});
+```
+
+This script also loads Mermaid JS from CDN for diagram rendering in ~6 seconds.
+
+### Prevention
+- Always use `scripts/md-to-pdf.mjs` instead of `npx md-to-pdf` on Windows
+- If `npx md-to-pdf` is needed, run `npx puppeteer browsers install chrome` first to populate the cache
+
+### Cross-Project Applicability
+Any Windows project using `md-to-pdf` or Puppeteer. Add to LEARN-GLOBAL.md as G013.
+
+---
+
+## L019: Claude-Mem Cursor Hooks Cause post-tool-use.js Tab Opening
+
+**Severity:** High
+**First Observed:** 2026-03-05
+**Last Confirmed:** 2026-03-05
+**Status:** FIXED
+
+### Problem
+Cursor IDE opens a `post-tool-use.js` file as a new tab after every file edit, shell command, and MCP execution. Happens across all project repos on Windows.
+
+### Symptoms
+- `post-tool-use.js` tab opens in editor after every agent action
+- Happens globally, not project-specific
+- Only on Windows, not macOS installs
+
+### Root Cause
+The claude-mem plugin (`thedotmack` marketplace) installed user-level Cursor hooks at `C:\Users\cmsch\.cursor\hooks.json`. The `afterFileEdit` hook triggers after every file change, and Cursor surfaces the hook script (`C:\Users\cmsch\.claude-mem\hooks\post-tool-use.js`) in the editor.
+
+### Solution
+Remove the `afterFileEdit` entry from `C:\Users\cmsch\.cursor\hooks.json`. Keep other hooks (`beforeSubmitPrompt`, `afterMCPExecution`, `afterShellExecution`, `stop`) if desired.
+
+If `afterMCPExecution` or `afterShellExecution` also cause tab-opening, remove those too.
+
+### Prevention
+- After claude-mem marketplace updates, check `~/.cursor/hooks.json` for re-added entries
+- On macOS, hooks are not installed at user level by default
+- If re-installing claude-mem cursor hooks, use project-level (`claude-mem cursor install project`) instead of user-level to limit scope
+
+### Cross-Project Applicability
+Any Windows machine with claude-mem + Cursor. Add to LEARN-GLOBAL.md as G014.
+
+---
+
 Author: Charley Scholz, JLAI
 Co-authored: Claude Opus 4.6, Claude Code (coding assistant), Cursor (IDE)
-Last Updated: 2026-02-23
+Last Updated: 2026-03-05

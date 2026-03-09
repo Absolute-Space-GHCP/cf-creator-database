@@ -1,10 +1,10 @@
-> **Version:** 0.7.0 | **Date:** 2026-02-19 | **Repo:** cf-influencer-matching-engine
+> **Version:** 0.8.0 | **Date:** 2026-03-05 | **Repo:** cf-influencer-matching-engine
 
 # CatchFire Influencer Matching Engine - URL & API Reference
 
-**Version:** v0.7.0  
+**Version:** v0.8.0  
 **Status:** Development  
-**Last Verified:** 2026-01-28
+**Last Verified:** 2026-03-05
 
 ---
 
@@ -40,13 +40,13 @@
 
 ## Production URLs
 
-### Cloud Run Service
+### Cloud Run Services
 
-| URL                                                               | Description          | Project            |
-| ----------------------------------------------------------------- | -------------------- | ------------------ |
-| `https://catchfire-mvp-34240596768.us-central1.run.app`           | Main API endpoint    | catchfire-app-2026 |
-| `https://catchfire-mvp-34240596768.us-central1.run.app/health`    | Health check         | catchfire-app-2026 |
-| `https://catchfire-mvp-34240596768.us-central1.run.app/dashboard` | Monitoring dashboard | catchfire-app-2026 |
+| URL | Description | Project |
+| --- | ----------- | ------- |
+| `https://cf-matching-engine-34240596768.us-central1.run.app` | Cloud Run service (direct, locked - 403 to public) | catchfire-app-2026 |
+| `https://cf-matching-engine.34.54.144.178.nip.io` | Production URL (IAP-secured, Google SSO) | catchfire-app-2026 |
+| `https://cf-matching-staging-34240596768.us-east1.run.app` | Staging service (locked - 403 to public) | catchfire-app-2026 |
 
 ### GitHub Repository
 
@@ -84,23 +84,54 @@
 
 ### Core API (v1)
 
-| Endpoint                 | Method | Description                        |
-| ------------------------ | ------ | ---------------------------------- |
-| `/health`                | GET    | Health check (returns JSON status) |
-| `/dashboard`             | GET    | Admin monitoring dashboard         |
-| `/api/v1/match`          | POST   | Match creators to a brief          |
-| `/api/v1/creators`       | GET    | Search/filter creators             |
-| `/api/v1/creators`       | POST   | Add single creator                 |
-| `/api/v1/creators/batch` | POST   | Bulk import from scraper           |
-| `/api/v1/creators/:id`   | GET    | Get creator details                |
-| `/api/v1/categorize`     | POST   | LLM-categorize a bio               |
+| Endpoint                    | Method | Description                        |
+| --------------------------- | ------ | ---------------------------------- |
+| `/health`                   | GET    | Health check (returns JSON status) |
+| `/dashboard`                | GET    | Admin monitoring dashboard         |
+| `/testing`                  | GET    | Testing dashboard                  |
+| `/api/v1/creators`          | GET    | Search/filter creators             |
+| `/api/v1/creators`          | POST   | Add single creator                 |
+| `/api/v1/creators/:id`      | GET    | Get creator details                |
+| `/api/v1/creators/:id`      | PATCH  | Update creator details             |
+| `/api/v1/creators/batch`    | POST   | Bulk import from scraper           |
+| `/api/v1/import/apify`      | POST   | Import from Apify scraper results  |
+| `/api/v1/match`             | POST   | Match creators to a brief          |
+| `/api/v1/feedback`          | POST   | Submit match feedback              |
+| `/api/v1/categorize`        | POST   | LLM-categorize a bio               |
+| `/api/v1/style-signature`   | POST   | Generate creator style signature   |
 
-### Dashboard Endpoints
+### AI & Embeddings
 
-| Endpoint          | Method | Description               |
-| ----------------- | ------ | ------------------------- |
-| `/dashboard`      | GET    | Main monitoring dashboard |
-| `/analytics.html` | GET    | Analytics dashboard       |
+| Endpoint                         | Method | Description                        |
+| -------------------------------- | ------ | ---------------------------------- |
+| `/api/v1/llm/test`               | GET    | Test LLM connectivity              |
+| `/api/v1/embeddings/test`        | GET    | Test embeddings connectivity       |
+| `/api/v1/embeddings/generate/:id`| POST   | Generate embeddings for a creator  |
+| `/api/v1/embeddings/batch`       | POST   | Batch generate embeddings          |
+| `/api/v1/search/semantic`        | POST   | Semantic search across creators    |
+| `/api/v1/similar/:id`            | GET    | Find similar creators              |
+
+### Lookalikes
+
+| Endpoint                        | Method | Description                       |
+| ------------------------------- | ------ | --------------------------------- |
+| `/api/v1/lookalikes`            | GET    | List lookalike results            |
+| `/api/v1/lookalikes/model`      | GET    | Get lookalike model info          |
+| `/api/v1/lookalikes/score/:id`  | GET    | Get lookalike score for a creator |
+| `/api/v1/lookalikes/refresh`    | POST   | Refresh lookalike model           |
+
+### Scraper
+
+| Endpoint                   | Method | Description                |
+| -------------------------- | ------ | -------------------------- |
+| `/api/v1/scraper/trigger`  | POST   | Trigger a scraper run      |
+| `/api/v1/stats`            | GET    | Get system/scraper stats   |
+
+### Web
+
+| Endpoint | Method | Description |
+| -------- | ------ | ----------- |
+| `/app/*` | GET    | React SPA   |
 
 ---
 
@@ -110,7 +141,7 @@
 
 | Service            | SDK Package               | Purpose                              |
 | ------------------ | ------------------------- | ------------------------------------ |
-| Vertex AI / Gemini | `@google/genai` (target)  | Creator bio categorization, matching |
+| Vertex AI / Gemini | `@google/genai`           | Creator bio categorization, matching |
 | Firestore          | `@google-cloud/firestore` | Creator database                     |
 | Cloud Storage      | `@google-cloud/storage`   | Asset storage (future)               |
 
@@ -124,11 +155,32 @@
 
 ### Firestore Collections
 
-| Collection | Description                    |
-| ---------- | ------------------------------ |
-| `creators` | Main creator profiles          |
-| `briefs`   | Client briefs (future)         |
-| `matches`  | Match results history (future) |
+| Collection        | Description                                      |
+| ----------------- | ------------------------------------------------ |
+| `creators`        | Main creator profiles (37 records, 11 Golden Records) |
+| `creators-staging`| Staging environment data                         |
+| `scraper_runs`    | Scraper execution logs                           |
+
+---
+
+## Cloud Monitoring
+
+| Check/Alert              | Configuration                          |
+| ------------------------ | -------------------------------------- |
+| Uptime check             | `/health` endpoint                     |
+| Error rate alert         | >5 5xx responses in 5 min             |
+| Latency alert            | p99 > 10s                              |
+| Notification channel     | CatchFire Engineering (email)          |
+
+---
+
+## Cloud Scheduler
+
+| Job Name              | Schedule                   |
+| --------------------- | -------------------------- |
+| `daily-scrape-vimeo`  | 2:00 AM EST daily          |
+| `daily-scrape-behance`| 3:00 AM EST daily          |
+| `weekly-scrape-all`   | Sunday 1:00 AM EST         |
 
 ---
 
@@ -196,14 +248,24 @@ git remote add origin https://github.com/Absolute-Space-GHCP/cf-influencer-match
 
 ## Deployment Commands
 
-### Deploy to Cloud Run
+### Deploy to Cloud Run (Production)
 
 ```bash
 gcloud run deploy cf-matching-engine \
   --source . \
   --region us-central1 \
   --project catchfire-app-2026 \
-  --allow-unauthenticated
+  --no-allow-unauthenticated
+```
+
+### Deploy to Cloud Run (Staging)
+
+```bash
+gcloud run deploy cf-matching-staging \
+  --source . \
+  --region us-east1 \
+  --project catchfire-app-2026 \
+  --no-allow-unauthenticated
 ```
 
 ### View Logs
@@ -219,23 +281,24 @@ gcloud run services logs read cf-matching-engine \
 ## Quick Reference Card
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│ CatchFire Influencer Matching Engine                        │
-├─────────────────────────────────────────────────────────────┤
-│ GCP Account:    charleys@johannesleonardo.com               │
-│ GCP Project:    catchfire-app-2026                          │
-│ GitHub User:    cmscholz222                                 │
-│ GitHub Org:     Absolute-Space-GHCP                         │
-├─────────────────────────────────────────────────────────────┤
-│ Production:     https://catchfire-mvp-34240596768...run.app │
-│ Local Dev:      http://localhost:8090                       │
-│ AI Model:       gemini-2.5-flash                            │
-│ Database:       Firestore (creators collection)             │
-└─────────────────────────────────────────────────────────────┘
++-------------------------------------------------------------+
+| CatchFire Influencer Matching Engine                        |
++-------------------------------------------------------------+
+| GCP Account:    charleys@johannesleonardo.com               |
+| GCP Project:    catchfire-app-2026                          |
+| GitHub User:    cmscholz222                                 |
+| GitHub Org:     Absolute-Space-GHCP                         |
++-------------------------------------------------------------+
+| Production (IAP): https://cf-matching-engine.34.54.144.178.nip.io |
+| Staging:     https://cf-matching-staging-34240596768.us-east1.run.app |
+| Local Dev:   http://localhost:8090                          |
+| AI Model:    gemini-2.5-flash                               |
+| Database:    Firestore (creators collection, 37 records)    |
++-------------------------------------------------------------+
 ```
 
 ---
 
-Author: Charley Scholz  
-Co-authored: Claude Opus 4.6, Cursor (IDE)  
-Last Updated: 2026-02-19
+Author: Charley Scholz, JLAI  
+Co-authored: Claude Opus 4.6, Claude Code (coding assistant), Cursor (IDE)  
+Last Updated: 2026-03-05

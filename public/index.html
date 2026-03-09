@@ -396,6 +396,17 @@
             transform: scale(0.96);
         }
 
+        .hint-chip--filter {
+            border-style: dashed;
+        }
+
+        .hint-chip--filter.active {
+            background: rgba(255, 183, 77, 0.15);
+            border-style: solid;
+            border-color: var(--accent-gold);
+            color: var(--accent-gold);
+        }
+
         /* Results */
         .results-toolbar {
             display: none;
@@ -894,12 +905,20 @@
                             <button class="search-btn" id="searchBtn">Search</button>
                         </div>
                         <div class="search-hints">
-                            <span class="hint-chip" data-q="moody cinematographer with ARRI experience">🎬 Moody DP</span>
-                            <span class="hint-chip" data-q="motion designer for tech brand commercials">✨ Motion Design</span>
-                            <span class="hint-chip" data-q="VFX artist for film visual effects">🎨 VFX Artist</span>
-                            <span class="hint-chip" data-q="music video director with bold visual style">🎵 MV Director</span>
-                            <span class="hint-chip" data-q="colorist for cinematic film grading">🎨 Colorist</span>
-                            <span class="hint-chip" data-q="3D artist for product visualization">💎 3D Artist</span>
+                            <span class="hint-chip" data-q="moody cinematographer with ARRI experience" data-craft="cinematographer">🎬 Moody DP</span>
+                            <span class="hint-chip" data-q="motion designer for tech brand commercials" data-craft="motion_designer">✨ Motion Design</span>
+                            <span class="hint-chip" data-q="VFX artist for film visual effects" data-craft="vfx_artist">🎨 VFX Artist</span>
+                            <span class="hint-chip" data-q="music video director with bold visual style" data-craft="director">🎵 MV Director</span>
+                            <span class="hint-chip" data-q="colorist for cinematic film grading" data-craft="colorist">🎨 Colorist</span>
+                            <span class="hint-chip" data-q="3D artist for product visualization" data-craft="3d_artist">💎 3D Artist</span>
+                        </div>
+                        <div class="search-hints" style="margin-top:4px">
+                            <span class="hint-chip hint-chip--filter" data-filter="subjectMatter" data-value="food">🍽 Food</span>
+                            <span class="hint-chip hint-chip--filter" data-filter="subjectMatter" data-value="automotive">🏎 Automotive</span>
+                            <span class="hint-chip hint-chip--filter" data-filter="subjectMatter" data-value="fashion">👗 Fashion</span>
+                            <span class="hint-chip hint-chip--filter" data-filter="subjectMatter" data-value="sports">⚽ Sports</span>
+                            <span class="hint-chip hint-chip--filter" data-filter="location" data-value="Los Angeles">📍 LA</span>
+                            <span class="hint-chip hint-chip--filter" data-filter="location" data-value="New York">📍 NYC</span>
                         </div>
                     </div>
                     <!-- Brief Templates -->
@@ -1191,17 +1210,19 @@
         let lastSearchResults = [];
         let lastSearchQuery = '';
 
-        async function performSearch(query) {
+        async function performSearch(query, filters) {
             const container = document.getElementById('resultsArea');
             const toolbar = document.getElementById('resultsToolbar');
             container.innerHTML = '<div class="loading"><div class="spinner"></div> Searching...</div>';
             toolbar.classList.remove('visible');
 
             try {
+                const body = { query, limit: 6, minSimilarity: 0.3 };
+                if (filters) body.filters = filters;
                 const res = await fetch(`${API}/api/v1/search/semantic`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ query, limit: 6, minSimilarity: 0.3 })
+                    body: JSON.stringify(body)
                 });
                 const data = await res.json();
 
@@ -1286,23 +1307,59 @@
         });
 
         document.getElementById('searchInput').addEventListener('input', () => {
-            document.querySelectorAll('.hint-chip').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.hint-chip[data-q]').forEach(c => c.classList.remove('active'));
         });
 
         document.getElementById('searchInput').addEventListener('keypress', e => {
             if (e.key === 'Enter') {
                 const q = e.target.value.trim();
-                if (q) performSearch(q);
+                if (q) performSearch(q, getActiveFilters());
             }
         });
 
-        document.querySelectorAll('.hint-chip').forEach(chip => {
+        // Multi-select hint chips: craft chips set the query, filter chips narrow results
+        function getActiveFilters() {
+            const filters = {};
+            document.querySelectorAll('.hint-chip--filter.active').forEach(chip => {
+                const key = chip.dataset.filter;
+                const val = chip.dataset.value;
+                if (key === 'subjectMatter') {
+                    if (!filters.subjectMatter) filters.subjectMatter = [];
+                    filters.subjectMatter.push(val);
+                } else {
+                    filters[key] = val;
+                }
+            });
+            return Object.keys(filters).length ? filters : undefined;
+        }
+
+        function buildCombinedQuery() {
+            const activeQueryChips = document.querySelectorAll('.hint-chip[data-q].active');
+            if (activeQueryChips.length > 0) {
+                return Array.from(activeQueryChips).map(c => c.dataset.q).join('; ');
+            }
+            return document.getElementById('searchInput').value.trim();
+        }
+
+        function runCombinedSearch() {
+            const query = buildCombinedQuery();
+            if (!query) return;
+            document.getElementById('searchInput').value = query;
+            performSearch(query, getActiveFilters());
+        }
+
+        document.querySelectorAll('.hint-chip[data-q]').forEach(chip => {
             chip.addEventListener('click', () => {
-                document.querySelectorAll('.hint-chip').forEach(c => c.classList.remove('active'));
-                chip.classList.add('active');
-                const q = chip.dataset.q;
-                document.getElementById('searchInput').value = q;
-                performSearch(q);
+                chip.classList.toggle('active');
+                runCombinedSearch();
+            });
+        });
+
+        document.querySelectorAll('.hint-chip--filter').forEach(chip => {
+            chip.addEventListener('click', () => {
+                chip.classList.toggle('active');
+                const query = buildCombinedQuery();
+                if (query) runCombinedSearch();
             });
         });
 

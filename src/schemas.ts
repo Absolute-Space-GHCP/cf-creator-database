@@ -4,7 +4,7 @@
  * @author Charley Scholz, JLAI
  * @coauthor Claude Opus 4.5, Claude Code (coding assistant), Cursor (IDE)
  * @created 2026-01-28
- * @updated 2026-01-28
+ * @updated 2026-03-05
  */
 
 import { z } from 'zod';
@@ -143,6 +143,26 @@ export const ContactSchema = z.object({
     isHireable: z.boolean().optional().default(true)
 }).optional();
 
+export const WORK_PIECE_TYPES = [
+    'portfolio',
+    'reel',
+    'project',
+    'festival_entry',
+    'award',
+    'article',
+    'interview'
+] as const;
+
+export type WorkPieceType = typeof WORK_PIECE_TYPES[number];
+
+export const WorkPieceSchema = z.object({
+    title: z.string(),
+    url: z.string().url(),
+    type: z.enum(WORK_PIECE_TYPES),
+    description: z.string().optional(),
+    year: z.number().optional()
+});
+
 // =============================================================================
 // 🎯 MAIN SCHEMAS
 // =============================================================================
@@ -158,6 +178,8 @@ export const CreateCreatorSchema = z.object({
     craft: CraftSchema,
     matching: MatchingSchema,
     contact: ContactSchema,
+    /** Individual work pieces: portfolio links, festival entries, awards, etc. */
+    work: z.array(WorkPieceSchema).optional(),
     /** Last portfolio/activity date (ISO or YYYY-MM-DD). Deck/docx Tier 1. */
     lastActiveDate: z.string().optional()
 });
@@ -182,6 +204,7 @@ export const BatchCreatorSchema = z.object({
     craft: CraftSchema,
     matching: MatchingSchema,
     contact: ContactSchema,
+    work: z.array(WorkPieceSchema).optional(),
     lastActiveDate: z.string().optional()
 });
 
@@ -201,7 +224,11 @@ export const MatchRequestSchema = z.object({
         minQualityScore: z.number().min(0).max(100).optional(),
         goldenRecordsOnly: z.boolean().optional(),
         limit: z.number().min(1).max(100).default(10)
-    }).default({ limit: 10 })
+    }).default({ limit: 10 }),
+    /** Include work array (portfolio pieces, awards, etc.) in each match result */
+    includeWorkLinks: z.boolean().optional(),
+    /** Include full source object in each match result */
+    includeSourceLinks: z.boolean().optional()
 });
 
 /**
@@ -243,6 +270,9 @@ export type Matching = z.infer<typeof MatchingSchema>;
 
 /** Type for contact information */
 export type Contact = z.infer<typeof ContactSchema>;
+
+/** Type for a work piece (portfolio link, award, festival entry, etc.) */
+export type WorkPiece = z.infer<typeof WorkPieceSchema>;
 
 // =============================================================================
 // 🎯 SCORING RESULT TYPES

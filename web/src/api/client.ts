@@ -4,7 +4,7 @@
  * @author Charley Scholz, JLAI
  * @coauthor Claude Opus 4.6, Claude Code (coding assistant), Cursor (IDE)
  * @created 2026-01-28
- * @updated 2026-02-23
+ * @updated 2026-03-05
  */
 
 const BASE = import.meta.env.VITE_API_BASE ?? '';
@@ -55,6 +55,14 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 
 /* ── Shared types ──────────────────────────────────────── */
 
+export interface WorkPiece {
+  title: string;
+  url: string;
+  type: 'portfolio' | 'reel' | 'project' | 'festival_entry' | 'award' | 'article' | 'interview';
+  description?: string;
+  year?: number;
+}
+
 export interface Creator {
   id: string;
   name: string;
@@ -87,6 +95,7 @@ export interface Creator {
     budgetTier?: string;
     isHireable?: boolean;
   };
+  work?: WorkPiece[];
   embedding?: number[];
   embeddingModel?: string;
   embeddingGeneratedAt?: string;
@@ -137,6 +146,8 @@ export interface MatchResult {
   isGoldenRecord?: boolean;
   location?: string;
   styleSignature?: string;
+  work?: WorkPiece[];
+  source?: { type?: string; name?: string; url?: string; discoveredAt?: string };
 }
 
 export interface MatchResponse {
@@ -219,9 +230,38 @@ export interface FeedbackPayload {
   comment?: string;
 }
 
+/* ── Image Analysis types ─────────────────────────────── */
+
+export interface ImageAnalysis {
+  technicalTags: string[];
+  styleKeywords: string[];
+  subjectMatter: string[];
+  colorPalette: string[];
+  moodDescriptor: string;
+  equipmentGuess: string[];
+}
+
+export interface ImageAnalysisPreviewResponse {
+  success: boolean;
+  imageUrl: string;
+  analysis: ImageAnalysis;
+  model: string;
+}
+
+export interface ImageAnalysisCreatorResponse {
+  success: boolean;
+  creatorId: string;
+  analysis: ImageAnalysis;
+  mergedTags: {
+    technicalTags: string[];
+    subjectMatterTags: string[];
+  };
+  creator: Creator;
+}
+
 /* ── Scraper types ────────────────────────────────────── */
 
-export interface ScraperRun {
+export interface ScraperReport {
   id: string;
   timestamp: string;
   platforms: string[];
@@ -231,16 +271,14 @@ export interface ScraperRun {
   duration: number;
   error: string | null;
   triggeredBy: string;
-  dryRun: boolean;
+  dryRun?: boolean;
 }
 
 export interface ScraperStatusResponse {
   success: boolean;
-  lastRun: ScraperRun | null;
+  lastRun: ScraperReport | null;
   totalRuns: number;
 }
-
-export interface ScraperReport extends ScraperRun {}
 
 
 export interface ScraperReportsResponse {
@@ -250,15 +288,42 @@ export interface ScraperReportsResponse {
 
 export interface ScraperTriggerResponse {
   success: boolean;
-  message: string;
+  runId: string;
+  dryRun: boolean;
+  creatorsFound: number;
+  creatorsTransformed: number;
+  creatorsImported: number;
+  transformErrors: number;
+  duration: number;
   platforms: string[];
-  limit: number;
+}
+
+/* ── Enrichment types ───────────────────────────────────── */
+
+export interface EnrichmentStatusResponse {
+  success: boolean;
+  status: 'ready' | 'awaiting_configuration';
+  message: string;
+  config: {
+    provider: string | null;
+    availableProviders: string[];
+    envVars: Record<string, string>;
+  };
+}
+
+export interface EnrichmentResponse {
+  success: boolean;
+  error?: string;
+  status?: 'awaiting_configuration' | 'not_implemented';
+  creatorId?: string;
 }
 
 /* ── API functions ─────────────────────────────────────── */
 
 export const api = {
   getHealth: () => request<HealthResponse>('/health'),
+
+  getAuthMe: () => request<{ success: boolean; authenticated: boolean; method?: string; email?: string }>('/api/v1/auth/me'),
 
   getStats: () => request<StatsResponse>('/api/v1/stats'),
 
@@ -267,8 +332,13 @@ export const api = {
     return request<CreatorsListResponse>(`/api/v1/creators${qs}`);
   },
 
-  getCreator: (id: string) =>
-    request<CreatorResponse>(`/api/v1/creators/${id}`),
+  getCreator: (id: string, opts?: { includeWork?: boolean; includeSource?: boolean }) => {
+    const params = new URLSearchParams();
+    if (opts?.includeWork) params.set('includeWork', 'true');
+    if (opts?.includeSource) params.set('includeSource', 'true');
+    const qs = params.toString();
+    return request<CreatorResponse>(`/api/v1/creators/${id}${qs ? '?' + qs : ''}`);
+  },
 
   patchCreator: (id: string, data: Partial<Creator>) =>
     request<{ success: boolean }>(`/api/v1/creators/${id}`, {
@@ -276,16 +346,16 @@ export const api = {
       body: JSON.stringify(data),
     }),
 
-  searchSemantic: (query: string, limit = 10) =>
+  searchSemantic: (query: string, options?: { limit?: number; filters?: Record<string, unknown> }) =>
     request<SemanticSearchResponse>('/api/v1/search/semantic', {
       method: 'POST',
-      body: JSON.stringify({ query, limit }),
+      body: JSON.stringify({ query, limit: options?.limit ?? 10, filters: options?.filters }),
     }),
 
-  matchBrief: (brief: string, filters?: Record<string, unknown>) =>
+  matchBrief: (brief: string, filters?: Record<string, unknown>, opts?: { includeWorkLinks?: boolean; includeSourceLinks?: boolean }) =>
     request<MatchResponse>('/api/v1/match', {
       method: 'POST',
-      body: JSON.stringify({ brief, filters }),
+      body: JSON.stringify({ brief, filters, includeWorkLinks: opts?.includeWorkLinks, includeSourceLinks: opts?.includeSourceLinks }),
     }),
 
   submitFeedback: (data: FeedbackPayload) =>
@@ -324,5 +394,25 @@ export const api = {
     request<ScraperTriggerResponse>('/api/v1/scraper/trigger', {
       method: 'POST',
       body: JSON.stringify({ platforms, limit }),
+    }),
+
+  analyzeImagePreview: (imageUrl: string) =>
+    request<ImageAnalysisPreviewResponse>('/api/v1/analyze-image', {
+      method: 'POST',
+      body: JSON.stringify({ imageUrl }),
+    }),
+
+  analyzeCreatorImage: (creatorId: string, imageUrl: string) =>
+    request<ImageAnalysisCreatorResponse>(`/api/v1/creators/${creatorId}/analyze-image`, {
+      method: 'POST',
+      body: JSON.stringify({ imageUrl }),
+    }),
+
+  getEnrichmentStatus: () =>
+    request<EnrichmentStatusResponse>('/api/v1/enrichment/status'),
+
+  enrichCreator: (id: string) =>
+    request<EnrichmentResponse>(`/api/v1/enrichment/enrich/${id}`, {
+      method: 'POST',
     }),
 };
