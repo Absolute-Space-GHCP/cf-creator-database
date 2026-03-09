@@ -179,20 +179,16 @@ async function getRecentLogs() {
   }
 }
 
-function logToMem(statusData) {
-  console.log('\n💾 Logging to mem...');
+function logToFile(statusData) {
+  console.log('\n💾 Logging status...');
   try {
-    const memDir = path.join(require('os').homedir(), '.claude-mem');
-    const memFile = path.join(memDir, 'worker-status-logs.jsonl');
+    const logDir = path.join(__dirname, '..', 'logs');
+    const logFile = path.join(logDir, 'worker-status-logs.jsonl');
 
-    // Ensure mem directory exists
-    if (!fs.existsSync(memDir)) {
-      console.log(`${STATUS_EMOJI.warning} Claude mem directory not found at ${memDir}`);
-      console.log('   Status will not be stored to mem');
-      return { status: 'skipped', reason: 'mem_directory_not_found' };
+    if (!fs.existsSync(logDir)) {
+      fs.mkdirSync(logDir, { recursive: true });
     }
 
-    // Create log entry
     const logEntry = {
       timestamp: new Date().toISOString(),
       service: CONFIG.serviceName,
@@ -200,14 +196,13 @@ function logToMem(statusData) {
       ...statusData,
     };
 
-    // Append to mem file
-    fs.appendFileSync(memFile, JSON.stringify(logEntry) + '\n');
-    console.log(`${STATUS_EMOJI.running} Status logged to mem`);
-    console.log(`   File: ${memFile}`);
+    fs.appendFileSync(logFile, JSON.stringify(logEntry) + '\n');
+    console.log(`${STATUS_EMOJI.running} Status logged`);
+    console.log(`   File: ${logFile}`);
 
-    return { status: 'success', file: memFile };
+    return { status: 'success', file: logFile };
   } catch (error) {
-    console.log(`${STATUS_EMOJI.warning} Error logging to mem:`, error.message);
+    console.log(`${STATUS_EMOJI.warning} Error logging status:`, error.message);
     return { status: 'error', error: error.message };
   }
 }
@@ -225,7 +220,7 @@ async function main() {
     logs: await getRecentLogs(),
   };
 
-  const memLog = logToMem(statusData);
+  const memLog = logToFile(statusData);
 
   console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   console.log('✅ Status check complete');

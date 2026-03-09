@@ -193,6 +193,12 @@ All tasks completed 2026-01-28.
 - Phase 7: Web Application polish (error handling, auth, CSS cleanup)
 - Phase 8: Future Enhancements (Brief Templates, Image Analysis)
 
+### Cross-Repo Tasks
+
+| ID | Task | Status | Priority | Notes |
+|----|------|--------|----------|-------|
+| X.1 | Create standardized authorship footer template for all work repos | not_started | Medium | Unified format across ~/Projects/ repos (JS, TS, CSS, HTML, MD, Python, Shell) |
+
 ### Key URLs
 - **Production:** https://cf-matching-engine-34240596768.us-central1.run.app
 - **GitHub (Matching Engine):** https://github.com/Absolute-Space-GHCP/cf-influencer-matching-engine

@@ -1,7 +1,7 @@
 /**
  * @file CreatorProfile.tsx
  * @description Creator detail page – Beta Control Center design system
- * @author Charley Scholz, JLIT
+ * @author Charley Scholz, JLAI
  * @coauthor Claude Opus 4.6, Claude Code (coding assistant), Cursor (IDE)
  * @updated 2026-02-19
  */
@@ -60,10 +60,15 @@ export default function CreatorProfile() {
   if (loading) {
     return (
       <div className="profile-page">
-        <div className="loading">
-          <div className="spinner" />
-          Loading...
+        <div className="profile-skeleton">
+          <div className="skeleton-circle" />
+          <div className="skeleton-lines">
+            <div className="skeleton" style={{ width: '200px', height: '1.5em', borderRadius: '4px' }} />
+            <div className="skeleton" style={{ width: '140px', height: '1em', borderRadius: '4px' }} />
+            <div className="skeleton" style={{ width: '180px', height: '1em', borderRadius: '4px' }} />
+          </div>
         </div>
+        <div className="skeleton" style={{ width: '100%', height: '200px', borderRadius: '8px', marginTop: '20px' }} />
       </div>
     );
   }

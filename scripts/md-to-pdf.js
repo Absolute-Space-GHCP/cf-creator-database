@@ -1,7 +1,7 @@
 /**
  * @file md-to-pdf.js
  * @description Converts a markdown file to a styled PDF using Puppeteer
- * @author Charley Scholz, JLIT
+ * @author Charley Scholz, JLAI
  * @coauthor Claude Opus 4.6, Cursor (IDE)
  * @created 2026-02-19
  * @updated 2026-02-19

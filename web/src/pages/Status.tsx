@@ -1,7 +1,7 @@
 /**
  * @file Status.tsx
  * @description System Status page – platform services and database statistics
- * @author Charley Scholz, JLIT
+ * @author Charley Scholz, JLAI
  * @coauthor Claude Opus 4.6, Claude Code (coding assistant), Cursor (IDE)
  * @created 2026-01-28
  * @updated 2026-02-19

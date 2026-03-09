@@ -2,7 +2,7 @@
 # ============================================================================
 # CatchFire Matching Engine - Smoke Test Suite
 # ============================================================================
-# Author: Charley Scholz, JLIT
+# Author: Charley Scholz, JLAI
 # Co-authored: Claude Opus 4.5, Claude Code (coding assistant), Cursor (IDE)
 # Created: 2026-02-13
 # Updated: 2026-02-13

@@ -1,7 +1,7 @@
 /**
  * @file index.css
  * @description Global layout styles for CatchFire React app
- * @author Charley Scholz, JLIT
+ * @author Charley Scholz, JLAI
  * @coauthor Claude Opus 4.6, Claude Code (coding assistant), Cursor (IDE)
  * @updated 2026-01-28
  */
@@ -156,6 +156,91 @@
   .page { padding: 24px 16px; }
   .page-narrow { padding: 24px 16px; }
   .hero-stats { flex-direction: column; gap: 24px; }
+}
+
+/* ── Skeleton loading ─────────────────────────────────── */
+
+@keyframes skeleton-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--surface-secondary) 25%,
+    var(--surface-tertiary, #333) 50%,
+    var(--surface-secondary) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+}
+
+.skeleton-row {
+  display: flex;
+  gap: var(--space-4);
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.skeleton-card-placeholder {
+  padding: var(--space-5);
+  background: var(--surface-primary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-4);
+}
+
+.browse-skeletons {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-4);
+}
+
+.browse-skeletons .creator-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: var(--space-5);
+}
+
+.profile-skeleton {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+}
+
+.skeleton-circle {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: linear-gradient(
+    90deg,
+    var(--surface-secondary) 25%,
+    var(--surface-tertiary, #333) 50%,
+    var(--surface-secondary) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+.skeleton-lines {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.admin-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.scraper-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -74,5 +74,8 @@ chat-transcripts/
 ._.
 .tmp_docx/
 
-# Generated PDFs (session-pdf tool output)
-pdf-exports/
+# Generated PDFs
+PDF-EXPORTS/
+
+# Worker status logs
+logs/

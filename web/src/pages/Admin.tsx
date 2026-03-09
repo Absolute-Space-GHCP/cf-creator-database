@@ -1,7 +1,7 @@
 /**
  * @file Admin.tsx
  * @description Golden Records Admin page – manage benchmark creators for lookalike model
- * @author Charley Scholz, JLIT
+ * @author Charley Scholz, JLAI
  * @coauthor Claude Opus 4.6, Claude Code (coding assistant), Cursor (IDE)
  * @created 2026-01-28
  * @updated 2026-02-19
@@ -163,9 +163,15 @@ export default function Admin() {
 
       {/* Creators table */}
       {loading ? (
-        <div className="admin-loading">
-          <div className="spinner" />
-          <span>Loading creators...</span>
+        <div className="admin-skeleton">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div key={i} className="skeleton-row">
+              <div className="skeleton" style={{ width: '30%', height: '1em', borderRadius: '4px' }} />
+              <div className="skeleton" style={{ width: '20%', height: '1em', borderRadius: '4px' }} />
+              <div className="skeleton" style={{ width: '15%', height: '1em', borderRadius: '4px' }} />
+              <div className="skeleton" style={{ width: '10%', height: '1em', borderRadius: '4px' }} />
+            </div>
+          ))}
         </div>
       ) : (
         <div className="admin-table-wrapper">

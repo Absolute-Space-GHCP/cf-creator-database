@@ -92,9 +92,17 @@ export default function ScraperDashboard() {
       </p>
 
       {loading ? (
-        <div className="scraper-loading">
-          <div className="spinner" />
-          <span>Loading scraper data...</span>
+        <div className="scraper-skeleton">
+          <div className="skeleton-card-placeholder">
+            <div className="skeleton" style={{ width: '40%', height: '1.2em', borderRadius: '4px' }} />
+            <div className="skeleton" style={{ width: '100%', height: '80px', borderRadius: '8px', marginTop: '12px' }} />
+          </div>
+          <div className="skeleton-card-placeholder">
+            <div className="skeleton" style={{ width: '35%', height: '1.2em', borderRadius: '4px' }} />
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="skeleton" style={{ width: '100%', height: '1em', borderRadius: '4px', marginTop: '8px' }} />
+            ))}
+          </div>
         </div>
       ) : (
         <>
@@ -107,15 +115,15 @@ export default function ScraperDashboard() {
             <div className="scraper-status-grid">
               <div className="status-item">
                 <span className="status-label">State</span>
-                <span className={`status-value ${status?.running ? 'running' : 'idle'}`}>
+                <span className={`status-value ${status?.lastRun?.status === 'running' ? 'running' : 'idle'}`}>
                   <span className="status-dot" />
-                  {status?.running ? 'Running' : 'Idle'}
+                  {status?.lastRun?.status === 'running' ? 'Running' : 'Idle'}
                 </span>
               </div>
               <div className="status-item">
                 <span className="status-label">Last Run</span>
                 <span className="status-value">
-                  {status?.lastRun ? formatTimestamp(status.lastRun) : '—'}
+                  {status?.lastRun?.timestamp ? formatTimestamp(status.lastRun.timestamp) : '—'}
                 </span>
               </div>
               <div className="status-item">
@@ -125,7 +133,7 @@ export default function ScraperDashboard() {
               <div className="status-item">
                 <span className="status-label">Platforms</span>
                 <div className="platform-tags">
-                  {status?.platforms.map((p) => (
+                  {(status?.lastRun?.platforms ?? []).map((p) => (
                     <span key={p} className="platform-tag">{p}</span>
                   ))}
                 </div>
@@ -192,10 +200,12 @@ export default function ScraperDashboard() {
                       <tr key={r.id}>
                         <td>{formatTimestamp(r.timestamp)}</td>
                         <td>
-                          <span className="platform-tag">{r.platform}</span>
+                          {r.platforms.map((p) => (
+                            <span key={p} className="platform-tag">{p}</span>
+                          ))}
                         </td>
                         <td className="mono">{r.creatorsFound}</td>
-                        <td className="mono text-gold">{r.creatorsAdded}</td>
+                        <td className="mono text-gold">{r.creatorsImported}</td>
                         <td className="mono">{formatDuration(r.duration)}</td>
                         <td>
                           <span className={`report-status ${r.status}`}>

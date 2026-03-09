@@ -1,4 +1,4 @@
-# Author: Charley Scholz, JLIT
+# Author: Charley Scholz, JLAI
 # Co-authored: Claude Opus 4.6, Claude Code v2.1.38 (coding assistant), Cursor 2.4 (IDE)
 #
 #!/usr/bin/env python3

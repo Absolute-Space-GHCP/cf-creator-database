@@ -1,0 +1,70 @@
+/**
+ * @file Skeleton.css
+ * @description Loading skeleton animation styles
+ * @author Charley Scholz, JLAI
+ * @coauthor Claude Opus 4.6, Claude Code (coding assistant), Cursor (IDE)
+ * @updated 2026-03-09
+ */
+
+@keyframes skeleton-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--surface-secondary, #2a2a2a) 25%,
+    var(--surface-tertiary, #333) 50%,
+    var(--surface-secondary, #2a2a2a) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+}
+
+.skeleton-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3, 12px);
+  padding: var(--space-5, 20px);
+  background: var(--surface-primary, #1e1e1e);
+  border: 1px solid var(--border-subtle, #333);
+  border-radius: var(--radius-md, 8px);
+}
+
+.skeleton-table {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.skeleton-table-header,
+.skeleton-table-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  gap: var(--space-3, 12px);
+  padding: var(--space-3, 12px) var(--space-4, 16px);
+}
+
+.skeleton-table-header {
+  background: var(--surface-secondary, #2a2a2a);
+  border-radius: var(--radius-sm, 4px) var(--radius-sm, 4px) 0 0;
+}
+
+.skeleton-table-row {
+  background: var(--surface-primary, #1e1e1e);
+  border-bottom: 1px solid var(--border-subtle, #333);
+}
+
+.skeleton-profile {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5, 20px);
+  padding: var(--space-5, 20px);
+}
+
+.skeleton-profile-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3, 12px);
+}

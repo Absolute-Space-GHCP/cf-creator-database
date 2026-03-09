@@ -221,23 +221,27 @@ export interface FeedbackPayload {
 
 /* ── Scraper types ────────────────────────────────────── */
 
-export interface ScraperStatusResponse {
-  success: boolean;
-  running: boolean;
-  lastRun: string | null;
-  totalRuns: number;
-  platforms: string[];
-}
-
-export interface ScraperReport {
+export interface ScraperRun {
   id: string;
   timestamp: string;
-  platform: string;
-  creatorsFound: number;
-  creatorsAdded: number;
-  duration: number;
+  platforms: string[];
   status: string;
+  creatorsFound: number;
+  creatorsImported: number;
+  duration: number;
+  error: string | null;
+  triggeredBy: string;
+  dryRun: boolean;
 }
+
+export interface ScraperStatusResponse {
+  success: boolean;
+  lastRun: ScraperRun | null;
+  totalRuns: number;
+}
+
+export interface ScraperReport extends ScraperRun {}
+
 
 export interface ScraperReportsResponse {
   success: boolean;

@@ -7,20 +7,327 @@ description: "Claude-mem context from past sessions (auto-updated)"
 
 The following context is from claude-mem, a persistent memory system that tracks your coding sessions.
 
-## Session: 2026-02-23 — Chroma Fix & Sprint Kickoff
+# [cf-influencer-matching-engine] recent context, 2026-03-09 11:15am EDT
 
-**Claude-mem status:** Fully operational
-- Worker: running (PID auto-managed, port 37777)
-- Chroma vector DB: running (port 8000, startup ~1s)
-- MCP: connected
-- Fix applied: patched `worker-service.cjs` to call `chroma.exe` directly instead of via `npx.cmd` (which can't resolve Python packages)
+**Legend:** session-request | 🔴 bugfix | 🟣 feature | 🔄 refactor | ✅ change | 🔵 discovery | ⚖️ decision
 
-**Key observations:**
-- Chroma was failing because `chromadb` Python package was not installed; `npx chroma run` can't resolve Python CLIs
-- Installed `chromadb` via pip, patched worker to use direct path to `chroma.exe`
-- Backup of original at `worker-service.cjs.bak`
-- Python Scripts path added to User PATH permanently
+**Column Key**:
+- **Read**: Tokens to read this observation (cost to learn it now)
+- **Work**: Tokens spent on work that produced this record ( research, building, deciding)
+
+**Context Index:** This semantic index (titles, types, files, tokens) is usually sufficient to understand past work.
+
+When you need implementation details, rationale, or debugging context:
+- Use MCP tools (search, get_observations) to fetch full observations on-demand
+- Critical types ( bugfix, decision) often need detailed fetching
+- Trust this index over re-reading code for past decisions and learnings
+
+**Context Economics**:
+- Loading: 50 observations (22,188 tokens to read)
+- Work investment: 48,011 tokens spent on research, building, and decisions
+- Your savings: 25,823 tokens (54% reduction from reuse)
+
+### Mar 9, 2026
+
+**#S1014** Project Organization: PDF Consolidation and Git Configuration (Mar 9 at 10:00 AM)
+
+**#S1015** Complete Production Readiness: Access Control, claude-mem Removal, and Stakeholder Documentation (Mar 9 at 10:01 AM)
+
+**#S1016** Package Configuration Audit: Dependencies and Deployment Script Review (Mar 9 at 10:02 AM)
+
+**#S1017** Final Session Verification: Environment and Port Status Checks (Mar 9 at 10:04 AM)
+
+**#S1018** Local Development Environment: Server Startup and Workflow Documentation (Mar 9 at 10:06 AM)
+
+**#S1019** Complete Test Validation: Full Suite Passing with Local Development Environment (Mar 9 at 10:07 AM)
+
+**#S1020** Final Documentation Updates: Branding, Scraper Inventory, and PDF Regeneration (Mar 9 at 10:08 AM)
+
+**General**
+| ID | Time | T | Title | Read | Work |
+|----|------|---|-------|------|------|
+| #3387 | 10:20 AM | 🔵 | PDF Regeneration Failure: Puppeteer Chrome Missing in Cursor Sandbox | ~386 | 🔍 986 |
+
+**../../Users/charleymm/Projects/cf-influencer-matching-engine/PDF-EXPORTS/HANDOFF_2026-03-09.pdf**
+| ID | Time | T | Title | Read | Work |
+|----|------|---|-------|------|------|
+| #3388 | " | ✅ | PDF Regeneration Success: Updated Handoff PDF with Complete Session Documentation | ~428 | 🛠️ 421 |
+
+**General**
+| ID | Time | T | Title | Read | Work |
+|----|------|---|-------|------|------|
+| #3389 | " | 🔵 | PDF-EXPORTS Directory: Updated Handoff PDF 33KB Larger with Session Content | ~407 | 🔍 990 |
+
+**#S1021** Claude Code Configuration Investigation: Memory System and Plugin Settings (Mar 9 at 10:21 AM)
+
+**../../Users/charleymm/.claude/settings.json**
+| ID | Time | T | Title | Read | Work |
+|----|------|---|-------|------|------|
+| #3390 | 10:26 AM | 🔵 | Claude Code Settings: claude-mem Plugin Still Enabled Globally | ~442 | 🔍 499 |
+
+**#S1022** Continue implementing loading skeleton components across React pages to improve perceived performance during data fetches (Mar 9 at 10:27 AM)
+
+**General**
+| ID | Time | T | Title | Read | Work |
+|----|------|---|-------|------|------|
+| #3391 | 10:27 AM | 🔵 | Global Cursor Rules Inventory: 11 Rule Files with Recent JLAI Updates | ~504 | 🔍 1,331 |
+| #3392 | 10:28 AM | ✅ | Project Rules Directory: Created .claude/rules/ Structure | ~356 | 🛠️ 802 |
+
+**../../Users/charleymm/Projects/cf-influencer-matching-engine/.claude/CLAUDE.md**
+| ID | Time | T | Title | Read | Work |
+|----|------|---|-------|------|------|
+| #3393 | " | ✅ | Project Instructions: Created Comprehensive .claude/CLAUDE.md | ~532 | 🛠️ 2,045 |
+
+**../../Users/charleymm/Projects/cf-influencer-matching-engine/.claude/rules/security-guidance.md**
+| ID | Time | T | Title | Read | Work |
+|----|------|---|-------|------|------|
+| #3394 | " | ✅ | Security Rules: Created Path-Scoped Security Guidance | ~463 | 🛠️ 1,180 |
+
+**../../Users/charleymm/Projects/cf-influencer-matching-engine/.claude/rules/tdd-agent.md**
+| ID | Time | T | Title | Read | Work |
+|----|------|---|-------|------|------|
+| #3395 | 10:29 AM | ✅ | Testing Rules: Created TDD Agent Guide for Test Development | ~516 | 🛠️ 1,160 |
+
+**../../Users/charleymm/Projects/cf-influencer-matching-engine/.claude/rules/lessons.md**
+| ID | Time | T | Title | Read | Work |
+|----|------|---|-------|------|------|
+| #3396 | " | ✅ | Lessons Reference: Created Quick Lookup Table for Known Issues | ~514 | 🛠️ 1,278 |
+
+**General**
+| ID | Time | T | Title | Read | Work |
+|----|------|---|-------|------|------|
+| #3397 | " | ✅ | User-Level Rules Directory: Created ~/.claude/rules/ for Global Rules | ~424 | 🛠️ 810 |
+
+**../../Users/charleymm/.claude/CLAUDE.md**
+| ID | Time | T | Title | Read | Work |
+|----|------|---|-------|------|------|
+| #3398 | " | ✅ | User Instructions: Created ~/.claude/CLAUDE.md with Personal Preferences | ~536 | 🛠️ 1,239 |
+
+**../../Users/charleymm/.claude/rules/authorship-standards.md**
+| ID | Time | T | Title | Read | Work |
+|----|------|---|-------|------|------|
+| #3399 | 10:30 AM | ✅ | User-Level Authorship Rules: Standardized Attribution Across File Types | ~484 | 🛠️ 1,169 |
+
+**../../Users/charleymm/.claude/rules/auth-permissions.md**
+| ID | Time | T | Title | Read | Work |
+|----|------|---|-------|------|------|
+| #3400 | " | ✅ | User-Level Auth Rules: Blanket Authorization for Credential Operations | ~488 | 🛠️ 1,010 |
+
+**../../Users/charleymm/.claude/rules/git-operations.md**
+| ID | Time | T | Title | Read | Work |
+|----|------|---|-------|------|------|
+| #3401 | " | ✅ | User-Level Git Rules: Mandatory Backup Protocol for All Git Operations | ~506 | 🛠️ 1,077 |
+
+**../../Users/charleymm/.claude/rules/agent-verification.md**
+| ID | Time | T | Title | Read | Work |
+|----|------|---|-------|------|------|
+| #3402 | " | ✅ | User-Level Agent Rules: Independent Verification Protocol for AI Work | ~530 | 🛠️ 1,125 |
+
+**../../Users/charleymm/.claude/rules/session-wrap-up.md**
+| ID | Time | T | Title | Read | Work |
+|----|------|---|-------|------|------|
+| #3403 | " | ✅ | User-Level Session Rules: End-of-Session Wrap-Up Protocol | ~507 | 🛠️ 997 |
+
+**../../Users/charleymm/.claude/settings.json**
+| ID | Time | T | Title | Read | Work |
+|----|------|---|-------|------|------|
+| #3404 | 10:31 AM | ✅ | Claude Code Settings: Disabled claude-mem Plugin Globally | ~446 | 🛠️ 825 |
+
+**../../Users/charleymm/.claude/settings.local.json**
+| ID | Time | T | Title | Read | Work |
+|----|------|---|-------|------|------|
+| #3405 | " | ✅ | Claude Code Local Settings: Removed claude-mem Cursor Install Prompt | ~358 | 🛠️ 769 |
+| #3406 | " | ✅ | Claude Code Local Settings: Removed claude-mem Worker Status Prompt | ~368 | 🛠️ 651 |
+| #3407 | " | ✅ | Claude Code Local Settings: Removed claude-mem Documentation Fetch Permission | ~386 | 🛠️ 673 |
+| #3408 | " | ✅ | Claude Code Local Settings: Removed claude-mem Version Check Permission | ~354 | 🛠️ 677 |
+| #3409 | 10:32 AM | ✅ | Claude Code Local Settings: Removed Final claude-mem CLI Permissions | ~468 | 🛠️ 653 |
+
+**General**
+| ID | Time | T | Title | Read | Work |
+|----|------|---|-------|------|------|
+| #3410 | " | 🔵 | CLAUDE.md and Rules Summary: Complete Instruction Architecture Established | ~573 | 🔍 1,337 |
+| #3411 | " | 🔵 | claude-mem Background Processes: 4 Chroma Vector DB Processes Still Running | ~479 | 🔍 1,377 |
+| #3412 | 10:33 AM | ✅ | Process Cleanup: Terminated 4 claude-mem Background Processes | ~433 | 🛠️ 231 |
+| #3413 | " | ✅ | Process Verification: Confirmed All claude-mem Processes Terminated | ~355 | 🛠️ 707 |
+
+**../../Users/charleymm/.claude/plugins/installed_plugins.json**
+| ID | Time | T | Title | Read | Work |
+|----|------|---|-------|------|------|
+| #3414 | " | ✅ | Plugin Registry Cleanup: Removed claude-mem Installation Record | ~453 | 🛠️ 497 |
+
+**General**
+| ID | Time | T | Title | Read | Work |
+|----|------|---|-------|------|------|
+| #3415 | " | 🔵 | Process Resurrection: claude-mem Processes Restarted Automatically | ~435 | 🔍 1,033 |
+| #3416 | 10:34 AM | ✅ | Process Termination Round 2: Killed Restarted claude-mem Processes | ~370 | 🛠️ 710 |
+| #3417 | " | 🔵 | Plugin Cache Verification: claude-mem Files Remain in Cache Directory | ~382 | 🔍 644 |
+| #3418 | " | ✅ | Plugin Cache Removal: Deleted claude-mem Files from Disk | ~429 | 🛠️ 629 |
+| #3419 | " | 🔵 | Process Persistence: Third Generation of claude-mem Processes Respawned | ~443 | 🔍 927 |
+| #3420 | " | ✅ | Process Termination Strategy: Acknowledged Session-Level Respawning | ~437 | 🛠️ 767 |
+| #3421 | 10:37 AM | ✅ | Cloud Monitoring Deployment: Successfully Deployed Uptime Checks and Alert Policies | ~481 | 🛠️ 1,043 |
+
+**../../Users/charleymm/Projects/cf-influencer-matching-engine/web/src/api/client.ts**
+| ID | Time | T | Title | Read | Work |
+|----|------|---|-------|------|------|
+| #3422 | 10:38 AM | 🔄 | Web API Client: Refactored Scraper Type Definitions for Firestore Schema | ~466 | 🛠️ 1,102 |
+
+**../../Users/charleymm/Projects/cf-influencer-matching-engine/web/src/pages/ScraperDashboard.tsx**
+| ID | Time | T | Title | Read | Work |
+|----|------|---|-------|------|------|
+| #3423 | " | ✅ | Scraper Dashboard Import: Added ScraperRun Type Import | ~328 | 🛠️ 909 |
+| #3424 | " | 🔄 | Scraper Dashboard UI: Updated Status Display to Use Refactored ScraperRun Schema | ~406 | 🛠️ 1,023 |
+| #3425 | 10:39 AM | 🔄 | Scraper Dashboard Reports Table: Updated to Display Multiple Platforms and Renamed Import Count | ~391 | 🛠️ 931 |
+
+**General**
+| ID | Time | T | Title | Read | Work |
+|----|------|---|-------|------|------|
+| #3426 | " | ✅ | Build Verification: TypeScript Compilation Clean After Scraper Dashboard Refactor | ~403 | 🛠️ 748 |
+
+**../../Users/charleymm/Projects/cf-influencer-matching-engine/web/src/pages/ScraperDashboard.tsx**
+| ID | Time | T | Title | Read | Work |
+|----|------|---|-------|------|------|
+| #3427 | " | 🔄 | Scraper Dashboard Import Cleanup: Removed Unused ScraperRun Type | ~365 | 🛠️ 756 |
+
+**General**
+| ID | Time | T | Title | Read | Work |
+|----|------|---|-------|------|------|
+| #3428 | " | 🔵 | Git Working Directory: 56 Modified Files + 15 New Files Ready for Commit | ~532 | 🔍 1,106 |
+| #3429 | 10:40 AM | ✅ | Git Branch Creation: Created Staging Branch from Main | ~372 | 🛠️ 892 |
+
+**../../Users/charleymm/Projects/cf-influencer-matching-engine/.github/workflows/ci.yml**
+| ID | Time | T | Title | Read | Work |
+|----|------|---|-------|------|------|
+| #3430 | " | ✅ | GitHub Actions CI: Added Integration Tests Job with Server Startup | ~470 | 🛠️ 976 |
+| #3431 | " | ✅ | GitHub Actions CI: Updated Unit Tests Job Name | ~348 | 🛠️ 852 |
+
+**../../Users/charleymm/Projects/cf-influencer-matching-engine/web/src/components/ui/Skeleton.tsx**
+| ID | Time | T | Title | Read | Work |
+|----|------|---|-------|------|------|
+
+**#3432** " 🟣 **Loading Skeleton Components: Created Reusable Skeleton UI Library**
+
+Created comprehensive loading skeleton component library at web/src/components/ui/Skeleton.tsx addressing medium priority task #9 "Add loading skeletons to React pages" from handoff. The implementation provides four skeleton variants: (1) base Skeleton component with configurable dimensions and border radius using em units for scalability, (2) SkeletonCard for card-style content with header (40% width) and configurable content lines with intelligent width variation (last line 60%, others 100%), (3) SkeletonTable for tabular data with header row and configurable rows/cols using varying widths to simulate realistic content (first column 80%, others 60%), (4) SkeletonProfile for user profile layouts with circular avatar (120px circle via 50% borderRadius) and 3 descending-width info lines. The components use Array.from for dynamic element generation and proper React keys. Changed from default export to named exports enabling tree-shaking and multiple component imports. Added complete JSDoc header with JLAI authorship. Switched CSS import from generic ui.css to component-specific Skeleton.css (needs creation). These skeletons replace "Loading..." text with professional animated placeholders improving perceived performance during data fetches.
+
+Read: ~541, Work: 🛠️ 1,555
+
+**../../Users/charleymm/Projects/cf-influencer-matching-engine/web/src/components/ui/Skeleton.css**
+| ID | Time | T | Title | Read | Work |
+|----|------|---|-------|------|------|
+
+**#3433** 10:41 AM 🟣 **Skeleton Styles: Created Animated Loading Placeholder CSS**
+
+Created companion CSS file for Skeleton components at web/src/components/ui/Skeleton.css implementing animated loading placeholder styles. The core animation skeleton-shimmer sweeps a gradient across elements (-200% to 200% background-position) over 1.5 seconds with ease-in-out timing, creating professional "loading" shimmer effect. The .skeleton base class applies 90-degree linear gradient (surface-secondary → tertiary → secondary at 25%/50%/75%) with 200% background-size enabling the sweep animation. Container classes provide layout: .skeleton-card uses flex column with consistent spacing, surface colors, and borders; .skeleton-table structures header (rounded top corners, secondary background) and rows (primary background, border separators) using grid auto-fit for responsive columns; .skeleton-profile arranges avatar and info in flex row with 20px gap. All styles use CSS custom properties (--surface-*, --space-*, --radius-*) with fallback values ensuring consistency with theme tokens documented in web/src/theme/tokens.css. The animation provides subtle, professional loading indication replacing static "Loading..." text, improving perceived performance during data fetches.
+
+Read: ~527, Work: 🛠️ 1,641
+
+**../../Users/charleymm/Projects/cf-influencer-matching-engine/web/src/pages/CreatorBrowse.tsx**
+| ID | Time | T | Title | Read | Work |
+|----|------|---|-------|------|------|
+
+**#3434** " 🟣 **Creator Browse Loading: Replaced Spinner with Skeleton Grid**
+
+Enhanced CreatorBrowse page loading experience by replacing generic spinner with content-aware skeleton grid showing 6 skeleton cards matching the actual creator card layout. The implementation uses Array.from({ length: 6 }) to generate placeholder cards, each containing 3 skeleton elements mimicking creator card structure: 60% width header (1.2em height) for name, 40% width secondary line (0.9em) for craft/location, and 80% width content line (0.9em) for additional metadata. Inline styles provide specific dimensions with consistent 4px borderRadius and 8px marginTop spacing. The browse-skeletons container enables grid layout matching the actual creator grid, while skeleton-pulse class on cards provides pulsing animation. This approach shows users exactly what content will load (grid of creator cards) rather than abstract spinner, significantly improving perceived performance and UX. The skeleton count (6) represents typical first-page view, preparing users for content structure. This addresses task #9 "Add loading skeletons to React pages" specifically for the browse creators experience.
+
+Read: ~456, Work: 🛠️ 1,122
+
+**../../Users/charleymm/Projects/cf-influencer-matching-engine/web/src/pages/CreatorProfile.tsx**
+| ID | Time | T | Title | Read | Work |
+|----|------|---|-------|------|------|
+
+**#3435** " 🟣 **Creator Profile Loading: Added Profile Skeleton with Avatar and Info Lines**
+
+Enhanced CreatorProfile page loading experience by replacing generic spinner with content-aware skeleton matching the actual profile layout structure. The implementation shows circular avatar placeholder (.skeleton-circle, needs CSS for dimensions and border-radius), followed by 3 descending-width info lines (200px name, 140px craft, 180px location at 1.5em/1em/1em heights) wrapped in .skeleton-lines container for proper flex layout. Below the profile header, a full-width content block skeleton (200px height, 8px borderRadius, 20px marginTop) represents the bio/portfolio section. The skeleton structure matches the SkeletonProfile component created earlier in Skeleton.tsx, maintaining consistency across loading states. This layout-aware approach shows users exactly what profile structure will load: header with avatar and identity info, followed by content sections. The 4px/8px borderRadius progression (small elements vs large blocks) and consistent spacing (8px gaps, 20px section margin) maintain visual hierarchy. This addresses task #9 "Add loading skeletons to React pages" for the creator profile viewing experience.
+
+Read: ~458, Work: 🛠️ 1,083
+
+**../../Users/charleymm/Projects/cf-influencer-matching-engine/web/src/pages/Admin.tsx**
+| ID | Time | T | Title | Read | Work |
+|----|------|---|-------|------|------|
+
+**#3436** " 🟣 **Admin Page Loading: Added Table Skeleton with 8 Rows**
+
+Enhanced Admin page loading experience by replacing spinner with tabular skeleton matching the creator data grid structure. The implementation generates 8 skeleton rows (typical admin view height) using Array.from, each containing 4 columns with widths mimicking actual data: 30% for creator name (longest field), 20% for craft category, 15% for location, and 10% for action buttons/status. All skeleton elements maintain consistent 1em height and 4px borderRadius. The .skeleton-row container class enables horizontal layout (grid or flex, needs CSS definition) matching the actual admin table structure. This approach shows users exactly what tabular data structure will load rather than abstract spinner, and the column width proportions (30:20:15:10) reflect realistic content distribution in admin interfaces where names are longest, actions shortest. The 8-row count represents comfortable viewing height without excessive DOM elements during loading. This addresses task #9 "Add loading skeletons to React pages" for the admin creators management interface, maintaining consistency with SkeletonTable component pattern created earlier.
+
+Read: ~452, Work: 🛠️ 1,046
+
+**#S1023** Comprehensive handoff document updates and PDF regeneration for stakeholder distribution (Mar 9 at 10:47 AM)
+
+**Investigated**: The observed session focused on finalizing and enhancing the `docs/HANDOFF_2026-03-09.md` document to accurately reflect all work completed during the session. The agent systematically reviewed each workstream (access control, claude-mem removal, Claude native memory installation, Cloud Monitoring deployment, scraper dashboard wiring, CI integration tests, loading skeletons) and updated the documentation to provide multiple views: executive summary, completion status, technical debt resolution, task tracking, file changes manifest, and operational configuration details.
+
+**Learned**: Key insights about documentation practices:
+  - **Multi-audience optimization**: Different document versions serve different needs (developers want status first, executives want questions first)
+  - **Status tracking evolution**: Adding a Status column with "Pending/Blocked/Done" states transforms a static checklist into a living project tracker
+  - **Completion accountability**: Strikethrough formatting on resolved issues preserves history while showing progress (5 technical debt items resolved)
+  - **File size as quality indicator**: PDF grew from 429KB to 785KB (+83%) reflecting comprehensive documentation of 6 major workstreams
+  - **Granular documentation value**: Specific operational details (5-minute health checks from 6 regions, 5% error threshold, p95 latency 5s) enable future troubleshooting
+  - **Reordering for stakeholders**: Moving "Questions for Jonathan & Dan" to top of PDF ensures critical blockers get immediate visibility
+
+**Completed**: The observed session completed comprehensive handoff document updates:
+
+  1. **Session Scope Documentation** (3 updates):
+     - Expanded session title from "Demo prep, access control, claude-mem removal" to include "Claude native memory, infrastructure deployment"
+     - Updated executive summary from "three areas" to "six areas" of work with detailed descriptions
+     - Added completion status for all major workstreams
+  
+  2. **Completion Status Table** (8 new items):
+     - Claude native memory (project level): `.claude/CLAUDE.md` + 3 rules files
+     - Claude native memory (user level): `~/.claude/CLAUDE.md` + 5 rules files
+     - claude-mem cleanup: Worker stopped, settings/plugins removed
+     - Cloud Monitoring: Uptime check, error rate alert, latency alert deployed to GCP
+     - Scraper dashboard: Fixed schema mismatch, wired to real Firestore `scraper_runs` data
+     - Staging branch: Created with CI workflow ready at `.github/workflows/deploy-staging.yml`
+     - CI integration tests: Job auto-starts server, runs all 132 tests
+     - Loading skeletons: Animations added to 4 React pages (Browse, Profile, Admin, Scraper)
+  
+  3. **Technical Debt Resolution** (5 items marked resolved):
+     - claude-mem worker regenerates deleted files → Worker stopped, plugin removed
+     - Integration tests need running server → CI now auto-starts server
+     - Cloud Monitoring not yet deployed → Uptime, error rate, latency alerts deployed
+     - Staging env not yet deployed → `staging` branch created, CI workflow ready
+     - Scraper dashboard uses mock data → Wired to real Firestore data
+  
+  4. **Task Tracking Enhancement**:
+     - Added "Status" column to all three priority tables (High/Medium/Lower)
+     - Marked 6 of 11 tasks as "Done" with detailed completion notes
+     - Updated status for remaining tasks: 2 Pending, 2 Blocked (awaiting stakeholder meeting)
+     - Clear accountability: 55% task completion in single session
+  
+  5. **File Changes Manifest** (19 files documented):
+     - 7 Claude native memory files (new `.claude/` structure)
+     - 3 plugin cleanup files (removed claude-mem from settings/plugins)
+     - 2 scraper dashboard files (types + real data wiring)
+     - 6 loading skeleton files (components + styles + 4 page updates)
+     - 1 CI/CD file (integration tests job)
+     - 1 branding file (JLIT → JLAI authorship fix)
+  
+  6. **Cloud Monitoring Configuration Details** (4 components):
+     - Uptime check: HTTPS `/health` every 5 minutes from 6 regions
+     - Error rate alert: Triggers when 5xx rate exceeds 5% over 5 minutes
+     - Latency alert: Triggers when p95 latency exceeds 5 seconds
+     - Notification channel: Email alerts to charleys@johannesleonardo.com
+  
+  7. **Infrastructure Documentation** (3 areas clarified):
+     - Cloud Monitoring: Explicitly marked as deployed to GCP (not just "ready")
+     - Cloud Scheduler: Clarified configs exist but NOT yet submitted to GCP
+     - Staging environment: Specified `staging` branch created, CI workflow ready
+     - CI/CD pipeline: Updated to include integration tests in capabilities list
+  
+  8. **PDF Regeneration**:
+     - Created reordered version (`_PDF.md`) with questions moved to top for stakeholder visibility
+     - Regenerated PDF using Puppeteer-based `scripts/md-to-pdf.js`
+     - File size increased from 429KB → 785KB (+83%, +355KB) reflecting comprehensive updates
+     - Verified file timestamp (March 9, 10:45 AM) and size (784,806 bytes)
+     - PDF now ready for distribution to Leo, Jonathan, Dan with complete session documentation
+
+**Next Steps**: The handoff document and PDF are now complete and ready for stakeholder distribution. The observed session appears to be wrapping up documentation work. Based on the pattern of comprehensive updates followed by PDF generation, the logical next trajectory would be:
+  1. Review the extensive uncommitted changes (73 file operations from git status in summary)
+  2. Follow the git-operations protocol: rsync backup → structured commits by concern area
+  3. Potentially push the completed work or prepare for session handoff
+  
+  The session has achieved significant closure: 6 of 11 priority tasks completed, 5 technical debt items resolved, comprehensive documentation updated, and stakeholder-ready PDF generated. The remaining high-priority items (stakeholder meeting, Cloud Scheduler deployment) are clearly documented as next steps.
+
+
+Access 48k tokens of past research & decisions for just 22,188t. Use MCP search tools to access memories by ID.
 
 ---
-
-*Updated: 2026-02-23. Use claude-mem's MCP search tools for more detailed queries.*
+*Updated after last session. Use claude-mem's MCP search tools for more detailed queries.*

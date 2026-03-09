@@ -63,14 +63,23 @@ Verify these are installed and configured:
 gcloud auth application-default print-access-token >/dev/null 2>&1 && echo "✅ GCP auth OK" || echo "❌ GCP auth needed"
 ```
 
-### 5. Quick Health Check
+### 5. Start Required Services
+
+**ALWAYS spin up the local dev server at the start of every session.** The server is required for integration tests and local development.
 
 ```bash
-# Start server and test health endpoint
-npm start &
+# Build TypeScript first
+npm run build
+
+# Start dev server (runs in background on port 8090)
+npm run dev &
+
+# Wait for startup, then verify health
 sleep 3
 curl -s http://localhost:8090/health | jq . || echo "❌ Health check failed"
 ```
+
+If port 8090 is already in use, check with `lsof -iTCP:8090 -sTCP:LISTEN` before starting.
 
 ---
 
@@ -352,25 +361,9 @@ Quick reference for technical terms and acronyms used in this project.
 
 ## AI Development Tooling
 
-This project uses three AI development plugins for enhanced productivity:
+This project uses two AI development plugins for enhanced productivity:
 
-### 1. claude-mem (Persistent Memory)
-
-Provides persistent memory across AI coding sessions. Automatically captures tool usage, file edits, and shell commands.
-
-**Status:** ✅ Configured  
-**Location:** Worker at `http://127.0.0.1:37777`  
-**Context Rule:** `.cursor/rules/claude-mem-context.mdc`
-
-```bash
-# Check worker status
-curl -s http://127.0.0.1:37777/api/readiness
-
-# Refresh context
-curl -s "http://127.0.0.1:37777/api/context/inject?project=cf-influencer-matching-engine"
-```
-
-### 2. code-simplifier (Cursor Plugin)
+### 1. code-simplifier (Cursor Plugin)
 
 Simplifies and refines code for clarity, consistency, and maintainability while preserving functionality.
 
@@ -385,7 +378,7 @@ Automatically applies project-specific coding standards:
 - Proper error handling patterns
 - Security best practices
 
-### 3. superpowers (Claude Code CLI)
+### 2. superpowers (Claude Code CLI)
 
 Provides structured workflows for TDD, systematic debugging, and collaborative planning.
 

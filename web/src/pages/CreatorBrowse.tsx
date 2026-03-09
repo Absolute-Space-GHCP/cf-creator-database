@@ -1,7 +1,7 @@
 /**
  * @file CreatorBrowse.tsx
  * @description Browse creators with craft/platform/location filters – Beta Control Center design
- * @author Charley Scholz, JLIT
+ * @author Charley Scholz, JLAI
  * @coauthor Claude Opus 4.6, Claude Code (coding assistant), Cursor (IDE)
  * @updated 2026-02-19
  */
@@ -121,9 +121,14 @@ export default function CreatorBrowse() {
       )}
 
       {loading ? (
-        <div className="loading">
-          <div className="spinner" />
-          Loading...
+        <div className="browse-skeletons">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="creator-card skeleton-pulse">
+              <div className="skeleton" style={{ width: '60%', height: '1.2em', borderRadius: '4px' }} />
+              <div className="skeleton" style={{ width: '40%', height: '0.9em', borderRadius: '4px', marginTop: '8px' }} />
+              <div className="skeleton" style={{ width: '80%', height: '0.9em', borderRadius: '4px', marginTop: '8px' }} />
+            </div>
+          ))}
         </div>
       ) : creators.length === 0 ? (
         <div className="empty-state">

@@ -2,7 +2,7 @@
  * @file scraper-transform.js
  * @description Schema transform: converts Python scraper pipeline output (3-tier CreatorRecord)
  *              to the Matching Engine's BatchCreatorSchema format.
- * @author Charley Scholz, JLIT
+ * @author Charley Scholz, JLAI
  * @coauthor Claude Opus 4.6, Claude Code (coding assistant), Cursor (IDE)
  * @created 2026-02-25
  * @updated 2026-02-25

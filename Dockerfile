@@ -1,5 +1,5 @@
 # CatchFire Creator Matching Engine - Cloud Run Dockerfile
-# Author: Charley Scholz, JLIT
+# Author: Charley Scholz, JLAI
 # Co-authored: Claude Opus 4.6, Claude Code (coding assistant), Cursor (IDE)
 # Last Updated: 2026-02-25
 

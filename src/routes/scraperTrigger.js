@@ -3,7 +3,7 @@
  * @description Cloud Scheduler endpoint for triggering automated creator scraping.
  *              Executes the Python scraper pipeline as a subprocess, transforms results
  *              to the Matching Engine schema, and imports via the batch endpoint.
- * @author Charley Scholz, JLIT
+ * @author Charley Scholz, JLAI
  * @coauthor Claude Opus 4.6, Claude Code (coding assistant), Cursor (IDE)
  * @created 2026-02-23
  * @updated 2026-02-25

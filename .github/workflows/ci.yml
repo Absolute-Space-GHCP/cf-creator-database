@@ -8,7 +8,7 @@ on:
 
 jobs:
   unit-tests:
-    name: Unit Tests (79 tests)
+    name: Unit Tests
     runs-on: ubuntu-latest
 
     steps:
@@ -43,6 +43,44 @@ jobs:
 
       - name: Build TypeScript
         run: npm run build
+
+  integration-tests:
+    name: Integration Tests (132 tests)
+    runs-on: ubuntu-latest
+    needs: [build]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - run: npm ci
+
+      - name: Build TypeScript
+        run: npm run build
+
+      - name: Start server
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GCP_PROJECT_ID: catchfire-app-2026
+          GOOGLE_CLOUD_PROJECT: catchfire-app-2026
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCP_SA_KEY_PATH }}
+        run: |
+          npm run dev &
+          for i in $(seq 1 30); do
+            curl -sf http://localhost:8090/health > /dev/null 2>&1 && break
+            sleep 1
+          done
+          curl -sf http://localhost:8090/health || exit 1
+
+      - name: Run all tests (unit + integration)
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          TEST_BASE_URL: http://localhost:8090
+        run: npm test
 
   smoke-tests:
     name: Production Smoke Tests
