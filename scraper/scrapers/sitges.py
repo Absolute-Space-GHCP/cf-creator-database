@@ -29,11 +29,18 @@ class _GenreFestivalScraper(BaseScraper):
 
     def discover_entries(self) -> list[dict]:
         entries = []
-        for path in ["/films", "/programme", "/lineup", "/archive", "/official-selection"]:
+        # Try multiple language/path variants per festival
+        paths = getattr(self, "_discovery_paths", [
+            "/films", "/programme", "/lineup", "/archive", "/official-selection",
+        ])
+        for path in paths:
             page = self.fetch(f"{self.base_url}{path}")
             if not page:
                 continue
-            for el in page.select(".film, .entry, article, .movie, .program-item"):
+            for el in page.select(
+                ".film, .entry, article, .movie, .program-item, "
+                ".card, .pelicula, .selection-item"
+            ):
                 name_el = el.select_one("h2, h3, .title, .film-title")
                 link_el = el.select_one("a")
                 if name_el:
@@ -41,6 +48,8 @@ class _GenreFestivalScraper(BaseScraper):
                         "url": self.resolve_url(link_el.get("href", "")) if link_el else "",
                         "name": name_el.get_text(strip=True),
                     })
+        if not entries:
+            logger.warning(f"[{self.config.key}] No entries found — site may require JS rendering or has changed structure")
         return entries
 
     def parse_entry(self, entry: dict) -> list[CreatorRecord]:
@@ -89,9 +98,21 @@ class SitgesScraper(_GenreFestivalScraper):
     def __init__(self, config: SourceConfig):
         super().__init__(config)
         self.base_url = "https://sitgesfilmfestival.com"
+        # Sitges uses Catalan paths; English paths return 403
+        self._discovery_paths = [
+            "/ca/pelicules", "/ca/programa", "/ca/festival/historia",
+            "/ca/actualitat/logbook",
+            "/films", "/programme", "/lineup", "/archive",
+        ]
 
 
 class FantasticFestScraper(_GenreFestivalScraper):
     def __init__(self, config: SourceConfig):
         super().__init__(config)
         self.base_url = "https://fantasticfest.com"
+        # Fantastic Fest is now a single-page promotional site (badges only);
+        # film listings no longer exist as scrapable pages
+        self._discovery_paths = [
+            "/films", "/programme", "/lineup", "/archive",
+            "/", "/schedule",
+        ]

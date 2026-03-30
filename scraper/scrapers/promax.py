@@ -22,11 +22,16 @@ class PromaxScraper(BaseScraper):
 
     def discover_entries(self) -> list[dict]:
         entries = []
-        for path in ["/awards", "/awards/winners", "/awards/archive"]:
+        # /awards works (200), sub-paths /awards/winners and /awards/archive return 404
+        for path in ["/awards", "/awards/winners", "/awards/archive",
+                     "/awards/categories", "/awards/results"]:
             page = self.fetch(f"{self.base_url}{path}")
             if not page:
                 continue
-            for el in page.select(".winner, .entry, article, .award-item"):
+            for el in page.select(
+                ".winner, .entry, article, .award-item, "
+                ".card, .project, .submission"
+            ):
                 name_el = el.select_one("h2, h3, .title, .name")
                 link_el = el.select_one("a")
                 if name_el:

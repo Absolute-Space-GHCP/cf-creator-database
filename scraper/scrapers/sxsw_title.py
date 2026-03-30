@@ -26,7 +26,16 @@ class SXSWTitleScraper(BaseScraper):
 
     def discover_entries(self) -> list[dict]:
         entries = []
-        page = self.fetch(f"{self.base_url}/awards/title-design-competition/")
+        # Title design competition page was removed; try current award paths
+        page = None
+        for path in [
+            "/festivals/film-awards/",
+            "/awards/title-design-competition/",
+            "/awards/",
+        ]:
+            page = self.fetch(f"{self.base_url}{path}")
+            if page:
+                break
         if not page:
             return entries
 

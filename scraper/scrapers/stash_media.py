@@ -25,8 +25,9 @@ class StashMediaScraper(BaseScraper):
     def discover_entries(self) -> list[dict]:
         entries = []
 
-        # Public-facing pages only (subscription wall limits deeper access)
-        for path in ["/", "/permanent-collection", "/features", "/news"]:
+        # Sub-paths /permanent-collection, /features, /news return 404 as of 2026;
+        # root page works (blog-style homepage with latest posts)
+        for path in ["/", "/page/2/", "/page/3/"]:
             page = self.fetch(f"{self.base_url}{path}")
             if not page:
                 continue

@@ -52,8 +52,10 @@ class TheRookiesScraper(BaseScraper):
     def discover_entries(self) -> list[dict]:
         entries = []
 
-        # Competition winners — highest signal
-        for path in ["/contests", "/winners", "/rookies-of-the-year"]:
+        # Competition winners — highest signal (some paths return 403 due to bot protection)
+        for path in ["/contests", "/winners", "/rookies-of-the-year",
+                     "/contests/groups/rookie-awards-2026",
+                     "/contests/groups/rookie-awards-2025"]:
             page = self.fetch(f"{self.base_url}{path}")
             if not page:
                 continue
@@ -69,6 +71,19 @@ class TheRookiesScraper(BaseScraper):
                         "is_winner": "/winner" in (link_el.get("href", "") if link_el else ""),
                     })
 
+        # Blog features emerging talent breakdowns (not bot-protected)
+        blog_page = self.fetch(f"{self.base_url}/blog")
+        if blog_page:
+            for el in blog_page.select("article, .blog-post, .post-card"):
+                name_el = el.select_one("h2, h3, .title, a")
+                link_el = el.select_one("a")
+                if name_el:
+                    entries.append({
+                        "url": self.resolve_url(link_el.get("href", "")) if link_el else "",
+                        "name": name_el.get_text(strip=True),
+                        "discipline": "",
+                    })
+
         # Featured portfolios
         page = self.fetch(f"{self.base_url}/explore")
         if page:
@@ -81,6 +96,9 @@ class TheRookiesScraper(BaseScraper):
                         "name": name_el.get_text(strip=True),
                         "discipline": "",
                     })
+
+        if not entries:
+            logger.warning("[the_rookies] No entries found — site uses bot protection on contest/explore pages")
 
         return entries
 

@@ -27,7 +27,12 @@ class ArsElectronicaScraper(BaseScraper):
         entries = []
 
         # Prix Ars Electronica winners/nominees
-        prix_page = self.fetch(f"{self.base_url}/en/prix")
+        # Structure: /prix/en/winners/ for winner listings, /prix/en/ is informational
+        prix_page = None
+        for path in ["/prix/en/winners/", "/prix/en/", "/en/prix"]:
+            prix_page = self.fetch(f"{self.base_url}{path}")
+            if prix_page:
+                break
         if prix_page:
             for el in prix_page.select(".project, .winner, .entry, article, .prix-entry"):
                 name_el = el.select_one("h2, h3, .title, .project-title")
@@ -38,8 +43,13 @@ class ArsElectronicaScraper(BaseScraper):
                         "name": name_el.get_text(strip=True),
                     })
 
-        # Festival archive
-        archive_page = self.fetch(f"{self.base_url}/en/archive")
+        # Festival archive (redirects to /archive/de/ by default; use /archive/en/)
+        archive_page = None
+        for path in ["/archive/en/", "/archive", "/en/archive",
+                     "/festival/en/archive/"]:
+            archive_page = self.fetch(f"{self.base_url}{path}")
+            if archive_page:
+                break
         if archive_page:
             for el in archive_page.select(".project, article"):
                 name_el = el.select_one("h2, h3, .title")

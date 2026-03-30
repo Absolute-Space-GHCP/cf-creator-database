@@ -63,7 +63,7 @@ SOURCES: list[SourceConfig] = [
     SourceConfig(
         name="Annecy International Animation Film Festival",
         key="annecy",
-        url="https://www.annecy.org",
+        url="https://www.annecyfestival.com",
         category=SourceCategory.FESTIVAL,
         priority=ExtractionPriority.HIGH,
         cadence="annual",

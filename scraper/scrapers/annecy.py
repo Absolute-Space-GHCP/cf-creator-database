@@ -42,19 +42,28 @@ class AnnecyScraper(BaseScraper):
 
     def __init__(self, config: SourceConfig):
         super().__init__(config)
-        self.base_url = "https://www.annecy.org"
+        # Domain migrated from annecy.org → annecyfestival.com (~2025-2026)
+        self.base_url = "https://www.annecyfestival.com"
 
     def discover_entries(self) -> list[dict]:
         entries = []
 
-        # Scrape official selection pages
-        index = self.fetch(f"{self.base_url}/en/the-festival/official-selection")
-        if not index:
-            # Try alternate URL patterns
-            index = self.fetch(f"{self.base_url}/en/programme")
+        # Scrape official selection pages (try multiple path variants)
+        index = None
+        for path in [
+            "/en/the-festival/official-selection",
+            "/en/programme",
+            "/le-festival/selection-officielle",
+        ]:
+            index = self.fetch(f"{self.base_url}{path}")
+            if index:
+                break
 
         if index:
-            for link in index.select("a[href*='film'], a[href*='selection'], .film-card a"):
+            for link in index.select(
+                "a[href*='film'], a[href*='selection'], "
+                "a[href*='programme'], .film-card a, article a"
+            ):
                 href = link.get("href", "")
                 if href:
                     entries.append({
@@ -64,7 +73,11 @@ class AnnecyScraper(BaseScraper):
                     })
 
         # Scrape Mifa market for emerging studios
-        mifa_page = self.fetch(f"{self.base_url}/en/mifa")
+        mifa_page = None
+        for mifa_path in ["/en/mifa", "/le-mifa/presentation-mifa"]:
+            mifa_page = self.fetch(f"{self.base_url}{mifa_path}")
+            if mifa_page:
+                break
         if mifa_page:
             for el in mifa_page.select(".participant, .company, .studio, .exhibitor"):
                 name = el.select_one("h2, h3, .name, .title")

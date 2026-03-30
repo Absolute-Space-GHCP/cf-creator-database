@@ -25,11 +25,16 @@ class UKMVAScraper(BaseScraper):
 
     def discover_entries(self) -> list[dict]:
         entries = []
-        for path in ["/winners", "/nominations", "/archive"]:
+        # UKMVA is JS-heavy; try root and any discoverable content paths
+        for path in ["/", "/winners", "/nominations", "/archive",
+                     "/awards", "/categories", "/history"]:
             page = self.fetch(f"{self.base_url}{path}")
             if not page:
                 continue
-            for el in page.select(".winner, .nominee, .entry, article, .award-entry"):
+            for el in page.select(
+                ".winner, .nominee, .entry, article, .award-entry, "
+                ".video-entry, .card, .nomination"
+            ):
                 name_el = el.select_one("h2, h3, .title, .director-name, .name")
                 cat_el = el.select_one(".category, .award-category")
                 link_el = el.select_one("a")
@@ -39,6 +44,8 @@ class UKMVAScraper(BaseScraper):
                         "name": name_el.get_text(strip=True),
                         "category": cat_el.get_text(strip=True) if cat_el else "",
                     })
+        if not entries:
+            logger.warning("[ukmva] No entries found — site may require JS rendering (Playwright)")
         return entries
 
     def parse_entry(self, entry: dict) -> list[CreatorRecord]:

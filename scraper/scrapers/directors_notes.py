@@ -31,7 +31,9 @@ class DirectorsNotesScraper(BaseScraper):
     def discover_entries(self) -> list[dict]:
         entries = []
 
-        for path in ["/", "/interviews", "/features", "/shorts"]:
+        # Sub-paths /interviews, /features, /shorts return 404 as of 2026;
+        # root page and paginated archives work (WordPress blog structure)
+        for path in ["/", "/page/2/", "/page/3/"]:
             page = self.fetch(f"{self.base_url}{path}")
             if not page:
                 continue

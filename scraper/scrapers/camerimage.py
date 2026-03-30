@@ -74,17 +74,24 @@ class CameramageScraper(BaseScraper):
         """
         entries = []
 
-        # Navigate to the main competition index
-        index_page = self.fetch(f"{self.base_url}/en/festival")
+        # Navigate to the main film/competition index (site restructured ~2026)
+        index_page = None
+        for index_path in ["/en/movies", "/en/festival", "/en/sekcje-konkursowe"]:
+            index_page = self.fetch(f"{self.base_url}{index_path}")
+            if index_page:
+                break
         if not index_page:
             logger.warning("[camerimage] Could not fetch festival index")
             return entries
 
         # Find links to competition sections
         competition_links = []
-        for link in index_page.select("a[href*='competition'], a[href*='programme']"):
+        for link in index_page.select(
+            "a[href*='competition'], a[href*='programme'], "
+            "a[href*='movies'], a[href*='sekcje']"
+        ):
             href = link.get("href", "")
-            if href and "/en/" in href:
+            if href and ("/en/" in href or "/pl/" in href):
                 competition_links.append(self.resolve_url(href))
 
         # If structured competition links aren't found, try year-based URLs
